@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="header">
+  <!-- ================= HEADER ================= -->
+  <header id="header">
+    <div class="nav-wr">
+      <a th:href="@{/}" class="nav-logo">
+        <img th:src="@{/assets/images/logo-horizontal.png}" alt="H-Derma Global Clinical Center">
+      </a>
+
+      <nav class="gnb">
+        <li><a th:href="@{/about/greeting}">센터소개</a>
+          <ul class="sub">
+            <li><a th:href="@{/about/greeting}">인사말</a></li>
+            <li><a th:href="@{/about/ci}">CI</a></li>
+            <li><a th:href="@{/about/vision}">비전</a></li>
+            <li><a th:href="@{/about/organization}">조직도</a></li>
+            <li><a th:href="@{/about/news}">회사소식</a></li>
+            <li><a th:href="@{/about/location}">위치안내</a></li>
+          </ul>
+        </li>
+        <li><a th:href="@{/service/clinical-evaluation}">평가분야</a>
+          <ul class="sub">
+            <li><a th:href="@{/service/clinical-evaluation}">임상평가</a></li>
+            <li><a th:href="@{/service/regulatory-consulting}">임상전략 및 인허가지원</a></li>
+          </ul>
+        </li>
+        <li><a th:href="@{/inquiry/request}">시험문의</a>
+          <ul class="sub">
+            <li><a th:href="@{/inquiry/request}">시험의뢰</a></li>
+            <li><a th:href="@{/inquiry/process}">시험절차</a></li>
+          </ul>
+        </li>
+        <li><a th:href="@{/participate/guide}">시험참여</a>
+          <ul class="sub">
+            <li><a th:href="@{/participate/guide}">시험참여안내</a></li>
+            <li><a th:href="@{/participate/apply}">시험참여신청</a></li>
+          </ul>
+        </li>
+        <li><a th:href="@{/about/news}">H-DERMA 소식</a>
+          <ul class="sub">
+            <li><a th:href="@{/about/news}">뉴스레터</a></li>
+            <li><a th:href="@{/about/news}">공지사항</a></li>
+          </ul>
+        </li>
+        <li><a th:href="@{/irb}">E-IRB</a></li>
+      </nav>
+
+      <div class="head-util">
+        <div class="lang-box">
+          <a href="#" class="active">KO</a><span>/</span><a href="#">EN</a>
+        </div>
+        <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기"><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- mobile off-canvas -->
+  <div class="dimd" id="dimd"></div>
+  <nav id="gnbM">
+    <button class="close-btn" id="closeBtn" aria-label="메뉴 닫기">&times;</button>
+
+    <div class="mobileBox">
+      <a href="javascript:" class="hmbig">센터소개</a>
+      <div class="subMenu">
+        <a th:href="@{/about/greeting}">인사말</a>
+        <a th:href="@{/about/ci}">CI</a>
+        <a th:href="@{/about/vision}">비전</a>
+        <a th:href="@{/about/organization}">조직도</a>
+        <a th:href="@{/about/news}">회사소식</a>
+        <a th:href="@{/about/location}">위치안내</a>
+      </div>
+    </div>
+
+    <div class="mobileBox">
+      <a href="javascript:" class="hmbig">평가분야</a>
+      <div class="subMenu">
+        <a th:href="@{/service/clinical-evaluation}">임상평가</a>
+        <a th:href="@{/service/regulatory-consulting}">임상전략 및 인허가지원</a>
+      </div>
+    </div>
+
+    <div class="mobileBox">
+      <a href="javascript:" class="hmbig">시험문의</a>
+      <div class="subMenu">
+        <a th:href="@{/inquiry/request}">시험의뢰</a>
+        <a th:href="@{/inquiry/process}">시험절차</a>
+      </div>
+    </div>
+
+    <div class="mobileBox">
+      <a href="javascript:" class="hmbig">시험참여</a>
+      <div class="subMenu">
+        <a th:href="@{/participate/guide}">시험참여안내</a>
+        <a th:href="@{/participate/apply}">시험참여신청</a>
+      </div>
+    </div>
+
+    <div class="mobileBox">
+      <a href="javascript:" class="hmbig">H-DERMA 소식</a>
+      <div class="subMenu">
+        <a th:href="@{/about/news}">뉴스레터</a>
+        <a th:href="@{/about/news}">공지사항</a>
+      </div>
+    </div>
+
+    <a th:href="@{/irb}" class="hmbig oneOnly">E-IRB</a>
+
+    <div class="mUtil">
+      <a th:href="@{/auth/login}">로그인</a>
+      <a th:href="@{/auth/register}">회원가입</a>
+    </div>
+  </nav>
+</th:block>
+
+</body>
+</html>

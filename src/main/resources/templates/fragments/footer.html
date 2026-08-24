@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="footer">
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <div class="container">
+      <div class="foot-top">
+        <dl class="foot-info">
+          <div>
+            <dt>H-Derma Global Clinical Center</dt>
+            <dd>
+              에이치더마 글로벌 임상센터<br>
+              마곡 보타닉게이트 지식산업센터<br>
+              TEL : 추후 입력 &nbsp;|&nbsp; E-mail : 추후 입력
+            </dd>
+          </div>
+        </dl>
+        <div class="foot-logo">
+          <img th:src="@{/assets/images/logo-icon.png}" alt="H-Derma" style="height:44px;">
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <ul class="foot-links">
+          <li><a href="#">이용약관</a></li>
+          <li><a href="#">개인정보처리방침</a></li>
+        </ul>
+        <p class="foot-copy">Copyright © 2026 H-Derma Global Clinical Center. ALL RIGHTS RESERVED.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script th:src="@{/js/main.js}"></script>
+</th:block>
+
+</body>
+</html>
