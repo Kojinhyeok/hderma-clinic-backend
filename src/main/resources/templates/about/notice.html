@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공지사항 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>공지사항</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/about/newsletter}">뉴스레터</a>
+    <a th:href="@{/about/notice}" class="active">공지사항</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="notice-wrap reveal-up">
+    <table class="notice-table">
+      <thead>
+        <tr>
+          <th class="center" style="width:8%;">번호</th>
+          <th style="width:52%;">제목</th>
+          <th class="center" style="width:13%;">글쓴이</th>
+          <th class="center" style="width:14%;">등록일</th>
+          <th class="center" style="width:13%;">조회수</th>
+        </tr>
+      </thead>
+      <tbody id="noticeBody">
+        <!-- TODO: 백엔드 연동 시 /api/notices 에서 실시간으로 받아오도록 교체 -->
+        <tr>
+          <td class="center num">공지</td>
+          <td><a href="#"><span class="pin-badge">공지</span><span class="ttl">홈페이지 리뉴얼 안내</span></a></td>
+          <td class="center writer">관리자</td>
+          <td class="center date">2026.03.05</td>
+          <td class="center views">128</td>
+        </tr>
+        <tr>
+          <td class="center num">3</td>
+          <td><a href="#"><span class="ttl">설 연휴 휴무 안내</span></a></td>
+          <td class="center writer">관리자</td>
+          <td class="center date">2026.02.10</td>
+          <td class="center views">64</td>
+        </tr>
+        <tr>
+          <td class="center num">2</td>
+          <td><a href="#"><span class="ttl">시험 접수 시스템 점검 안내</span></a></td>
+          <td class="center writer">관리자</td>
+          <td class="center date">2026.01.22</td>
+          <td class="center views">41</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="notice-empty" id="noticeEmpty" style="display:none;">
+      <p>등록된 공지사항이 없습니다.</p>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</body>
+</html>

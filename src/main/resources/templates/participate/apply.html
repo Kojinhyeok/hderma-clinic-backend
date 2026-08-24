@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시험참여신청 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>시험참여신청</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/participate/guide}">시험참여안내</a>
+    <a th:href="@{/participate/apply}" class="active">시험참여신청</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="ta-wrap">
+    <div class="ta-tabs reveal-up" id="taTabs">
+      <button type="button" data-cat="" class="active">전체</button>
+      <button type="button" data-cat="EFFICACY">유효성 평가</button>
+      <button type="button" data-cat="FUNCTIONAL">기능성 평가</button>
+      <button type="button" data-cat="HEALTH_FOOD">건강기능식품 평가</button>
+      <button type="button" data-cat="SAFETY">안전성 평가</button>
+    </div>
+
+    <div class="ta-list reveal-stagger" id="taList">
+      <!-- TODO: 백엔드 연동 시 /api/recruitments 에서 실시간으로 받아오도록 교체 -->
+      <!-- 지금은 화면 구조 확인용 예시 카드 3개 -->
+
+      <a href="#" class="ta-card">
+        <div class="ta-card-top">
+          <span class="ta-badge open">모집중</span>
+          <span class="cat">유효성 평가 · 피부0001</span>
+        </div>
+        <h4>스킨케어 제품 보습 효능평가 참여자 모집</h4>
+        <dl class="ta-info-grid">
+          <div><dt>시험기간</dt><dd>2026.03.10 ~ 2026.04.07</dd></div>
+          <div><dt>모집대상</dt><dd>만 19~60세 여성</dd></div>
+          <div><dt>선정기준</dt><dd>건성 피부, 알레르기 병력 없는 분</dd></div>
+          <div><dt>모집인원</dt><dd>30명</dd></div>
+          <div><dt>시험참여비</dt><dd>제공</dd></div>
+        </dl>
+        <div class="ta-apply-period">
+          <span class="period">신청기간 <b>2026.02.20 ~ 2026.03.05</b></span>
+          <span class="go">자세히 보기 →</span>
+        </div>
+      </a>
+
+      <a href="#" class="ta-card">
+        <div class="ta-card-top">
+          <span class="ta-badge open">모집중</span>
+          <span class="cat">기능성 평가 · 피부0002</span>
+        </div>
+        <h4>주름개선 기능성 화장품 임상시험 참여자 모집</h4>
+        <dl class="ta-info-grid">
+          <div><dt>시험기간</dt><dd>2026.03.17 ~ 2026.06.09</dd></div>
+          <div><dt>모집대상</dt><dd>만 35~65세 남녀</dd></div>
+          <div><dt>선정기준</dt><dd>눈가 주름이 있는 분</dd></div>
+          <div><dt>모집인원</dt><dd>20명</dd></div>
+          <div><dt>시험참여비</dt><dd>제공</dd></div>
+        </dl>
+        <div class="ta-apply-period">
+          <span class="period">신청기간 <b>2026.02.24 ~ 2026.03.10</b></span>
+          <span class="go">자세히 보기 →</span>
+        </div>
+      </a>
+
+      <a href="#" class="ta-card">
+        <div class="ta-card-top">
+          <span class="ta-badge permanent">상시모집</span>
+          <span class="cat">건강기능식품 평가 · 피부0003</span>
+        </div>
+        <h4>피부 건강기능식품 섭취 효능평가 참여자 모집</h4>
+        <dl class="ta-info-grid">
+          <div><dt>시험기간</dt><dd>선정 후 개별 안내</dd></div>
+          <div><dt>모집대상</dt><dd>만 20~59세 남녀</dd></div>
+          <div><dt>선정기준</dt><dd>건조함을 느끼는 분</dd></div>
+          <div><dt>모집인원</dt><dd>40명</dd></div>
+          <div><dt>시험참여비</dt><dd>제공</dd></div>
+        </dl>
+        <div class="ta-apply-period">
+          <span class="period">신청기간 <b>상시</b></span>
+          <span class="go">자세히 보기 →</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="ta-empty" id="taEmpty" style="display:none;">
+      <p>해당 분야의 모집 중인 시험이 없습니다.</p>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+  var tabs = document.querySelectorAll("#taTabs button");
+  var cards = document.querySelectorAll("#taList .ta-card");
+  var emptyEl = document.getElementById("taEmpty");
+
+  tabs.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      tabs.forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+
+      var cat = btn.dataset.cat;
+      var visibleCount = 0;
+      cards.forEach(function (card) {
+        var match = !cat || card.dataset.category === cat;
+        card.style.display = match ? "" : "none";
+        if (match) visibleCount++;
+      });
+      emptyEl.style.display = visibleCount === 0 ? "block" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>CI</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/about/greeting}">인사말</a>
+    <a th:href="@{/about/values}">가치체계</a>
+    <a th:href="@{/about/ci}" class="active">CI</a>
+    <a th:href="@{/about/organization}">조직도</a>
+    <a th:href="@{/about/location}">오시는길</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div style="max-width:1400px; margin:0 auto; padding:0 40px;">
+
+    <!-- CI 소개 -->
+    <div class="ci-block reveal-up">
+      <div class="ci-label"><h3>CI</h3></div>
+      <div class="ci-body">
+        <p>
+          <!-- TODO: 실제 브랜드 스토리로 교체 필요 — 아래는 로고의 각진 큐브(H) 형태와
+               네이비→블루→틸 그라데이션에서 유추해 작성한 임시 문구입니다 -->
+          H-Derma의 CI는 정밀함과 신뢰를 상징하는 입체적인 "H" 큐브 모티프로 구성되어 있습니다.
+          여러 면이 겹쳐진 각진 형태는 과학적 근거를 다각도로 검증하는 임상 프로세스를,
+          네이비에서 틸로 이어지는 그라데이션은 축적된 전문성이 혁신적인 결과로 확장되는
+          H-Derma의 지향점을 표현합니다.
+        </p>
+        <p class="note">※ CI의 불법적인 도용 및 사용을 금지합니다.</p>
+      </div>
+    </div>
+
+    <!-- 로고타입 -->
+    <div class="ci-block reveal-up">
+      <div class="ci-label"><h3>Logotype</h3></div>
+      <div class="ci-body">
+        <ul class="logo-variants reveal-stagger">
+          <li>
+            <img th:src="@{/assets/images/logo-icon.png}" alt="H-Derma 아이콘형">
+            <span>아이콘형</span>
+          </li>
+          <li>
+            <img th:src="@{/assets/images/logo-stacked.png}" alt="H-Derma 세로조합형">
+            <span>세로조합형</span>
+          </li>
+          <li>
+            <img th:src="@{/assets/images/logo-horizontal.png}" alt="H-Derma 가로조합형">
+            <span>가로조합형</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 컬러시스템 -->
+    <div class="ci-block reveal-up">
+      <div class="ci-label"><h3>Color System</h3></div>
+      <div class="ci-body">
+        <ul class="color-swatches reveal-stagger">
+          <li>
+            <div class="swatch" style="background:#2A4C80;">#2A4C80</div>
+            <div class="swatch-info">
+              <dl><dt>RGB</dt><dd>R42 G76 B128</dd></dl>
+              <dl><dt>용도</dt><dd>주 색상 · 로고 · 헤딩</dd></dl>
+            </div>
+          </li>
+          <li>
+            <div class="swatch" style="background:#3E6BAE;">#3E6BAE</div>
+            <div class="swatch-info">
+              <dl><dt>RGB</dt><dd>R62 G107 B174</dd></dl>
+              <dl><dt>용도</dt><dd>보조 색상 · 그라데이션 중간</dd></dl>
+            </div>
+          </li>
+          <li>
+            <div class="swatch" style="background:#3FAE93;">#3FAE93</div>
+            <div class="swatch-info">
+              <dl><dt>RGB</dt><dd>R63 G174 B147</dd></dl>
+              <dl><dt>용도</dt><dd>포인트 색상 · 강조 텍스트</dd></dl>
+            </div>
+          </li>
+        </ul>
+        <p class="note" style="margin-top:20px;">※ 인쇄용 CMYK / 팬톤 값은 별도 확인 필요</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</body>
+</html>

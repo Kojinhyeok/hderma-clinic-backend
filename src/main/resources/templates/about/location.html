@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오시는길 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>오시는길</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/about/greeting}">인사말</a>
+    <a th:href="@{/about/values}">가치체계</a>
+    <a th:href="@{/about/ci}">CI</a>
+    <a th:href="@{/about/organization}">조직도</a>
+    <a th:href="@{/about/location}" class="active">오시는길</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+
+  <div class="location-hero-img reveal-scale">
+    <div class="frame">
+      <img th:src="@{/assets/images/building-render.png}" alt="마곡 보타닉게이트 지식산업센터">
+      <div class="caption">마곡 보타닉게이트 지식산업센터</div>
+    </div>
+  </div>
+
+  <div class="location-wrap reveal-up">
+    <div class="location-map">
+      <iframe
+        th:src="@{https://www.google.com/maps?q=서울 강서구 마곡동로 166&output=embed}"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div class="location-info">
+      <h3>H-Derma Global Clinical Center</h3>
+      <span class="en">에이치더마 글로벌 임상센터</span>
+
+      <ul>
+        <li>
+          <span class="label">Address</span>
+          서울 강서구 마곡동로 166<br>마곡 보타닉게이트 지식산업센터
+          <!-- TODO: 동/층/호 상세주소 확정 시 교체 -->
+          <button type="button" class="copy-btn" onclick="copyAddress()">주소복사</button>
+          <span class="note">※ 상세 주소(동·층·호) 추후 업데이트 예정</span>
+        </li>
+        <li>
+          <span class="label">Tel</span>
+          <!-- TODO: 실제 대표번호로 교체 -->
+          추후 입력
+        </li>
+        <li>
+          <span class="label">Subway</span>
+          9호선 양천향교역 도보 약 3~4분
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="toast">주소가 복사되었습니다.</div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+  function copyAddress() {
+    var address = "서울 강서구 마곡동로 166 마곡 보타닉게이트 지식산업센터";
+    navigator.clipboard.writeText(address).then(function () {
+      var toast = document.getElementById("toast");
+      toast.classList.add("show");
+      setTimeout(function () { toast.classList.remove("show"); }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>

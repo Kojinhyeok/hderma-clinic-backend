@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조직도 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>조직도</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/about/greeting}">인사말</a>
+    <a th:href="@{/about/values}">가치체계</a>
+    <a th:href="@{/about/ci}">CI</a>
+    <a th:href="@{/about/organization}" class="active">조직도</a>
+    <a th:href="@{/about/location}">오시는길</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="org-wrap">
+
+    <div class="org-top reveal-up">
+      <div class="org-ceo">대표이사</div>
+      <span class="org-branch-h"></span>
+      <div class="org-advisory-row reveal-stagger">
+        <div class="org-advisory">IRB</div>
+        <div class="org-advisory">자문위원</div>
+      </div>
+    </div>
+
+    <div class="org-dept-row reveal-stagger">
+      <div class="org-dept">
+        <div class="org-dept-name">임상연구본부</div>
+        <div class="org-dept-lead">본부장</div>
+        <div class="org-team-list">
+          <span>임상평가1팀</span>
+          <span>임상평가2팀</span>
+          <span>임상연구팀</span>
+          <span>임상지원팀</span>
+          <span>RA팀</span>
+        </div>
+      </div>
+
+      <div class="org-dept">
+        <div class="org-dept-name">마케팅본부</div>
+        <div class="org-team-list">
+          <span>커뮤니케이션팀</span>
+          <span>크리에이티브팀</span>
+        </div>
+      </div>
+
+      <div class="org-dept">
+        <div class="org-dept-name">고객성장본부</div>
+        <div class="org-team-list">
+          <span>컨설팅1팀</span>
+          <span>컨설팅2팀</span>
+        </div>
+      </div>
+
+      <div class="org-dept">
+        <div class="org-dept-name">경영관리본부</div>
+        <div class="org-team-list">
+          <span>재무관리팀</span>
+          <span>경영지원팀</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</body>
+</html>

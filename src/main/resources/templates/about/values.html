@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가치체계 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>가치체계</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/about/greeting}">인사말</a>
+    <a th:href="@{/about/values}" class="active">가치체계</a>
+    <a th:href="@{/about/ci}">CI</a>
+    <a th:href="@{/about/organization}">조직도</a>
+    <a th:href="@{/about/location}">오시는길</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div style="max-width:1400px; margin:0 auto; padding:0 40px;">
+
+    <!-- 경영철학 -->
+    <div class="value-section reveal-up">
+      <div class="value-head">
+        <span class="eyebrow">Management Philosophy</span>
+        <h3>경영철학</h3>
+      </div>
+      <div class="value-body">
+        <!-- TODO: 실제 경영철학 문구로 교체 필요 (엑셀에 제목만 있고 내용 미기재) -->
+        <p>에이치더마는 과학적 근거와 윤리적 책임을 경영의 최우선 가치로 삼아, 모든 임상 연구 과정에서 정직성과 전문성을 지켜나갑니다. 고객사와 시험참여자 모두에게 신뢰받는 기관이 되는 것을 경영의 근간으로 삼고 있습니다.</p>
+        <p class="note">※ 임시 문구 — 실제 경영철학 확정 시 교체 예정</p>
+      </div>
+    </div>
+
+    <!-- 비전 및 미션 -->
+    <div class="value-section reveal-up">
+      <div class="value-head">
+        <span class="eyebrow">Vision &amp; Mission</span>
+        <h3>비전 및 미션</h3>
+      </div>
+      <div class="value-body" style="margin-bottom:30px;">
+        <p>과학적 근거 기반의 정밀한 인체적용시험과 신속한 실행을 통해 고객 제품의 국내외 시장 성공을 실현하는 임상 전문 기관</p>
+      </div>
+
+      <div class="vision-radial" style="padding:20px 0 0;">
+        <div class="vision-radial-grid reveal-stagger">
+          <svg class="vision-connectors" id="visionConnector" xmlns="http://www.w3.org/2000/svg">
+            <path id="visionPath"></path>
+          </svg>
+
+          <div class="vision-radial-item">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3c0 3 6 3 6 6s-6 3-6 6 6 3 6 6M9 3v18M15 3v18"/></svg></span>
+            <div>
+              <h3>과학이 완성한 정밀 평가</h3>
+              <p>10년 이상 축적된 임상 경험과 피부과학 기반으로 국내외 기준에 부합하는 정밀하고 신뢰도 높은 평가를 제공합니다.</p>
+            </div>
+          </div>
+
+          <div class="vision-radial-item">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12l4-4 4 4 4-8 4 4 2-2"/></svg></span>
+            <div>
+              <h3>시장을 선도하는 평가 설계</h3>
+              <p>시장과 소비자 트렌드를 반영한 평가 설계로 제품의 차별화된 포인트를 만듭니다.</p>
+            </div>
+          </div>
+
+          <div class="vision-radial-center">
+            <img th:src="@{/assets/images/logo-icon-white.png}" alt="H-Derma">
+            <h4>VISION</h4>
+          </div>
+
+          <div class="vision-radial-item">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+            <div>
+              <h3>정확하고 빠른 피드백</h3>
+              <p>효율적인 운영 시스템을 통해 신속하고 정확한 피드백을 제공합니다.</p>
+            </div>
+          </div>
+
+          <div class="vision-radial-item">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></span>
+            <div>
+              <h3>성공까지 설계하는 인체적용시험</h3>
+              <p>축적된 인체적용시험 노하우를 바탕으로 고객사의 시장 성공까지 연결되는 가치를 만듭니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 핵심 사업 영역 -->
+    <div class="value-section reveal-up">
+      <div class="value-head">
+        <span class="eyebrow">Core Business</span>
+        <h3>핵심 사업 영역</h3>
+      </div>
+      <ul class="business-grid reveal-stagger">
+        <li>
+          <span class="num">01</span>
+          <div><h4>인체적용시험</h4><p>화장품 · 미용기기 · 공산품 · 의약외품 · 건강기능식품 (Clinical Evaluation)</p></div>
+        </li>
+        <li>
+          <span class="num">02</span>
+          <div><h4>임상 전략 및 컨설팅</h4><p>Clinical Strategy &amp; Consulting</p></div>
+        </li>
+        <li>
+          <span class="num">03</span>
+          <div><h4>규제 및 인허가 지원</h4><p>Regulatory Support</p></div>
+        </li>
+        <li>
+          <span class="num">04</span>
+          <div><h4>연구개발 및 항목 개발</h4><p>R&amp;D / Innovation</p></div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 경영목표 -->
+    <div class="value-section reveal-up">
+      <div class="value-head">
+        <span class="eyebrow">Management Goal</span>
+        <h3>경영목표</h3>
+      </div>
+      <div class="value-body">
+        <!-- TODO: 실제 경영목표로 교체 필요 (엑셀에 제목만 있고 내용 미기재) -->
+        <p>정밀한 인체적용시험 역량을 지속적으로 고도화하여 국내를 넘어 글로벌 임상 시장에서 신뢰받는 기관으로 성장하는 것을 목표로 합니다.</p>
+        <p class="note">※ 임시 문구 — 실제 경영목표 확정 시 교체 예정</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</body>
+</html>

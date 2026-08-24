@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뉴스레터 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>뉴스레터</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/about/newsletter}" class="active">뉴스레터</a>
+    <a th:href="@{/about/notice}">공지사항</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="nl-wrap">
+    <div class="nl-grid reveal-stagger" id="nlGrid">
+      <!-- TODO: 백엔드 연동 시 /api/newsletters 에서 실시간으로 받아오도록 교체 -->
+      <a href="#" class="nl-card">
+        <div class="thumb"><div class="no-img">이미지 준비중</div></div>
+        <div class="cap">
+          <h4>임상데이터로 보는 국내 소비자 피부 트렌드</h4>
+          <span class="date">2026.03.02</span>
+        </div>
+      </a>
+      <a href="#" class="nl-card">
+        <div class="thumb"><div class="no-img">이미지 준비중</div></div>
+        <div class="cap">
+          <h4>화장품 효능 광고 표현, 어디까지 가능할까</h4>
+          <span class="date">2026.02.18</span>
+        </div>
+      </a>
+      <a href="#" class="nl-card">
+        <div class="thumb"><div class="no-img">이미지 준비중</div></div>
+        <div class="cap">
+          <h4>기능성 화장품 인허가 절차 한눈에 보기</h4>
+          <span class="date">2026.01.27</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="nl-empty" id="nlEmpty" style="display:none;">
+      <p>등록된 뉴스레터가 없습니다.</p>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</body>
+</html>

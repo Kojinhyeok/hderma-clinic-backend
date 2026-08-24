@@ -40,40 +40,51 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Service blocks: reveal the layered facets once, on first scroll into view
+  // Small helper: wait two animation frames before adding the class that
+  // triggers the transition, so above-the-fold content still visibly fades
+  // in instead of snapping straight to its final state.
+  function revealNextFrame(el) {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        el.classList.add('in-view');
+      });
+    });
+  }
+
   var services = document.querySelectorAll('.service');
   if ('IntersectionObserver' in window && services.length) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
+          revealNextFrame(entry.target);
           io.unobserve(entry.target);
         }
       });
     }, { threshold: 0.25 });
     services.forEach(function (el) { io.observe(el); });
   } else {
-    services.forEach(function (el) { el.classList.add('in-view'); });
+    services.forEach(function (el) { revealNextFrame(el); });
   }
 
-  // Vision cards + process steps: same one-time reveal-on-scroll pattern
-  var revealTargets = document.querySelectorAll('.vision-card, .process-track li');
+  // Vision cards + process steps + any .reveal-* element on any page:
+  // same one-time reveal-on-scroll pattern, site-wide
+  var revealTargets = document.querySelectorAll('.vision-card, .process-track li, .reveal-up, .reveal-scale, .reveal-stagger');
   if ('IntersectionObserver' in window && revealTargets.length) {
     var io2 = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
+          revealNextFrame(entry.target);
           io2.unobserve(entry.target);
         }
       });
     }, { threshold: 0.2 });
     revealTargets.forEach(function (el) { io2.observe(el); });
   } else {
-    revealTargets.forEach(function (el) { el.classList.add('in-view'); });
+    revealTargets.forEach(function (el) { revealNextFrame(el); });
   }
 
-  // Process connector: a smooth curve running just under each step card,
-  // traced in actual step order (1 → 8) regardless of grid position
+  // Process connector (main page): a smooth curve running just under each
+  // step card, traced in actual step order (1 → 8) regardless of grid position
   var track = document.getElementById('processTrack');
   var svg = document.getElementById('processConnector');
   var path = document.getElementById('processPath');
@@ -88,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function () {
     svg.setAttribute('height', wrapRect.height);
     svg.setAttribute('viewBox', '0 0 ' + wrapRect.width + ' ' + wrapRect.height);
 
-    // ensure the gradient def exists once
     if (!document.getElementById('processGrad')) {
       var defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
       defs.innerHTML =
@@ -122,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     path.setAttribute('d', d);
 
-    // (re)place node dots
     wrap.querySelectorAll('.process-node').forEach(function (n) { n.remove(); });
     pts.forEach(function (p) {
       var dot = document.createElement('span');
@@ -134,12 +143,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (track && wrap) {
-    // Redraw whenever the track's actual size/layout changes for any reason —
-    // font swap, image load, viewport resize, devtools open/close, anything.
     if ('ResizeObserver' in window) {
-      var ro = new ResizeObserver(function () {
-        drawConnector();
-      });
+      var ro = new ResizeObserver(function () { drawConnector(); });
       ro.observe(wrap);
     } else {
       window.addEventListener('resize', function () {
@@ -151,12 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(drawConnector);
     }
-
-    // Each card slides up into place with its own transition-delay when it
-    // scrolls into view; ResizeObserver doesn't catch that (transform isn't
-    // a layout change), so without this the line can be drawn mid-slide and
-    // look bent by a different amount on every reload. Redraw once each
-    // card's own slide-in animation actually finishes.
     track.querySelectorAll('li').forEach(function (li) {
       li.addEventListener('transitionend', function (e) {
         if (e.propertyName === 'transform' || e.propertyName === 'opacity') {
@@ -164,8 +163,82 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       });
     });
-
     setTimeout(drawConnector, 300);
   }
-});
 
+  // Vision page: connect the center circle to each of the 4 cards with a
+  // curved line computed from actual positions — stays correct no matter
+  // how wide the cards are, how many lines their text wraps to, or which
+  // breakpoint layout is active.
+  var visionWrap = document.querySelector('.vision-radial-grid');
+  var visionSvg = document.getElementById('visionConnector');
+  var visionPath = document.getElementById('visionPath');
+  var visionCircle = document.querySelector('.vision-radial-center');
+
+  function drawVisionConnector() {
+    if (!visionWrap || !visionSvg || !visionPath || !visionCircle) return;
+    var items = visionWrap.querySelectorAll('.vision-radial-item');
+    if (!items.length) return;
+
+    var wrapRect = visionWrap.getBoundingClientRect();
+    visionSvg.setAttribute('width', wrapRect.width);
+    visionSvg.setAttribute('height', wrapRect.height);
+    visionSvg.setAttribute('viewBox', '0 0 ' + wrapRect.width + ' ' + wrapRect.height);
+
+    if (!document.getElementById('visionGrad')) {
+      var vdefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      vdefs.innerHTML =
+        '<linearGradient id="visionGrad" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0%" stop-color="#3E6BAE"/>' +
+        '<stop offset="100%" stop-color="#3FAE93"/>' +
+        '</linearGradient>';
+      visionSvg.prepend(vdefs);
+    }
+
+    var cRect = visionCircle.getBoundingClientRect();
+    var cx = cRect.left + cRect.width / 2 - wrapRect.left;
+    var cy = cRect.top + cRect.height / 2 - wrapRect.top;
+    var cr = cRect.width / 2;
+
+    var d = '';
+    items.forEach(function (item) {
+      var r = item.getBoundingClientRect();
+      var itemCx = r.left + r.width / 2 - wrapRect.left;
+      var itemCy = r.top + r.height / 2 - wrapRect.top;
+      var dx = itemCx - cx, dy = itemCy - cy;
+      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      var ux = dx / dist, uy = dy / dist;
+      var startX = cx + ux * cr, startY = cy + uy * cr;
+      var endX = itemCx - ux * (r.width / 2), endY = itemCy - uy * (r.height / 2);
+      var midX = (startX + endX) / 2, midY = (startY + endY) / 2 - 26;
+      d += 'M ' + startX.toFixed(1) + ' ' + startY.toFixed(1) +
+           ' Q ' + midX.toFixed(1) + ' ' + midY.toFixed(1) +
+           ' ' + endX.toFixed(1) + ' ' + endY.toFixed(1) + ' ';
+    });
+    visionPath.setAttribute('d', d);
+  }
+
+  if (visionWrap) {
+    if ('ResizeObserver' in window) {
+      var vro = new ResizeObserver(function () { drawVisionConnector(); });
+      vro.observe(visionWrap);
+    } else {
+      window.addEventListener('resize', function () {
+        clearTimeout(window.__vcTimer);
+        window.__vcTimer = setTimeout(drawVisionConnector, 150);
+      });
+    }
+    window.addEventListener('load', drawVisionConnector);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(drawVisionConnector);
+    }
+    visionWrap.querySelectorAll('.vision-radial-item, .vision-radial-center').forEach(function (el) {
+      el.addEventListener('transitionend', function (e) {
+        if (e.propertyName === 'transform' || e.propertyName === 'opacity') {
+          drawVisionConnector();
+        }
+      });
+    });
+    setTimeout(drawVisionConnector, 300);
+  }
+});

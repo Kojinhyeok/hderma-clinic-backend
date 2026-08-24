@@ -76,7 +76,19 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
   display:flex; align-items:center; justify-content:space-between; height:96px; transition:.4s ease;
 }
 #header.scrolled .nav-wr{height:80px;}
+.nav-logo{position:relative; display:block; height:38px;}
 .nav-logo img{height:38px; transition:.3s;}
+
+/* transparent header (over the hero) → white logo; scrolled/white header → color logo */
+.nav-logo .logo-color{opacity:0; visibility:hidden; position:absolute; top:0; left:0;}
+.nav-logo .logo-white{
+  display:flex; align-items:center; gap:9px; height:38px; opacity:1; visibility:visible; transition:.3s;
+}
+.nav-logo .logo-white img{height:26px; width:auto;}
+.nav-logo .logo-white em{font-style:normal; font-size:19px; font-weight:800; color:#fff; letter-spacing:-.3px;}
+
+#header.scrolled .nav-logo .logo-color{opacity:1; visibility:visible;}
+#header.scrolled .nav-logo .logo-white{opacity:0; visibility:hidden;}
 .gnb{display:flex; align-items:center; gap:4px; list-style:none;}
 .gnb > li{position:relative;}
 .gnb > li > a{
@@ -397,3 +409,25 @@ footer{background:#F6F8FB; padding:70px 0 34px; color:var(--gray);}
 #gnbM .oneOnly{border-bottom:1px solid rgba(255,255,255,.08);}
 #gnbM .mUtil{display:flex; gap:18px; padding:20px 28px; margin-top:8px;}
 #gnbM .mUtil a{padding:0; border:0; font-size:14px; color:rgba(255,255,255,.6); font-weight:500;}
+
+/* ==================== SHARED SCROLL-REVEAL (used across all subpages) ==================== */
+.reveal-up{opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease;}
+.reveal-up.in-view{opacity:1; transform:translateY(0);}
+
+.reveal-scale{opacity:0; transform:scale(.96); transition:opacity .7s ease, transform .7s ease;}
+.reveal-scale.in-view{opacity:1; transform:scale(1);}
+
+.reveal-stagger > *{opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s ease;}
+.reveal-stagger.in-view > *{opacity:1; transform:translateY(0);}
+.reveal-stagger.in-view > *:nth-child(1){transition-delay:.0s;}
+.reveal-stagger.in-view > *:nth-child(2){transition-delay:.07s;}
+.reveal-stagger.in-view > *:nth-child(3){transition-delay:.14s;}
+.reveal-stagger.in-view > *:nth-child(4){transition-delay:.21s;}
+.reveal-stagger.in-view > *:nth-child(5){transition-delay:.28s;}
+.reveal-stagger.in-view > *:nth-child(6){transition-delay:.35s;}
+.reveal-stagger.in-view > *:nth-child(7){transition-delay:.42s;}
+.reveal-stagger.in-view > *:nth-child(8){transition-delay:.49s;}
+
+@media (prefers-reduced-motion:reduce){
+  .reveal-up, .reveal-scale, .reveal-stagger > *{opacity:1; transform:none; transition:none;}
+}

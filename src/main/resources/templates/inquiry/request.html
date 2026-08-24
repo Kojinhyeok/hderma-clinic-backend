@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시험의뢰 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>시험의뢰</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/inquiry/request}" class="active">시험의뢰</a>
+    <a th:href="@{/inquiry/process}">시험절차</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="req-wrap">
+
+    <!-- 1. 의뢰항목 -->
+    <div class="req-section reveal-up">
+      <h3><span class="num">1</span>의뢰항목</h3>
+      <p class="desc">분야를 클릭하면 세부 항목이 아래에 표시돼요. 여러 항목을 선택할 수 있어요.</p>
+
+      <div class="req-cat-tabs" id="reqCatTabs"></div>
+      <div class="req-group-tabs" id="reqGroupTabs"></div>
+      <div class="req-item-buttons" id="reqItemButtons"></div>
+
+      <div class="req-selected-box">
+        <div class="empty" id="reqSelectedEmpty">아직 선택한 항목이 없어요.</div>
+        <div class="req-selected-tags" id="reqSelectedTags"></div>
+      </div>
+    </div>
+
+    <!-- 2. 의뢰정보 -->
+    <div class="req-section reveal-up">
+      <h3><span class="num">2</span>의뢰정보</h3>
+      <form id="reqForm">
+
+        <!-- 허니팟: 사람 눈엔 안 보이고, 폼을 자동으로 채우는 봇만 이 칸을 채움 -->
+        <div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+          <label for="website">Website (do not fill)</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="req-form-grid">
+          <div>
+            <label>회사명<span class="req-mark">*</span></label>
+            <input type="text" id="companyName" required placeholder="회사명을 입력해 주세요">
+          </div>
+          <div>
+            <label>사업자등록번호</label>
+            <input type="text" id="businessRegNo" placeholder="000-00-00000">
+          </div>
+          <div>
+            <label>담당자명<span class="req-mark">*</span></label>
+            <input type="text" id="managerName" required placeholder="담당자명을 입력해 주세요">
+          </div>
+          <div>
+            <label>담당자 직함</label>
+            <input type="text" id="managerTitle" placeholder="예: 대리, 팀장">
+          </div>
+          <div>
+            <label>연락처<span class="req-mark">*</span></label>
+            <input type="text" id="contact" required placeholder="010-0000-0000">
+          </div>
+          <div>
+            <label>이메일<span class="req-mark">*</span></label>
+            <input type="email" id="email" required placeholder="example@company.com">
+          </div>
+          <div>
+            <label>제품유형</label>
+            <input type="text" id="productType" placeholder="예: 스킨케어, 건강기능식품 등">
+          </div>
+          <div></div>
+          <div>
+            <label>희망시험시작일</label>
+            <input type="date" id="desiredStartDate">
+          </div>
+          <div>
+            <label>희망결과보고일</label>
+            <input type="date" id="desiredReportDate">
+          </div>
+          <div class="full">
+            <label>기타 문의내용<span class="req-mark">*</span></label>
+            <textarea id="content" required placeholder="문의하실 내용을 자유롭게 작성해 주세요"></textarea>
+          </div>
+          <div class="full">
+            <label>비밀번호<span class="req-mark">*</span></label>
+            <input type="password" id="password" required placeholder="추후 문의내역 조회 시 사용돼요">
+          </div>
+        </div>
+
+        <div class="req-consult-type">
+          <p>상담 희망 방식<span class="req-mark">*</span></p>
+          <label><input type="radio" name="consultType" value="PHONE"> 전화상담</label>
+          <label><input type="radio" name="consultType" value="EMAIL"> 이메일상담</label>
+        </div>
+      </form>
+    </div>
+
+    <!-- 2-1. 개인정보 수집 및 이용 안내 -->
+    <div class="req-section reveal-up">
+      <h3><span class="num">3</span>개인정보 수집 및 이용 안내</h3>
+      <div class="req-privacy-box">
+        <b>1. 개인정보 수집 및 이용목적</b><br>
+        - [필수항목] 이메일: 시험의뢰에 대한 접수 및 처리결과 회신<br>
+        - [선택항목] 연락처: 시험 관련 추가 확인사항이 있을 경우 연락<br><br>
+        <b>2. 수집하는 개인정보 항목</b><br>
+        - 필수항목: 이메일<br>
+        - 선택항목: 연락처, 회사명, 담당자명, 제품정보 등 기타 기재 항목<br><br>
+        <b>3. 보유 및 이용기간</b><br>
+        - 시험의뢰 처리 완료 후 6개월까지 보관 후 파기<br>
+        - 단, 관련 법령에 따라 보존이 필요한 경우 해당 기간까지 별도 보관<br><br>
+        ※ 귀하는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 단, 필수항목에 대한 동의를 거부할 경우 시험의뢰 접수가 제한될 수 있습니다.
+      </div>
+      <label class="req-terms-check">
+        <input type="checkbox" id="privacyAgree">
+        개인정보 수집 및 이용 안내에 동의합니다.
+      </label>
+    </div>
+
+    <div class="req-submit-row">
+      <a th:href="@{/inquiry/process}" class="cancel">취소</a>
+      <button type="button" id="btnSubmit">문의하기</button>
+    </div>
+
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+
+  // TODO: 백엔드 연동 시 eval_* API에서 실시간으로 받아오도록 교체
+  var CATEGORIES = [
+    {
+      id: "efficacy", name: "화장품 효능평가",
+      groups: [
+        { name: "스킨케어제품", items: ["주름","보습","속보습","수분 밀도","탄력","탄력 피로도","당김 완화","속탄력","탄성복원력","리프팅","멜라닌","기미/잡티/색소침착","톤/밝기","붉은기(홍반)","모공","각질","결","윤기","수분손실량(장벽)","pH"] },
+        { name: "클렌징제품", items: ["모공 속 노폐물 세정력","미세먼지 모사체 세정력","메이크업 세정력","블랙헤드&화이트헤드","피지/유분","모공 면적","피부 톤/밝기"] },
+        { name: "메이크업제품", items: ["색상 지속력","균일도 지속력","안티-다크닝","밀착력","워터프루프","오일프루프","스웨트프루프","속눈썹 볼륨 지속력"] },
+        { name: "헤어제품", items: ["모발 수분","모발 윤기","모발 볼륨","모발 컬링 지속력","모발 큐티클","모발 인장강도","두피 보습","두피 탄력"] },
+        { name: "바디케어제품", items: ["종아리 붓기","셀룰라이트 감소","각질","탄력","리프팅","결","보습","수분손실량"] }
+      ]
+    },
+    {
+      id: "functional", name: "화장품 기능성평가",
+      items: ["주름개선 기능성","미백 기능성","자외선차단 기능성","장벽 기능성","탈모완화 기능성","튼살완화 기능성","여드름완화 기능성"]
+    },
+    {
+      id: "healthFood", name: "건강기능식품 기능성평가",
+      items: ["피부 건강","모발 건강","갱년기 건강","관절 건강","체지방 감소"]
+    },
+    {
+      id: "safety", name: "안전성 평가",
+      items: ["저자극","민감성 피부 저자극","누적자극","누적자극 & 감작성","사용성","안자극"]
+    },
+    {
+      id: "invitro", name: "In-vitro 평가",
+      items: ["미백 효능평가","주름 효능평가","보습 효능평가","안자극 평가","피지조절 효능평가","항산화 효능평가","항염 효능평가","UVA 차단 효능평가"]
+    }
+  ];
+
+  var selected = [];
+  var activeCat = CATEGORIES[0];
+  var activeGroup = activeCat.groups ? activeCat.groups[0] : null;
+
+  var catTabsEl = document.getElementById("reqCatTabs");
+  var groupTabsEl = document.getElementById("reqGroupTabs");
+  var itemBtnsEl = document.getElementById("reqItemButtons");
+  var selectedTagsEl = document.getElementById("reqSelectedTags");
+  var selectedEmptyEl = document.getElementById("reqSelectedEmpty");
+
+  function renderCatTabs() {
+    catTabsEl.innerHTML = CATEGORIES.map(function (cat) {
+      return '<button type="button" data-id="' + cat.id + '" class="' + (cat.id === activeCat.id ? 'active' : '') + '">' + cat.name + '</button>';
+    }).join("");
+    catTabsEl.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activeCat = CATEGORIES.find(function (c) { return c.id === btn.dataset.id; });
+        activeGroup = activeCat.groups ? activeCat.groups[0] : null;
+        renderCatTabs(); renderGroupTabs(); renderItemButtons();
+      });
+    });
+  }
+
+  function renderGroupTabs() {
+    if (!activeCat.groups) { groupTabsEl.innerHTML = ""; return; }
+    groupTabsEl.innerHTML = activeCat.groups.map(function (g) {
+      return '<button type="button" data-name="' + g.name + '" class="' + (g.name === activeGroup.name ? 'active' : '') + '">' + g.name + '</button>';
+    }).join("");
+    groupTabsEl.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activeGroup = activeCat.groups.find(function (g) { return g.name === btn.dataset.name; });
+        renderGroupTabs(); renderItemButtons();
+      });
+    });
+  }
+
+  function currentItems() {
+    return activeCat.groups ? activeGroup.items : activeCat.items;
+  }
+
+  function isPicked(name) {
+    return selected.some(function (s) { return s.category === activeCat.name && s.name === name; });
+  }
+
+  function renderItemButtons() {
+    itemBtnsEl.innerHTML = currentItems().map(function (name) {
+      return '<button type="button" data-name="' + name + '" class="' + (isPicked(name) ? 'picked' : '') + '">' + name + '</button>';
+    }).join("");
+    itemBtnsEl.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        toggleItem(btn.dataset.name);
+      });
+    });
+  }
+
+  function toggleItem(name) {
+    var idx = selected.findIndex(function (s) { return s.category === activeCat.name && s.name === name; });
+    if (idx >= 0) selected.splice(idx, 1);
+    else selected.push({ category: activeCat.name, name: name });
+    renderItemButtons();
+    renderSelectedTags();
+  }
+
+  function renderSelectedTags() {
+    selectedEmptyEl.style.display = selected.length ? "none" : "block";
+    selectedTagsEl.innerHTML = selected.map(function (s, i) {
+      return '<span class="tag">' + s.name + '<button type="button" data-index="' + i + '">×</button></span>';
+    }).join("");
+    selectedTagsEl.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var removed = selected.splice(parseInt(btn.dataset.index, 10), 1)[0];
+        renderSelectedTags();
+        if (removed.category === activeCat.name) renderItemButtons();
+      });
+    });
+  }
+
+  renderCatTabs();
+  renderGroupTabs();
+  renderItemButtons();
+  renderSelectedTags();
+
+  // ===== 제출 =====
+  document.getElementById("btnSubmit").addEventListener("click", function () {
+    var honeypot = document.getElementById("website").value;
+    if (honeypot) { return; } // 봇으로 판단, 조용히 무시 (에러 메시지 없음 — 봇에게 힌트를 주지 않기 위함)
+
+    var companyName = document.getElementById("companyName").value.trim();
+    var managerName = document.getElementById("managerName").value.trim();
+    var contact = document.getElementById("contact").value.trim();
+    var email = document.getElementById("email").value.trim();
+    var content = document.getElementById("content").value.trim();
+    var password = document.getElementById("password").value;
+    var consultType = document.querySelector('input[name="consultType"]:checked');
+    var privacyAgree = document.getElementById("privacyAgree").checked;
+
+    if (!companyName) { alert("회사명을 입력해주세요."); return; }
+    if (!managerName) { alert("담당자명을 입력해주세요."); return; }
+    if (!contact) { alert("연락처를 입력해주세요."); return; }
+    if (!email) { alert("이메일을 입력해주세요."); return; }
+    if (!content) { alert("문의내용을 입력해주세요."); return; }
+    if (!password) { alert("비밀번호를 입력해주세요."); return; }
+    if (!consultType) { alert("상담 희망 방식을 선택해주세요."); return; }
+    if (!privacyAgree) { alert("개인정보 수집 및 이용 안내에 동의해주세요."); return; }
+
+    var payload = {
+      website: honeypot,
+      companyName: companyName,
+      businessRegNo: document.getElementById("businessRegNo").value.trim() || null,
+      managerName: managerName,
+      managerTitle: document.getElementById("managerTitle").value.trim() || null,
+      contact: contact,
+      email: email,
+      productType: document.getElementById("productType").value.trim() || null,
+      desiredStartDate: document.getElementById("desiredStartDate").value || null,
+      desiredReportDate: document.getElementById("desiredReportDate").value || null,
+      consultType: consultType.value,
+      content: content,
+      password: password,
+      privacyAgreed: true,
+      items: selected
+    };
+
+    var btn = document.getElementById("btnSubmit");
+    btn.disabled = true;
+    btn.innerText = "접수 중...";
+
+    fetch("/api/trial-requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("접수 처리 중 오류가 발생했습니다.");
+        alert("시험의뢰가 정상적으로 접수되었습니다.");
+        window.location.href = "/inquiry/process";
+      })
+      .catch(function (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerText = "문의하기";
+      });
+  });
+});
+</script>
+
+</body>
+</html>

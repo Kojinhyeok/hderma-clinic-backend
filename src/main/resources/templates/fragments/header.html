@@ -7,24 +7,28 @@
   <header id="header">
     <div class="nav-wr">
       <a th:href="@{/}" class="nav-logo">
-        <img th:src="@{/assets/images/logo-horizontal.png}" alt="H-Derma Global Clinical Center">
+        <img class="logo-color" th:src="@{/assets/images/logo-horizontal.png}" alt="H-Derma Global Clinical Center">
+        <span class="logo-white">
+          <img th:src="@{/assets/images/logo-icon-white.png}" alt="">
+          <em>H-Derma</em>
+        </span>
       </a>
 
       <nav class="gnb">
         <li><a th:href="@{/about/greeting}">센터소개</a>
           <ul class="sub">
             <li><a th:href="@{/about/greeting}">인사말</a></li>
+            <li><a th:href="@{/about/values}">가치체계</a></li>
             <li><a th:href="@{/about/ci}">CI</a></li>
-            <li><a th:href="@{/about/vision}">비전</a></li>
             <li><a th:href="@{/about/organization}">조직도</a></li>
-            <li><a th:href="@{/about/news}">회사소식</a></li>
-            <li><a th:href="@{/about/location}">위치안내</a></li>
+            <li><a th:href="@{/about/location}">오시는길</a></li>
           </ul>
         </li>
         <li><a th:href="@{/service/clinical-evaluation}">평가분야</a>
           <ul class="sub">
             <li><a th:href="@{/service/clinical-evaluation}">임상평가</a></li>
-            <li><a th:href="@{/service/regulatory-consulting}">임상전략 및 인허가지원</a></li>
+            <li><a th:href="@{/service/image-service}">이미지 서비스</a></li>
+            <li><a th:href="@{/service/certification-mark}">인증마크</a></li>
           </ul>
         </li>
         <li><a th:href="@{/inquiry/request}">시험문의</a>
@@ -39,10 +43,10 @@
             <li><a th:href="@{/participate/apply}">시험참여신청</a></li>
           </ul>
         </li>
-        <li><a th:href="@{/about/news}">H-DERMA 소식</a>
+        <li><a th:href="@{/about/newsletter}">H-DERMA 소식</a>
           <ul class="sub">
-            <li><a th:href="@{/about/news}">뉴스레터</a></li>
-            <li><a th:href="@{/about/news}">공지사항</a></li>
+            <li><a th:href="@{/about/newsletter}">뉴스레터</a></li>
+            <li><a th:href="@{/about/notice}">공지사항</a></li>
           </ul>
         </li>
         <li><a th:href="@{/irb}">E-IRB</a></li>
@@ -66,11 +70,10 @@
       <a href="javascript:" class="hmbig">센터소개</a>
       <div class="subMenu">
         <a th:href="@{/about/greeting}">인사말</a>
+        <a th:href="@{/about/values}">가치체계</a>
         <a th:href="@{/about/ci}">CI</a>
-        <a th:href="@{/about/vision}">비전</a>
         <a th:href="@{/about/organization}">조직도</a>
-        <a th:href="@{/about/news}">회사소식</a>
-        <a th:href="@{/about/location}">위치안내</a>
+        <a th:href="@{/about/location}">오시는길</a>
       </div>
     </div>
 
@@ -78,7 +81,8 @@
       <a href="javascript:" class="hmbig">평가분야</a>
       <div class="subMenu">
         <a th:href="@{/service/clinical-evaluation}">임상평가</a>
-        <a th:href="@{/service/regulatory-consulting}">임상전략 및 인허가지원</a>
+        <a th:href="@{/service/image-service}">이미지 서비스</a>
+        <a th:href="@{/service/certification-mark}">인증마크</a>
       </div>
     </div>
 
@@ -101,8 +105,8 @@
     <div class="mobileBox">
       <a href="javascript:" class="hmbig">H-DERMA 소식</a>
       <div class="subMenu">
-        <a th:href="@{/about/news}">뉴스레터</a>
-        <a th:href="@{/about/news}">공지사항</a>
+        <a th:href="@{/about/newsletter}">뉴스레터</a>
+        <a th:href="@{/about/notice}">공지사항</a>
       </div>
     </div>
 

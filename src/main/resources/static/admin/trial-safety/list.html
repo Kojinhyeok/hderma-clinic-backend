@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>안전성 시험 항목 관리 - Human Clinical</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="trial-safety-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>안전성 시험 항목 관리</strong></h1>
+					<button class="btn btn-primary" onclick="openAddModal()">
+						<i class="align-middle" data-feather="plus"></i> 항목 추가
+					</button>
+				</div>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="safetyTable">
+							<thead>
+							<tr>
+								<th style="width: 100px;">썸네일</th>
+								<th>시험 항목 제목</th>
+								<th>시험 기간</th>
+								<th>대상자 수</th>
+								<th>시험 부위</th>
+								<th>산출물</th>
+								<th style="width:130px;">관리</th>
+							</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<div class="modal fade" id="safetyModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalTitle">시험 항목 등록</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="safetyForm">
+					<input type="hidden" id="trialId" name="id">
+
+					<div class="mb-3">
+						<label class="form-label">썸네일 이미지</label>
+						<input type="file" class="form-control" id="safetyFile" accept="image/*" onchange="previewImage(this)">
+						<div id="thumbnailPreview" class="mt-2 d-none">
+							<p class="text-muted small mb-1">이미지 미리보기:</p>
+							<img id="previewImg" src="" style="max-width: 150px; height: auto;" class="img-thumbnail border">
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">시험 제목 <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="title" name="title" required placeholder="제목을 입력해 주세요">
+					</div>
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">시험 기간</label>
+							<input type="text" class="form-control" id="trialPeriod" name="trialPeriod" placeholder="예: 3일">
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">대상자 수 </label>
+							<input type="text" class="form-control" id="participantCount" name="participantCount" placeholder="예: 30">
+						</div>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">시험 부위</label>
+						<input type="text" class="form-control" id="trialLocation" name="trialLocation" placeholder="예: 얼굴">
+					</div>
+					<div class="mb-3">
+						<label class="form-label">산출물</label>
+						<input type="text" class="form-control" id="trialOutput" name="trialOutput" placeholder="예: 수치">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" id="btnSave">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let safetyList = [];
+    const CURRENT_USER_ID = 1;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadItems();
+
+        // --- 대상자 수 자동 텍스트 처리 로직 (keyup) ---
+        const participantInput = document.getElementById("participantCount");
+
+        participantInput.addEventListener("keyup", function() {
+            let num = this.value.replace(/[^0-9]/g, "");
+            if (num) {
+                this.value = num + "명 이상";
+                // 커서를 숫자 바로 뒤로 보내서 수정을 편하게 함
+                const pos = num.length;
+                this.setSelectionRange(pos, pos);
+            } else {
+                this.value = "";
+            }
+        });
+        // ------------------------------------------
+
+        document.getElementById("btnSave").addEventListener("click", function () {
+            saveItem();
+        });
+    });
+
+    function loadItems() {
+        fetch("/api/trial-safety")
+            .then(res => res.json())
+            .then(list => {
+                safetyList = list;
+                const tbody = document.querySelector("#safetyTable tbody");
+                tbody.innerHTML = list.length === 0
+                    ? '<tr><td colspan="7" class="text-center py-4">데이터가 없습니다.</td></tr>'
+                    : list.map((item, index) => `
+                        <tr>
+                            <td>
+                                ${item.thumbnailUrl
+                                    ? `<img src="${item.thumbnailUrl}" style="width:50px; height:50px; object-fit:cover;" class="rounded border">`
+                                    : `<div class="bg-light text-center rounded border" style="width:50px; height:50px; line-height:50px; font-size:10px;">No Image</div>`}
+                            </td>
+                            <td class="align-middle">${item.title}</td>
+                            <td class="align-middle">${item.trialPeriod || '-'}</td>
+                            <td class="align-middle">${item.participantCount || '-'}</td>
+                            <td class="align-middle">${item.trialLocation || '-'}</td>
+                            <td class="align-middle">${item.trialOutput || '-'}</td>
+                            <td class="align-middle">
+                                <button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${index})">수정</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.id})">삭제</button>
+                            </td>
+                        </tr>
+                    `).join("");
+            });
+    }
+
+    async function saveItem() {
+        const btn = document.getElementById("btnSave");
+        const form = document.getElementById("safetyForm");
+        const fileInput = document.getElementById("safetyFile");
+        const file = fileInput.files[0];
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        if (!data.title) { alert("제목을 입력해주세요."); return; }
+        if (file) {
+            data.originalFilename = file.name;
+            data.mimeType = file.type;
+            data.fileSize = file.size;
+        }
+
+        const id = data.id;
+        const url = id ? `/api/trial-safety/${id}?userId=${CURRENT_USER_ID}` : `/api/trial-safety?userId=${CURRENT_USER_ID}`;
+        const method = id ? "PUT" : "POST";
+
+        try {
+            btn.disabled = true;
+            btn.innerText = "처리 중...";
+            const response = await fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) throw new Error("데이터 저장 실패");
+            const result = await response.json();
+
+            if (result.uploadUrl && file) {
+                await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+            }
+            alert("처리되었습니다.");
+            bootstrap.Modal.getInstance(document.getElementById('safetyModal')).hide();
+            loadItems();
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "저장하기";
+        }
+    }
+
+    function previewImage(input) {
+        const previewImg = document.getElementById("previewImg");
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                document.getElementById("thumbnailPreview").classList.remove("d-none");
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function openAddModal() {
+        document.getElementById("safetyForm").reset();
+        document.getElementById("trialId").value = "";
+        document.getElementById("thumbnailPreview").classList.add("d-none");
+        document.getElementById("modalTitle").innerText = "시험 항목 등록";
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('safetyModal')).show();
+    }
+
+    function openEditModal(index) {
+        const item = safetyList[index];
+        document.getElementById("trialId").value = item.id;
+        document.getElementById("title").value = item.title;
+        document.getElementById("trialPeriod").value = item.trialPeriod || "";
+        document.getElementById("participantCount").value = item.participantCount || "";
+        document.getElementById("trialLocation").value = item.trialLocation || "";
+        document.getElementById("trialOutput").value = item.trialOutput || "";
+
+        const previewImg = document.getElementById("previewImg");
+        if (item.thumbnailUrl) {
+            previewImg.src = item.thumbnailUrl;
+            document.getElementById("thumbnailPreview").classList.remove("d-none");
+        } else {
+            document.getElementById("thumbnailPreview").classList.add("d-none");
+        }
+
+        document.getElementById("modalTitle").innerText = "시험 항목 수정";
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('safetyModal')).show();
+    }
+
+    function deleteItem(id) {
+        if (confirm("정말 삭제하시겠습니까?")) {
+            fetch(`/api/trial-safety/${id}`, { method: "DELETE" }).then(res => { if (res.ok) { alert("삭제되었습니다."); loadItems(); } });
+        }
+    }
+</script>
+</body>
+</html>
