@@ -49,4 +49,18 @@ public class AuthController {
             "role", session.getAttribute("role")
         ));
     }
+
+        // admin/js/common.js가 이 경로+필드명을 기대하고 있어서 별도로 맞춰줌
+    @GetMapping("/current-user")
+    public ResponseEntity<?> currentUser(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("memberId") == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(java.util.Map.of(
+            "memberId", session.getAttribute("memberId"),
+            "position", session.getAttribute("role"),
+            "name", "관리자"
+        ));
+    }
 }
