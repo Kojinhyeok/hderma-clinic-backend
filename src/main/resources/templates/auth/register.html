@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원가입 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>회원가입</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<section class="sub-content">
+  <div class="auth-wrap">
+    <div class="auth-card reveal-up">
+      <div class="auth-logo">
+        <img th:src="@{/assets/images/logo-icon.png}" alt="H-Derma">
+      </div>
+      <h2>회원가입</h2>
+      <p class="sub-desc">에이치더마 회원이 되어 다양한 서비스를 이용해 보세요.</p>
+
+      <form id="registerForm">
+        <div class="auth-field">
+          <label>아이디<span class="req-mark">*</span></label>
+          <input type="text" id="username" required placeholder="영문/숫자 조합 4~20자">
+        </div>
+        <div class="auth-row2">
+          <div class="auth-field">
+            <label>비밀번호<span class="req-mark">*</span></label>
+            <input type="password" id="password" required placeholder="8자 이상">
+          </div>
+          <div class="auth-field">
+            <label>비밀번호 확인<span class="req-mark">*</span></label>
+            <input type="password" id="passwordConfirm" required placeholder="다시 입력">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>이름<span class="req-mark">*</span></label>
+          <input type="text" id="name" required placeholder="이름을 입력해 주세요">
+        </div>
+        <div class="auth-field">
+          <label>이메일<span class="req-mark">*</span></label>
+          <input type="email" id="email" required placeholder="example@email.com">
+        </div>
+        <div class="auth-field">
+          <label>휴대전화번호<span class="req-mark">*</span></label>
+          <input type="text" id="phone" required placeholder="010-0000-0000">
+        </div>
+
+        <div class="auth-privacy-box">
+          <b>[필수] 개인정보 수집 및 이용 안내</b><br><br>
+          - 수집목적: 회원 식별 및 본인여부 확인, 서비스 이용에 관한 통지<br>
+          - 수집항목: 아이디, 비밀번호, 이름, 이메일, 휴대전화번호<br>
+          - 보유기간: 회원 탈퇴 시까지<br><br>
+          ※ 귀하는 동의를 거부할 권리가 있으며, 거부 시 회원가입이 제한됩니다.
+        </div>
+        <label class="auth-terms-check">
+          <input type="checkbox" id="privacyAgree">
+          개인정보 수집 및 이용에 모두 동의합니다.
+        </label>
+
+        <button type="button" class="auth-submit" id="btnRegister" style="margin-top:26px;">회원가입</button>
+      </form>
+
+      <div class="auth-links">
+        <span>이미 계정이 있으신가요?</span>
+        <a th:href="@{/auth/login}">로그인</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("btnRegister").addEventListener("click", function () {
+    var username = document.getElementById("username").value.trim();
+    var password = document.getElementById("password").value;
+    var passwordConfirm = document.getElementById("passwordConfirm").value;
+    var name = document.getElementById("name").value.trim();
+    var email = document.getElementById("email").value.trim();
+    var phone = document.getElementById("phone").value.trim();
+    var privacyAgree = document.getElementById("privacyAgree").checked;
+
+    if (!username) { alert("아이디를 입력해주세요."); return; }
+    if (!password) { alert("비밀번호를 입력해주세요."); return; }
+    if (password !== passwordConfirm) { alert("비밀번호가 일치하지 않습니다."); return; }
+    if (!name) { alert("이름을 입력해주세요."); return; }
+    if (!email) { alert("이메일을 입력해주세요."); return; }
+    if (!phone) { alert("휴대전화번호를 입력해주세요."); return; }
+    if (!privacyAgree) { alert("개인정보 수집 및 이용에 동의해주세요."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    btn.innerText = "가입 처리 중...";
+
+    fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,
+        password: password,
+        name: name,
+        email: email,
+        phone: phone,
+        privacyAgreed: true
+      })
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("회원가입 처리 중 오류가 발생했습니다.");
+        alert("회원가입이 완료되었습니다.");
+        window.location.href = "/auth/login";
+      })
+      .catch(function (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerText = "회원가입";
+      });
+  });
+});
+</script>
+
+</body>
+</html>

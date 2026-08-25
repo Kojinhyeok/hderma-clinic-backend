@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>시험참여신청자 관리 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="trial-application-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>시험참여신청자 관리</strong></h1>
+				</div>
+
+				<div class="card mb-3">
+					<div class="card-body py-3">
+						<label class="form-label mb-1">모집공고 선택</label>
+						<select class="form-select" id="recruitmentSelect" style="max-width:480px;"></select>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="applicationTable">
+							<thead>
+							<tr>
+								<th style="width:70px;">번호</th>
+								<th>신청자명</th>
+								<th>연락처</th>
+								<th>생년월일</th>
+								<th style="width:120px;">상태</th>
+								<th style="width:120px;">신청일</th>
+								<th style="width:220px;">관리</th>
+							</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let applicationList = [];
+
+	const STATUS_LABEL = { APPLIED: '접수', SELECTED: '선정', REJECTED: '탈락', CANCELLED: '취소' };
+	const STATUS_BADGE = { APPLIED: 'secondary', SELECTED: 'success', REJECTED: 'danger', CANCELLED: 'dark' };
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadRecruitments();
+		document.getElementById("recruitmentSelect").addEventListener("change", function () {
+			loadApplications(this.value);
+		});
+	});
+
+	function loadRecruitments() {
+		fetch("/api/recruitments")
+			.then(res => res.json())
+			.then(list => {
+				const select = document.getElementById("recruitmentSelect");
+				select.innerHTML = list.length === 0
+					? '<option value="">등록된 모집공고가 없습니다</option>'
+					: list.map(r => `<option value="${r.id}">[${r.trialCode || '-'}] ${r.trialName}</option>`).join("");
+				if (list.length > 0) loadApplications(list[0].id);
+			});
+	}
+
+	function loadApplications(recruitmentId) {
+		if (!recruitmentId) {
+			document.querySelector("#applicationTable tbody").innerHTML = '<tr><td colspan="7" class="text-center py-4">모집공고를 선택해주세요.</td></tr>';
+			return;
+		}
+		fetch(`/api/trial-applications/by-recruitment/${recruitmentId}`)
+			.then(res => res.json())
+			.then(list => {
+				applicationList = list;
+				const tbody = document.querySelector("#applicationTable tbody");
+				tbody.innerHTML = list.length === 0
+					? '<tr><td colspan="7" class="text-center py-4">신청자가 없습니다.</td></tr>'
+					: list.map(a => `
+						<tr>
+							<td class="align-middle">${a.id}</td>
+							<td class="align-middle">${a.applicantName}</td>
+							<td class="align-middle">${a.applicantContact}</td>
+							<td class="align-middle">${a.applicantBirth || '-'}</td>
+							<td class="align-middle"><span class="badge bg-${STATUS_BADGE[a.status]}">${STATUS_LABEL[a.status]}</span></td>
+							<td class="align-middle">${(a.createdAt || '').substring(0, 10)}</td>
+							<td class="align-middle">
+								<select class="form-select form-select-sm d-inline-block" style="width:110px;" onchange="updateStatus(${a.id}, this.value)">
+									<option value="APPLIED" ${a.status === 'APPLIED' ? 'selected' : ''}>접수</option>
+									<option value="SELECTED" ${a.status === 'SELECTED' ? 'selected' : ''}>선정</option>
+									<option value="REJECTED" ${a.status === 'REJECTED' ? 'selected' : ''}>탈락</option>
+									<option value="CANCELLED" ${a.status === 'CANCELLED' ? 'selected' : ''}>취소</option>
+								</select>
+							</td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	function updateStatus(id, status) {
+		fetch(`/api/trial-applications/${id}/status`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ status: status })
+		}).then(res => {
+			if (res.ok) loadApplications(document.getElementById("recruitmentSelect").value);
+		});
+	}
+</script>
+</body>
+</html>

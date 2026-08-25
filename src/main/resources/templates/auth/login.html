@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>로그인</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<section class="sub-content">
+  <div class="auth-wrap">
+    <div class="auth-card reveal-up">
+      <div class="auth-logo">
+        <img th:src="@{/assets/images/logo-icon.png}" alt="H-Derma">
+      </div>
+      <h2>로그인</h2>
+      <p class="sub-desc">에이치더마 서비스 이용을 위해 로그인해 주세요.</p>
+
+      <form id="loginForm">
+        <div class="auth-field">
+          <label>아이디<span class="req-mark">*</span></label>
+          <input type="text" id="username" required placeholder="아이디를 입력해 주세요">
+        </div>
+        <div class="auth-field">
+          <label>비밀번호<span class="req-mark">*</span></label>
+          <input type="password" id="password" required placeholder="비밀번호를 입력해 주세요">
+        </div>
+
+        <button type="button" class="auth-submit" id="btnLogin">로그인</button>
+      </form>
+
+      <div class="auth-links">
+        <a th:href="@{/auth/register}">회원가입</a>
+        <span>|</span>
+        <a href="#">아이디 찾기</a>
+        <span>|</span>
+        <a href="#">비밀번호 찾기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("btnLogin").addEventListener("click", function () {
+    var username = document.getElementById("username").value.trim();
+    var password = document.getElementById("password").value;
+
+    if (!username) { alert("아이디를 입력해주세요."); return; }
+    if (!password) { alert("비밀번호를 입력해주세요."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    btn.innerText = "로그인 중...";
+
+    fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: username, password: password })
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error("아이디 또는 비밀번호가 일치하지 않습니다.");
+        return res.json();
+      })
+      .then(function () {
+        window.location.href = "/";
+      })
+      .catch(function (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerText = "로그인";
+      });
+  });
+});
+</script>
+
+</body>
+</html>

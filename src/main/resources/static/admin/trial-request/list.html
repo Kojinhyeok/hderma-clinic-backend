@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>시험의뢰 관리 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="trial-request-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>시험의뢰 관리</strong></h1>
+				</div>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="requestTable">
+							<thead>
+							<tr>
+								<th style="width:60px;">번호</th>
+								<th>회사명</th>
+								<th>담당자</th>
+								<th>연락처</th>
+								<th>상담방식</th>
+								<th style="width:110px;">처리상태</th>
+								<th style="width:110px;">접수일</th>
+								<th style="width:90px;">관리</th>
+							</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<!-- 상세보기 모달 -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">시험의뢰 상세</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<table class="table table-borderless mb-0">
+					<tbody id="detailBody"></tbody>
+				</table>
+
+				<hr>
+				<p class="fw-bold mb-2">선택한 의뢰항목</p>
+				<div id="detailItems" class="d-flex flex-wrap gap-2"></div>
+
+				<hr>
+				<div class="row align-items-end">
+					<div class="col-auto">
+						<label class="form-label mb-1">처리상태</label>
+						<select class="form-select" id="statusSelect">
+							<option value="RECEIVED">접수</option>
+							<option value="IN_PROGRESS">진행중</option>
+							<option value="COMPLETED">완료</option>
+						</select>
+					</div>
+					<div class="col-auto">
+						<button type="button" class="btn btn-primary" id="btnStatusSave">상태 저장</button>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-danger me-auto" id="btnDelete">삭제</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let requestList = [];
+	let currentDetailId = null;
+
+	const STATUS_LABEL = { RECEIVED: '접수', IN_PROGRESS: '진행중', COMPLETED: '완료' };
+	const STATUS_BADGE = { RECEIVED: 'secondary', IN_PROGRESS: 'warning', COMPLETED: 'success' };
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadList();
+		document.getElementById("btnStatusSave").addEventListener("click", saveStatus);
+		document.getElementById("btnDelete").addEventListener("click", deleteRequest);
+	});
+
+	function loadList() {
+		fetch("/api/trial-requests")
+			.then(res => res.json())
+			.then(list => {
+				requestList = list;
+				const tbody = document.querySelector("#requestTable tbody");
+				tbody.innerHTML = list.length === 0
+					? '<tr><td colspan="8" class="text-center py-4">접수된 시험의뢰가 없습니다.</td></tr>'
+					: list.map((r, index) => `
+						<tr style="cursor:pointer;" onclick="openDetail(${r.id})">
+							<td class="align-middle">${r.id}</td>
+							<td class="align-middle">${r.companyName}</td>
+							<td class="align-middle">${r.managerName}</td>
+							<td class="align-middle">${r.contact}</td>
+							<td class="align-middle">${r.consultType === 'PHONE' ? '전화상담' : '이메일상담'}</td>
+							<td class="align-middle"><span class="badge bg-${STATUS_BADGE[r.status]}">${STATUS_LABEL[r.status]}</span></td>
+							<td class="align-middle">${(r.createdAt || '').substring(0, 10)}</td>
+							<td class="align-middle">
+								<button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); openDetail(${r.id})">보기</button>
+							</td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	function openDetail(id) {
+		fetch(`/api/trial-requests/${id}`)
+			.then(res => res.json())
+			.then(r => {
+				currentDetailId = id;
+				document.getElementById("detailBody").innerHTML = `
+					<tr><th style="width:140px;">회사명</th><td>${r.companyName}</td></tr>
+					<tr><th>담당자</th><td>${r.managerName}</td></tr>
+					<tr><th>연락처</th><td>${r.contact}</td></tr>
+					<tr><th>이메일</th><td>${r.email || '-'}</td></tr>
+					<tr><th>제품유형</th><td>${r.productType || '-'}</td></tr>
+					<tr><th>희망시험시작일</th><td>${r.desiredStartDate || '-'}</td></tr>
+					<tr><th>희망결과보고일</th><td>${r.desiredReportDate || '-'}</td></tr>
+					<tr><th>기타 문의내용</th><td style="white-space:pre-wrap;">${r.content || '-'}</td></tr>
+				`;
+				document.getElementById("detailItems").innerHTML = (r.items || []).length === 0
+					? '<span class="text-muted small">선택한 항목 없음</span>'
+					: r.items.map(i => `<span class="badge bg-light text-dark border">${i.category} · ${i.name}</span>`).join("");
+				document.getElementById("statusSelect").value = r.status;
+				bootstrap.Modal.getOrCreateInstance(document.getElementById('detailModal')).show();
+			});
+	}
+
+	function saveStatus() {
+		const status = document.getElementById("statusSelect").value;
+		fetch(`/api/trial-requests/${currentDetailId}/status`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ status: status })
+		}).then(res => {
+			if (res.ok) {
+				alert("처리상태가 변경되었습니다.");
+				loadList();
+			}
+		});
+	}
+
+	function deleteRequest() {
+		if (confirm("이 시험의뢰를 삭제하시겠습니까?")) {
+			fetch(`/api/trial-requests/${currentDetailId}`, { method: "DELETE" })
+				.then(res => {
+					if (res.ok) {
+						bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
+						loadList();
+					}
+				});
+		}
+	}
+</script>
+</body>
+</html>

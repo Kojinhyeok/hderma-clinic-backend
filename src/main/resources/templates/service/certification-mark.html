@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인증마크 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>인증마크</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/service/clinical-evaluation}">임상평가</a>
+    <a th:href="@{/service/image-service}">이미지 서비스</a>
+    <a th:href="@{/service/certification-mark}" class="active">인증마크</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="cert-wrap">
+    <!-- TODO: 백엔드 연동 시 /api/certification-marks 에서 실시간으로 받아오도록 교체 -->
+
+    <div class="cert-group reveal-up">
+      <h3><span class="dot"></span>기능성화장품 허가</h3>
+      <div class="cert-grid reveal-stagger">
+        <div class="cert-card"><span class="mark">No Image</span><span>미백 기능성</span></div>
+        <div class="cert-card"><span class="mark">No Image</span><span>주름개선 기능성</span></div>
+        <div class="cert-card"><span class="mark">No Image</span><span>자외선차단 기능성</span></div>
+        <div class="cert-card"><span class="mark">No Image</span><span>탈모완화 기능성</span></div>
+      </div>
+    </div>
+
+    <div class="cert-group reveal-up">
+      <h3><span class="dot"></span>개별인정형 건강기능식품 인허가</h3>
+      <div class="cert-grid reveal-stagger">
+        <div class="cert-card"><span class="mark">No Image</span><span>피부 건강</span></div>
+        <div class="cert-card"><span class="mark">No Image</span><span>관절 건강</span></div>
+      </div>
+    </div>
+
+    <div class="cert-group reveal-up">
+      <h3><span class="dot"></span>해외 인증</h3>
+      <div class="cert-grid reveal-stagger">
+        <div class="cert-card"><span class="mark">No Image</span><span>CPNP (EU)</span></div>
+        <div class="cert-card"><span class="mark">No Image</span><span>NMPA (중국)</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+</body>
+</html>

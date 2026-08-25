@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>뉴스레터 관리 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="newsletter-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>뉴스레터 관리</strong></h1>
+					<button class="btn btn-primary" onclick="openAddModal()">
+						<i class="align-middle" data-feather="plus"></i> 글 등록
+					</button>
+				</div>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="newsletterTable">
+							<thead>
+							<tr>
+								<th style="width:100px;">썸네일</th>
+								<th>제목</th>
+								<th style="width:130px;">등록일</th>
+								<th style="width:130px;">관리</th>
+							</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<div class="modal fade" id="newsletterModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalTitle">글 등록</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="newsletterForm">
+					<input type="hidden" id="itemId">
+
+					<div class="mb-3">
+						<label class="form-label">썸네일 이미지</label>
+						<input type="file" class="form-control" id="newsletterFile" accept="image/*" onchange="previewImage(this)">
+						<div id="thumbnailPreview" class="mt-2 d-none">
+							<img id="previewImg" src="" style="max-width:150px; height:auto;" class="img-thumbnail border">
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">제목 <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="title" required>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">내용</label>
+						<textarea class="form-control" id="content" rows="8"></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" id="btnSave">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let newsletterList = [];
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadItems();
+		document.getElementById("btnSave").addEventListener("click", saveItem);
+	});
+
+	function loadItems() {
+		fetch("/api/newsletters")
+			.then(res => res.json())
+			.then(list => {
+				newsletterList = list;
+				const tbody = document.querySelector("#newsletterTable tbody");
+				tbody.innerHTML = list.length === 0
+					? '<tr><td colspan="4" class="text-center py-4">등록된 글이 없습니다.</td></tr>'
+					: list.map((item, index) => `
+						<tr>
+							<td>
+								${item.thumbnailUrl
+									? `<img src="${item.thumbnailUrl}" style="width:50px; height:50px; object-fit:cover;" class="rounded border">`
+									: `<div class="bg-light text-center rounded border" style="width:50px; height:50px; line-height:50px; font-size:10px;">No Image</div>`}
+							</td>
+							<td class="align-middle">${item.title}</td>
+							<td class="align-middle">${(item.createdAt || '').substring(0, 10)}</td>
+							<td class="align-middle">
+								<button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${index})">수정</button>
+								<button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.id})">삭제</button>
+							</td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	async function saveItem() {
+		const btn = document.getElementById("btnSave");
+		const id = document.getElementById("itemId").value;
+		const fileInput = document.getElementById("newsletterFile");
+		const file = fileInput.files[0];
+
+		const data = {
+			title: document.getElementById("title").value,
+			content: document.getElementById("content").value
+		};
+		if (!data.title) { alert("제목을 입력해주세요."); return; }
+		if (file) {
+			data.originalFilename = file.name;
+			data.mimeType = file.type;
+			data.fileSize = file.size;
+		}
+
+		const url = id ? `/api/newsletters/${id}` : `/api/newsletters`;
+		const method = id ? "PUT" : "POST";
+
+		try {
+			btn.disabled = true;
+			btn.innerText = "처리 중...";
+			const response = await fetch(url, {
+				method: method,
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data)
+			});
+			if (!response.ok) throw new Error("저장 실패");
+			const result = await response.json();
+
+			if (result.uploadUrl && file) {
+				await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+			}
+			alert("처리되었습니다.");
+			bootstrap.Modal.getInstance(document.getElementById('newsletterModal')).hide();
+			loadItems();
+		} catch (err) {
+			alert(err.message);
+		} finally {
+			btn.disabled = false;
+			btn.innerText = "저장하기";
+		}
+	}
+
+	function previewImage(input) {
+		const previewImg = document.getElementById("previewImg");
+		if (input.files && input.files[0]) {
+			const reader = new FileReader();
+			reader.onload = e => {
+				previewImg.src = e.target.result;
+				document.getElementById("thumbnailPreview").classList.remove("d-none");
+			}
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+
+	function openAddModal() {
+		document.getElementById("newsletterForm").reset();
+		document.getElementById("itemId").value = "";
+		document.getElementById("thumbnailPreview").classList.add("d-none");
+		document.getElementById("modalTitle").innerText = "글 등록";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('newsletterModal')).show();
+	}
+
+	function openEditModal(index) {
+		const item = newsletterList[index];
+		document.getElementById("itemId").value = item.id;
+		document.getElementById("title").value = item.title;
+		document.getElementById("content").value = item.content || "";
+
+		const previewImg = document.getElementById("previewImg");
+		if (item.thumbnailUrl) {
+			previewImg.src = item.thumbnailUrl;
+			document.getElementById("thumbnailPreview").classList.remove("d-none");
+		} else {
+			document.getElementById("thumbnailPreview").classList.add("d-none");
+		}
+
+		document.getElementById("modalTitle").innerText = "글 수정";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('newsletterModal')).show();
+	}
+
+	function deleteItem(id) {
+		if (confirm("이 글을 삭제하시겠습니까?")) {
+			fetch(`/api/newsletters/${id}`, { method: "DELETE" })
+				.then(res => { if (res.ok) { alert("삭제되었습니다."); loadItems(); } });
+		}
+	}
+</script>
+</body>
+</html>

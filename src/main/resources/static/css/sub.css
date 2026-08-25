@@ -629,3 +629,72 @@
   .notice-table td{padding:4px 0;}
   .notice-table .date::before{content:'등록일 · '; color:var(--gray-soft);}
 }
+
+/* ==================== AUTH (로그인/회원가입) ==================== */
+.auth-wrap{max-width:560px; margin:0 auto; padding:0 40px;}
+.auth-card{
+  background:#fff; border:1px solid var(--line); border-radius:0 32px 0 32px;
+  padding:50px 46px; box-shadow:0 20px 50px rgba(20,50,90,.08);
+}
+.auth-card .auth-logo{display:flex; justify-content:center; margin-bottom:28px;}
+.auth-card .auth-logo img{height:34px;}
+.auth-card h2{text-align:center; font-size:22px; font-weight:800; color:var(--navy); margin-bottom:8px;}
+.auth-card .sub-desc{text-align:center; font-size:13.5px; color:var(--gray); margin-bottom:36px;}
+
+.auth-field{margin-bottom:18px;}
+.auth-field label{display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:8px;}
+.auth-field label .req-mark{color:#e0455a; margin-left:3px;}
+.auth-field input{
+  width:100%; padding:13px 16px; border:1px solid var(--line); border-radius:10px;
+  font-size:14px; font-family:inherit; color:var(--ink); transition:.2s;
+}
+.auth-field input:focus{border-color:var(--teal); outline:none;}
+.auth-field .hint{margin-top:6px; font-size:12px; color:var(--gray-soft);}
+
+.auth-row2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+
+.auth-submit{
+  width:100%; height:54px; margin-top:12px; border-radius:12px; background:var(--grad);
+  color:#fff; font-size:15.5px; font-weight:700; box-shadow:0 16px 32px rgba(20,50,90,.16); transition:.3s;
+}
+.auth-submit:hover{transform:translateY(-2px);}
+
+.auth-links{display:flex; justify-content:center; gap:18px; margin-top:26px; font-size:13px; color:var(--gray);}
+.auth-links a{font-weight:600; color:var(--main);}
+.auth-links span{color:var(--line);}
+
+.auth-privacy-box{
+  margin:22px 0 14px; padding:18px 20px; background:var(--bg-soft); border-radius:0 14px 0 14px;
+  font-size:12px; color:var(--gray); line-height:1.7; max-height:120px; overflow-y:auto;
+}
+.auth-terms-check{display:flex; align-items:center; gap:9px; font-size:13px; color:var(--ink); cursor:pointer;}
+.auth-terms-check input{width:16px; height:16px; accent-color:var(--main);}
+
+@media (max-width:560px){
+  .auth-card{padding:40px 26px;}
+  .auth-row2{grid-template-columns:1fr;}
+}
+
+/* ==================== CERTIFICATION MARK (인증마크) ==================== */
+.cert-wrap{max-width:1400px; margin:0 auto; padding:0 40px;}
+.cert-group{margin-bottom:70px;}
+.cert-group h3{
+  font-size:21px; font-weight:800; color:var(--navy); margin-bottom:28px;
+  display:flex; align-items:center; gap:10px;
+}
+.cert-group h3 .dot{width:9px; height:9px; border-radius:50%; background:var(--teal); flex-shrink:0;}
+
+.cert-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:20px;}
+.cert-card{
+  padding:30px 20px; background:var(--bg-soft); border-radius:0 20px 0 20px;
+  display:flex; flex-direction:column; align-items:center; text-align:center; gap:16px; transition:.3s;
+}
+.cert-card:hover{background:var(--grad-soft); transform:translateY(-4px);}
+.cert-card .mark{
+  width:88px; height:88px; border-radius:50%; background:#fff; box-shadow:0 10px 24px rgba(20,50,90,.08);
+  display:flex; align-items:center; justify-content:center; color:var(--main); font-size:12px; overflow:hidden;
+}
+.cert-card .mark img{width:100%; height:100%; object-fit:contain; padding:14px;}
+.cert-card span{font-size:13.5px; font-weight:600; color:var(--ink); line-height:1.4;}
+
+.cert-empty{text-align:center; padding:60px 20px; color:var(--gray-soft); font-size:14px;}

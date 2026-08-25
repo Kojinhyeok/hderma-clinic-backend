@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>인증마크 관리 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="certification-mark-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>인증마크 관리</strong></h1>
+					<button class="btn btn-primary" onclick="openAddMarkModal()">
+						<i class="align-middle" data-feather="plus"></i> 대분류 추가
+					</button>
+				</div>
+
+				<p class="text-muted small">대분류(예: 기능성화장품 허가)를 먼저 등록한 뒤, "마크 관리"에서 그 안의 세부 인증마크 이미지를 추가하세요.</p>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="markTable">
+							<thead>
+							<tr>
+								<th>대분류명</th>
+								<th style="width:120px;">마크 수</th>
+								<th style="width:220px;">관리</th>
+							</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<div class="modal fade" id="markModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="markModalTitle">대분류 등록</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="markForm">
+					<input type="hidden" id="markId">
+					<div class="mb-3">
+						<label class="form-label">대분류명 <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="markTitle" required placeholder="예: 기능성화장품 허가">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" id="btnSaveMark">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="categoriesModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">마크 관리 — <span id="categoriesModalMarkName"></span></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row g-2 mb-3">
+					<div class="col-auto">
+						<input type="file" class="form-control" id="categoryFile" accept="image/*">
+					</div>
+					<div class="col">
+						<input type="text" class="form-control" id="newCategoryName" placeholder="마크 이름 (예: 미백 기능성)">
+					</div>
+					<div class="col-auto">
+						<button class="btn btn-primary" id="btnAddCategory">추가</button>
+					</div>
+				</div>
+				<ul class="list-group" id="categoriesList"></ul>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let markList = [];
+	let currentMarkId = null;
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadMarks();
+		document.getElementById("btnSaveMark").addEventListener("click", saveMark);
+		document.getElementById("btnAddCategory").addEventListener("click", addCategory);
+	});
+
+	// ===== 대분류 =====
+	function loadMarks() {
+		fetch("/api/certification-marks")
+			.then(res => res.json())
+			.then(list => {
+				markList = list;
+				const tbody = document.querySelector("#markTable tbody");
+				tbody.innerHTML = list.length === 0
+					? '<tr><td colspan="3" class="text-center py-4">등록된 대분류가 없습니다.</td></tr>'
+					: list.map((m, index) => `
+						<tr>
+							<td class="align-middle">${m.title}</td>
+							<td class="align-middle">${m.categoryCount ?? 0}개</td>
+							<td class="align-middle">
+								<button class="btn btn-sm btn-outline-secondary" onclick="openCategoriesModal(${index})">마크 관리</button>
+								<button class="btn btn-sm btn-outline-danger" onclick="deleteMark(${m.id})">삭제</button>
+							</td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	function openAddMarkModal() {
+		document.getElementById("markForm").reset();
+		document.getElementById("markId").value = "";
+		document.getElementById("markModalTitle").innerText = "대분류 등록";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('markModal')).show();
+	}
+
+	function saveMark() {
+		const title = document.getElementById("markTitle").value.trim();
+		if (!title) { alert("대분류명을 입력해주세요."); return; }
+
+		fetch("/api/certification-marks", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ title: title })
+		}).then(res => {
+			if (!res.ok) throw new Error("저장 실패");
+			bootstrap.Modal.getInstance(document.getElementById('markModal')).hide();
+			loadMarks();
+		}).catch(err => alert(err.message));
+	}
+
+	function deleteMark(id) {
+		if (confirm("이 대분류와 그 안의 모든 마크가 삭제됩니다. 계속할까요?")) {
+			fetch(`/api/certification-marks/${id}`, { method: "DELETE" })
+				.then(res => { if (res.ok) { alert("삭제되었습니다."); loadMarks(); } });
+		}
+	}
+
+	// ===== 세부 마크 =====
+	function openCategoriesModal(index) {
+		const m = markList[index];
+		currentMarkId = m.id;
+		document.getElementById("categoriesModalMarkName").innerText = m.title;
+		loadCategories(m.id);
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('categoriesModal')).show();
+	}
+
+	function loadCategories(markId) {
+		fetch(`/api/certification-marks/${markId}/categories`)
+			.then(res => res.json())
+			.then(categories => {
+				const ul = document.getElementById("categoriesList");
+				ul.innerHTML = categories.length === 0
+					? '<li class="list-group-item text-muted text-center">등록된 마크가 없습니다.</li>'
+					: categories.map(c => `
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<div class="d-flex align-items-center gap-2">
+								${c.imageUrl ? `<img src="${c.imageUrl}" style="width:32px;height:32px;object-fit:contain;">` : ''}
+								${c.title}
+							</div>
+							<button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.id})">삭제</button>
+						</li>
+					`).join("");
+			});
+	}
+
+	async function addCategory() {
+		const nameInput = document.getElementById("newCategoryName");
+		const fileInput = document.getElementById("categoryFile");
+		const name = nameInput.value.trim();
+		const file = fileInput.files[0];
+		if (!name) { alert("마크 이름을 입력해주세요."); return; }
+
+		const data = { title: name };
+		if (file) {
+			data.originalFilename = file.name;
+			data.mimeType = file.type;
+			data.fileSize = file.size;
+		}
+
+		try {
+			const response = await fetch(`/api/certification-marks/${currentMarkId}/categories`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data)
+			});
+			if (!response.ok) throw new Error("추가 실패");
+			const result = await response.json();
+
+			if (result.uploadUrl && file) {
+				await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+			}
+
+			nameInput.value = "";
+			fileInput.value = "";
+			loadCategories(currentMarkId);
+			loadMarks();
+		} catch (err) {
+			alert(err.message);
+		}
+	}
+
+	function deleteCategory(categoryId) {
+		fetch(`/api/certification-mark-categories/${categoryId}`, { method: "DELETE" })
+			.then(res => {
+				if (res.ok) {
+					loadCategories(currentMarkId);
+					loadMarks();
+				}
+			});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>모집공고 관리 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="recruitment-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>모집공고 관리</strong></h1>
+					<button class="btn btn-primary" onclick="openAddModal()">
+						<i class="align-middle" data-feather="plus"></i> 공고 등록
+					</button>
+				</div>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="recruitmentTable">
+							<thead>
+							<tr>
+								<th style="width:100px;">시험코드</th>
+								<th>공고명</th>
+								<th style="width:150px;">평가분야</th>
+								<th style="width:100px;">상태</th>
+								<th style="width:150px;">시험기간</th>
+								<th style="width:150px;">신청기간</th>
+								<th style="width:110px;">관리</th>
+							</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<div class="modal fade" id="recruitmentModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalTitle">공고 등록</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="recruitmentForm">
+					<input type="hidden" id="itemId">
+
+					<div class="row">
+						<div class="col-md-4 mb-3">
+							<label class="form-label">시험코드</label>
+							<input type="text" class="form-control" id="trialCode" placeholder="예: 피부0001">
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">평가분야</label>
+							<select class="form-select" id="evalCategory">
+								<option value="EFFICACY">유효성 평가</option>
+								<option value="FUNCTIONAL">기능성 평가</option>
+								<option value="HEALTH_FOOD">건강기능식품 평가</option>
+								<option value="SAFETY">안전성 평가</option>
+							</select>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">상태</label>
+							<select class="form-select" id="status">
+								<option value="OPEN">모집중</option>
+								<option value="CLOSED">마감</option>
+								<option value="PERMANENTLY_OPEN">상시모집</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">공고명 <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="trialName" required placeholder="예: 스킨케어 제품 보습 효능평가 참여자 모집">
+					</div>
+
+					<div class="row">
+						<div class="col-md-3 mb-3">
+							<label class="form-label">시험기간 시작</label>
+							<input type="date" class="form-control" id="startDate">
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="form-label">시험기간 종료</label>
+							<input type="date" class="form-control" id="endDate">
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="form-label">신청기간 시작</label>
+							<input type="date" class="form-control" id="applicationStartDate">
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="form-label">신청기간 종료</label>
+							<input type="date" class="form-control" id="applicationEndDate">
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">모집대상</label>
+							<input type="text" class="form-control" id="participationGroup" placeholder="예: 만 19~60세 여성">
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="form-label">모집인원</label>
+							<input type="number" class="form-control" id="participationNumber" placeholder="예: 30">
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="form-label">시험참여비</label>
+							<input type="text" class="form-control" id="participationCost" placeholder="예: 90,000원">
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">선정기준</label>
+						<textarea class="form-control" id="requirements" rows="2" placeholder="예: 건성 피부, 알레르기 병력 없는 분"></textarea>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">상세 안내</label>
+						<textarea class="form-control" id="detailContent" rows="5" placeholder="상세 페이지에 표시될 안내 내용"></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" id="btnSave">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let recruitmentList = [];
+
+	const CATEGORY_LABEL = { EFFICACY: '유효성 평가', FUNCTIONAL: '기능성 평가', HEALTH_FOOD: '건강기능식품 평가', SAFETY: '안전성 평가' };
+	const STATUS_LABEL = { OPEN: '모집중', CLOSED: '마감', PERMANENTLY_OPEN: '상시모집' };
+	const STATUS_BADGE = { OPEN: 'success', CLOSED: 'secondary', PERMANENTLY_OPEN: 'info' };
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadList();
+		document.getElementById("btnSave").addEventListener("click", saveItem);
+	});
+
+	function loadList() {
+		fetch("/api/recruitments")
+			.then(res => res.json())
+			.then(list => {
+				recruitmentList = list;
+				const tbody = document.querySelector("#recruitmentTable tbody");
+				tbody.innerHTML = list.length === 0
+					? '<tr><td colspan="7" class="text-center py-4">등록된 모집공고가 없습니다.</td></tr>'
+					: list.map((r, index) => `
+						<tr>
+							<td class="align-middle">${r.trialCode || '-'}</td>
+							<td class="align-middle">${r.trialName}</td>
+							<td class="align-middle">${CATEGORY_LABEL[r.evalCategory] || '-'}</td>
+							<td class="align-middle"><span class="badge bg-${STATUS_BADGE[r.status]}">${STATUS_LABEL[r.status]}</span></td>
+							<td class="align-middle small">${r.startDate || '-'} ~ ${r.endDate || '-'}</td>
+							<td class="align-middle small">${r.applicationStartDate || '-'} ~ ${r.applicationEndDate || '-'}</td>
+							<td class="align-middle">
+								<button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${index})">수정</button>
+								<button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${r.id})">삭제</button>
+							</td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	function collectFormData() {
+		return {
+			trialCode: document.getElementById("trialCode").value,
+			trialName: document.getElementById("trialName").value,
+			evalCategory: document.getElementById("evalCategory").value,
+			status: document.getElementById("status").value,
+			startDate: document.getElementById("startDate").value || null,
+			endDate: document.getElementById("endDate").value || null,
+			applicationStartDate: document.getElementById("applicationStartDate").value || null,
+			applicationEndDate: document.getElementById("applicationEndDate").value || null,
+			participationGroup: document.getElementById("participationGroup").value,
+			participationNumber: document.getElementById("participationNumber").value || null,
+			participationCost: document.getElementById("participationCost").value,
+			requirements: document.getElementById("requirements").value,
+			detailContent: document.getElementById("detailContent").value
+		};
+	}
+
+	function saveItem() {
+		const id = document.getElementById("itemId").value;
+		const data = collectFormData();
+
+		if (!data.trialName) { alert("공고명을 입력해주세요."); return; }
+
+		const url = id ? `/api/recruitments/${id}` : `/api/recruitments`;
+		const method = id ? "PUT" : "POST";
+
+		fetch(url, {
+			method: method,
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(data)
+		}).then(res => {
+			if (!res.ok) throw new Error("저장 실패");
+			alert("처리되었습니다.");
+			bootstrap.Modal.getInstance(document.getElementById('recruitmentModal')).hide();
+			loadList();
+		}).catch(err => alert(err.message));
+	}
+
+	function openAddModal() {
+		document.getElementById("recruitmentForm").reset();
+		document.getElementById("itemId").value = "";
+		document.getElementById("modalTitle").innerText = "공고 등록";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('recruitmentModal')).show();
+	}
+
+	function openEditModal(index) {
+		const r = recruitmentList[index];
+		document.getElementById("itemId").value = r.id;
+		document.getElementById("trialCode").value = r.trialCode || "";
+		document.getElementById("trialName").value = r.trialName || "";
+		document.getElementById("evalCategory").value = r.evalCategory || "EFFICACY";
+		document.getElementById("status").value = r.status || "OPEN";
+		document.getElementById("startDate").value = r.startDate || "";
+		document.getElementById("endDate").value = r.endDate || "";
+		document.getElementById("applicationStartDate").value = r.applicationStartDate || "";
+		document.getElementById("applicationEndDate").value = r.applicationEndDate || "";
+		document.getElementById("participationGroup").value = r.participationGroup || "";
+		document.getElementById("participationNumber").value = r.participationNumber || "";
+		document.getElementById("participationCost").value = r.participationCost || "";
+		document.getElementById("requirements").value = r.requirements || "";
+		document.getElementById("detailContent").value = r.detailContent || "";
+
+		document.getElementById("modalTitle").innerText = "공고 수정";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('recruitmentModal')).show();
+	}
+
+	function deleteItem(id) {
+		if (confirm("이 모집공고를 삭제하시겠습니까?")) {
+			fetch(`/api/recruitments/${id}`, { method: "DELETE" })
+				.then(res => { if (res.ok) { alert("삭제되었습니다."); loadList(); } });
+		}
+	}
+</script>
+</body>
+</html>

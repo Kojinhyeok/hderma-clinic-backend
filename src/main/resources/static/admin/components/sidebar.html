@@ -1,78 +1,19 @@
 <nav id="sidebar" class="sidebar js-sidebar">
 	<div class="sidebar-content js-simplebar">
-		<a class="sidebar-brand" href="index">
-			<span class="align-middle">Human Clinical</span>
+		<a class="sidebar-brand" href="index.html">
+			<span class="align-middle">H-Derma Admin</span>
 		</a>
 
 		<ul class="sidebar-nav">
-			<li class="sidebar-header js-group-toggle" data-group="common" style="cursor:pointer;">
-				공통
-				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
+
+			<li class="sidebar-header">
+				메인
 			</li>
 
-			<li class="sidebar-item" data-page="index" data-group="common">
-				<a class="sidebar-link" href="index">
+			<li class="sidebar-item" data-page="dashboard">
+				<a class="sidebar-link" href="index.html">
 					<i class="align-middle" data-feather="sliders"></i>
 					<span class="align-middle">대시보드</span>
-				</a>
-			</li>
-
-			<li class="sidebar-item" data-page="popup" data-group="common">
-				<a class="sidebar-link" href="popup/list">
-					<i class="align-middle" data-feather="monitor"></i>
-					<span class="align-middle">팝업 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-item" data-page="cumulative-data" data-group="common">
-				<a class="sidebar-link" href="cumulative-data/list">
-					<i class="align-middle" data-feather="database"></i>
-					<span class="align-middle">누적 데이터 관리</span>
-				</a>
-			</li>
-
-			<!-- <li class="sidebar-item" data-page="core-members" data-group="common">
-				<a class="sidebar-link" href="core-members/list">
-					<i class="align-middle" data-feather="user-plus"></i>
-					<span class="align-middle">핵심 인력 관리</span>
-				</a>
-			</li> -->
-
-			<li class="sidebar-header js-group-toggle" data-group="member-group" style="cursor:pointer;">
-				회원 관리
-				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
-			</li>
-
-			<li class="sidebar-item" data-page="member" data-group="member-group">
-				<a class="sidebar-link" href="member/list">
-					<i class="align-middle" data-feather="users"></i>
-					<span class="align-middle">회원 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-header js-group-toggle" data-group="promo-group" style="cursor:pointer;">
-				홍보센터
-				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
-			</li>
-
-			<li class="sidebar-item" data-page="certification" data-group="promo-group">
-				<a class="sidebar-link" href="certification/list">
-					<i class="align-middle" data-feather="award"></i>
-					<span class="align-middle">인증마크 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-item" data-page="human-story" data-group="promo-group">
-				<a class="sidebar-link" href="human-story/list">
-					<i class="align-middle" data-feather="book-open"></i>
-					<span class="align-middle">휴먼 이야기</span>
-				</a>
-			</li>
-
-			<li class="sidebar-item" data-page="human-news" data-group="promo-group">
-				<a class="sidebar-link" href="human-news/list">
-					<i class="align-middle" data-feather="file-text"></i>
-					<span class="align-middle">휴먼 임상소식</span>
 				</a>
 			</li>
 
@@ -123,76 +64,92 @@
 				</a>
 			</li>
 
-			<li class="sidebar-header js-group-toggle" data-group="request-group" style="cursor:pointer;">
-				시험의뢰
+			<li class="sidebar-header js-group-toggle" data-group="inquiry-group" style="cursor:pointer;">
+				시험문의
 				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
 			</li>
 
-			<li class="sidebar-item" data-page="trial-question-list" data-group="request-group">
-				<a class="sidebar-link" href="trial-question/list">
-					<i class="align-middle" data-feather="help-circle"></i>
-					<span class="align-middle">시험문의 관리</span>
+			<li class="sidebar-item" data-page="trial-request-list" data-group="inquiry-group">
+				<a class="sidebar-link" href="trial-request/list">
+					<i class="align-middle" data-feather="inbox"></i>
+					<span class="align-middle">시험의뢰 관리</span>
 				</a>
 			</li>
 
-			<li class="sidebar-item" data-page="trial-notification-list" data-group="request-group">
-				<a class="sidebar-link" href="trial-notification/list">
+			<li class="sidebar-header js-group-toggle" data-group="recruitment-group" style="cursor:pointer;">
+				피험자 모집
+				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
+			</li>
+
+			<li class="sidebar-item" data-page="recruitment-list" data-group="recruitment-group">
+				<a class="sidebar-link" href="recruitment/list">
+					<i class="align-middle" data-feather="clipboard"></i>
+					<span class="align-middle">모집공고 관리</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item" data-page="trial-application-list" data-group="recruitment-group">
+				<a class="sidebar-link" href="trial-application/list">
+					<i class="align-middle" data-feather="user-check"></i>
+					<span class="align-middle">시험참여신청자 관리</span>
+				</a>
+			</li>
+
+			<li class="sidebar-header js-group-toggle" data-group="content-group" style="cursor:pointer;">
+				H-DERMA 소식
+				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
+			</li>
+
+			<li class="sidebar-item" data-page="newsletter-list" data-group="content-group">
+				<a class="sidebar-link" href="newsletter/list">
+					<i class="align-middle" data-feather="mail"></i>
+					<span class="align-middle">뉴스레터 관리</span>
+				</a>
+			</li>
+
+			<li class="sidebar-item" data-page="notice-list" data-group="content-group">
+				<a class="sidebar-link" href="notice/list">
 					<i class="align-middle" data-feather="bell"></i>
 					<span class="align-middle">공지사항 관리</span>
 				</a>
 			</li>
 
-			<li class="sidebar-item" data-page="trial-files-list" data-group="request-group">
-				<a class="sidebar-link" href="trial-files/list">
-					<i class="align-middle" data-feather="download"></i>
-					<span class="align-middle">다운로드 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-item" data-page="faq-request-list" data-group="request-group">
-				<a class="sidebar-link" href="faq-request/list">
-					<i class="align-middle" data-feather="message-circle"></i>
-					<span class="align-middle">FAQ 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-header js-group-toggle" data-group="participation-group" style="cursor:pointer;">
-				시험참여
+			<li class="sidebar-header js-group-toggle" data-group="cert-group" style="cursor:pointer;">
+				인증마크
 				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
 			</li>
 
-			<li class="sidebar-item" data-page="recruitment-list" data-group="participation-group">
-				<a class="sidebar-link" href="recruitment/list">
-					<i class="align-middle" data-feather="clipboard"></i>
-					<span class="align-middle">모집 공고 관리</span>
+			<li class="sidebar-item" data-page="certification-mark-list" data-group="cert-group">
+				<a class="sidebar-link" href="certification-mark/list">
+					<i class="align-middle" data-feather="award"></i>
+					<span class="align-middle">인증마크 관리</span>
 				</a>
 			</li>
 
-			<li class="sidebar-item" data-page="trial-application-list" data-group="participation-group">
-				<a class="sidebar-link" href="trial-application/list">
-					<i class="align-middle" data-feather="user-check"></i>
-					<span class="align-middle">피험자 신청 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-item" data-page="faq-participation-list" data-group="participation-group">
-				<a class="sidebar-link" href="faq-participation/list">
-					<i class="align-middle" data-feather="message-circle"></i>
-					<span class="align-middle">FAQ 관리</span>
-				</a>
-			</li>
-
-			<li class="sidebar-header js-group-toggle" data-group="eirb-group" style="cursor:pointer;">
-				E-IRB
+			<li class="sidebar-header js-group-toggle" data-group="popup-group" style="cursor:pointer;">
+				사이트 운영
 				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
 			</li>
 
-			<li class="sidebar-item" data-page="e-irb-list" data-group="eirb-group">
-				<a class="sidebar-link" href="e-irb/list">
-					<i class="align-middle" data-feather="shield"></i>
-					<span class="align-middle">IRB 관리</span>
+			<li class="sidebar-item" data-page="popup-list" data-group="popup-group">
+				<a class="sidebar-link" href="popup/list">
+					<i class="align-middle" data-feather="layout"></i>
+					<span class="align-middle">팝업 관리</span>
 				</a>
 			</li>
+
+			<li class="sidebar-header js-group-toggle" data-group="member-group" style="cursor:pointer;">
+				회원관리
+				<i class="align-middle float-end" data-feather="chevron-down" style="width:14px;height:14px;"></i>
+			</li>
+
+			<li class="sidebar-item" data-page="member-list" data-group="member-group">
+				<a class="sidebar-link" href="member/list">
+					<i class="align-middle" data-feather="users"></i>
+					<span class="align-middle">회원 관리</span>
+				</a>
+			</li>
+
 		</ul>
 	</div>
 </nav>
