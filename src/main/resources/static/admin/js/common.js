@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
 					if (user.position !== "ADMIN") {
 						fetch("/api/auth/logout", { method: "POST" });
 						sessionStorage.clear();
-						window.location.href = "/admin/login";
+						window.location.href = "/admin/login.html";
 						throw new Error("not_admin");
 					}
 					// 헤더에 사용자 이름 표시 (DOM 로딩 후)
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				.catch(function (err) {
 					if (err && err.message === "not_admin") return;
 					sessionStorage.clear();
-					window.location.href = "/admin/login";
+					window.location.href = "/admin/login.html";
 				})
 		);
 	}
@@ -148,7 +148,7 @@ function initLogoutButton() {
 			fetch("/api/auth/logout", { method: "POST" })
 				.finally(function () {
 					sessionStorage.clear();
-					window.location.href = "/admin/login";
+					window.location.href = "/admin/login.html";
 				});
 		});
 	}
