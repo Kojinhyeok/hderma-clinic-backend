@@ -241,99 +241,97 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     setTimeout(drawVisionConnector, 300);
   }
-
-  // ================= 사이트 공통 팝업 (main.js 하단에 추가) =================
-  document.addEventListener("DOMContentLoaded", function () {
-    fetch("/api/popups/active")
-      .then(function (res) { return res.ok ? res.json() : []; })
-      .then(function (popups) {
-        popups.forEach(function (popup, index) {
-          if (isPopupHiddenToday(popup.id)) return;
-          renderPopup(popup, index);
-        });
-      })
-      .catch(function () {});
-  });
-
-  function isPopupHiddenToday(id) {
-    var hiddenUntil = localStorage.getItem("popup_hide_" + id);
-    if (!hiddenUntil) return false;
-    return new Date(hiddenUntil) > new Date();
-  }
-
-  function renderPopup(popup, index) {
-    var box = document.createElement("div");
-    box.className = "site-popup";
-    box.style.cssText =
-      "position:fixed; top:" + popup.posY + "px; left:" + popup.posX + "px; " +
-      "width:" + popup.width + "px; z-index:" + (2000 + index) + "; " +
-      "background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.18); overflow:hidden;";
-
-    var imageHtml = popup.imageUrl
-      ? '<img src="' + popup.imageUrl + '" alt="' + (popup.title || '') + '" style="width:100%; display:block;">'
-      : '<div style="padding:40px 20px; text-align:center; color:#999;">' + (popup.title || '팝업') + '</div>';
-
-    var linkOpenTag = popup.linkUrl ? '<a href="' + popup.linkUrl + '" target="_blank">' : '';
-    var linkCloseTag = popup.linkUrl ? '</a>' : '';
-
-    box.innerHTML =
-      linkOpenTag + imageHtml + linkCloseTag +
-      '<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f5f5f5; font-size:0.82rem;">' +
-      '<label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;">' +
-      '<input type="checkbox" class="popup-hide-today"> 오늘 하루 보지 않기' +
-      '</label>' +
-      '<button type="button" class="popup-close-btn" style="border:none; background:none; font-size:1rem; cursor:pointer;">닫기 ✕</button>' +
-      '</div>';
-
-    document.body.appendChild(box);
-
-    box.querySelector(".popup-close-btn").addEventListener("click", function () {
-      var hideToday = box.querySelector(".popup-hide-today").checked;
-      if (hideToday) {
-        var tomorrow = new Date();
-        tomorrow.setHours(24, 0, 0, 0);
-        localStorage.setItem("popup_hide_" + popup.id, tomorrow.toISOString());
-      }
-      box.remove();
-    });
-  }
-
-  // ================= 언어 선택 드롭다운 + 구글 번역 전환 =================
-  document.addEventListener("DOMContentLoaded", function () {
-    var trigger = document.getElementById("langTrigger");
-    var list = document.getElementById("langList");
-
-    if (trigger && list) {
-      trigger.addEventListener("click", function (e) {
-        e.stopPropagation();
-        list.classList.toggle("show");
-      });
-      document.addEventListener("click", function (e) {
-        if (!list.contains(e.target) && e.target !== trigger) {
-          list.classList.remove("show");
-        }
-      });
-    }
-
-    document.querySelectorAll("#langList li, #langListMobile li").forEach(function (item) {
-      item.addEventListener("click", function () {
-        changeLanguage(item.dataset.lang);
-      });
-    });
-
-    // 현재 언어에 맞춰 active 표시
-    var match = document.cookie.match(/googtrans=\/ko\/([a-zA-Z\-]+)/);
-    var currentLang = match ? match[1] : "ko";
-    document.querySelectorAll("#langList li, #langListMobile li").forEach(function (item) {
-      item.classList.toggle("active", item.dataset.lang === currentLang);
-    });
-  });
-
-  function changeLanguage(lang) {
-    document.cookie = "googtrans=/ko/" + lang + "; path=/";
-    setTimeout(function () {
-      location.reload();
-    }, 100);
-  }
 });
 
+// ================= 사이트 공통 팝업 =================
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/api/popups/active")
+    .then(function (res) { return res.ok ? res.json() : []; })
+    .then(function (popups) {
+      popups.forEach(function (popup, index) {
+        if (isPopupHiddenToday(popup.id)) return;
+        renderPopup(popup, index);
+      });
+    })
+    .catch(function () {});
+});
+
+function isPopupHiddenToday(id) {
+  var hiddenUntil = localStorage.getItem("popup_hide_" + id);
+  if (!hiddenUntil) return false;
+  return new Date(hiddenUntil) > new Date();
+}
+
+function renderPopup(popup, index) {
+  var box = document.createElement("div");
+  box.className = "site-popup";
+  box.style.cssText =
+    "position:fixed; top:" + popup.posY + "px; left:" + popup.posX + "px; " +
+    "width:" + popup.width + "px; z-index:" + (2000 + index) + "; " +
+    "background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.18); overflow:hidden;";
+
+  var imageHtml = popup.imageUrl
+    ? '<img src="' + popup.imageUrl + '" alt="' + (popup.title || '') + '" style="width:100%; display:block;">'
+    : '<div style="padding:40px 20px; text-align:center; color:#999;">' + (popup.title || '팝업') + '</div>';
+
+  var linkOpenTag = popup.linkUrl ? '<a href="' + popup.linkUrl + '" target="_blank">' : '';
+  var linkCloseTag = popup.linkUrl ? '</a>' : '';
+
+  box.innerHTML =
+    linkOpenTag + imageHtml + linkCloseTag +
+    '<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#f5f5f5; font-size:0.82rem;">' +
+    '<label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;">' +
+    '<input type="checkbox" class="popup-hide-today"> 오늘 하루 보지 않기' +
+    '</label>' +
+    '<button type="button" class="popup-close-btn" style="border:none; background:none; font-size:1rem; cursor:pointer;">닫기 ✕</button>' +
+    '</div>';
+
+  document.body.appendChild(box);
+
+  box.querySelector(".popup-close-btn").addEventListener("click", function () {
+    var hideToday = box.querySelector(".popup-hide-today").checked;
+    if (hideToday) {
+      var tomorrow = new Date();
+      tomorrow.setHours(24, 0, 0, 0);
+      localStorage.setItem("popup_hide_" + popup.id, tomorrow.toISOString());
+    }
+    box.remove();
+  });
+}
+
+// ================= 언어 선택 드롭다운 + 구글 번역 전환 =================
+document.addEventListener("DOMContentLoaded", function () {
+  var trigger = document.getElementById("langTrigger");
+  var list = document.getElementById("langList");
+
+  if (trigger && list) {
+    trigger.addEventListener("click", function (e) {
+      e.stopPropagation();
+      list.classList.toggle("show");
+    });
+    document.addEventListener("click", function (e) {
+      if (!list.contains(e.target) && e.target !== trigger) {
+        list.classList.remove("show");
+      }
+    });
+  }
+
+  document.querySelectorAll("#langList li, #langListMobile li").forEach(function (item) {
+    item.addEventListener("click", function () {
+      changeLanguage(item.dataset.lang);
+    });
+  });
+
+  var match = document.cookie.match(/googtrans=\/ko\/([a-zA-Z\-]+)/);
+  var currentLang = match ? match[1] : "ko";
+  document.querySelectorAll("#langList li, #langListMobile li").forEach(function (item) {
+    item.classList.toggle("active", item.dataset.lang === currentLang);
+  });
+});
+
+function changeLanguage(lang) {
+  document.cookie = "googtrans=/ko/" + lang + "; path=/";
+  setTimeout(function () {
+    location.reload();
+  }, 100);
+}
