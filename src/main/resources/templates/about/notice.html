@@ -25,7 +25,6 @@
     <a th:href="@{/about/notice}" class="active">공지사항</a>
   </nav>
 </div>
-
 <section class="sub-content">
   <div class="notice-wrap reveal-up">
     <table class="notice-table">
@@ -46,18 +45,6 @@
     </div>
   </div>
 </section>
-
-<!-- 공지 상세 모달 -->
-<div id="noticeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center;">
-  <div style="background:#fff; max-width:640px; width:92%; max-height:80vh; overflow-y:auto; border-radius:10px; padding:32px;">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
-      <h3 id="noticeModalTitle" style="margin:0;"></h3>
-      <button type="button" id="noticeModalClose" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
-    </div>
-    <p style="color:#888; font-size:0.85rem; margin-bottom:20px;" id="noticeModalDate"></p>
-    <div id="noticeModalContent" style="white-space:pre-line; line-height:1.7;"></div>
-  </div>
-</div>
 
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
@@ -85,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return (
           '<tr>' +
           '<td class="center num">' + num + '</td>' +
-          '<td><a href="javascript:" onclick="openNotice(' + n.id + ')">' +
+          '<td><a href="/about/notice/' + n.id + '">' +
           (n.isPinned ? '<span class="pin-badge">공지</span>' : '') +
           '<span class="ttl">' + n.title + '</span></a></td>' +
           '<td class="center writer">관리자</td>' +
@@ -95,23 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }).join("");
     });
-
-  document.getElementById("noticeModalClose").addEventListener("click", function () {
-    document.getElementById("noticeModal").style.display = "none";
-  });
 });
-
-function openNotice(id) {
-  fetch("/api/notices/" + id)
-    .then(function (res) { return res.json(); })
-    .then(function (n) {
-      document.getElementById("noticeModalTitle").innerText = n.title;
-      document.getElementById("noticeModalDate").innerText =
-        (n.createdAt || "").substring(0, 10).replace(/-/g, ".") + " · 조회 " + (n.viewCount || 0);
-      document.getElementById("noticeModalContent").innerText = n.content || "";
-      document.getElementById("noticeModal").style.display = "flex";
-    });
-}
 </script>
 
 </body>

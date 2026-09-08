@@ -46,4 +46,14 @@ public class PageController {
     public String irbDetail() {
         return "irb/detail";
     }
+
+    @GetMapping("/about/notice/{id}")
+    public String noticeDetail(@PathVariable Long id) {
+        return "about/notice-detail";
+    }
+
+    @GetMapping("/about/newsletter/{id}")
+    public String newsletterDetail(@PathVariable Long id) {
+        return "about/newsletter-detail";
+    }
 }
