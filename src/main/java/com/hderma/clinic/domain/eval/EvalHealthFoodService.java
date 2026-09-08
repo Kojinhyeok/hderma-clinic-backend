@@ -3,7 +3,7 @@ package com.hderma.clinic.domain.eval;
 import com.hderma.clinic.domain.common.FileEntity;
 import com.hderma.clinic.domain.common.FileQueryService;
 import com.hderma.clinic.domain.common.FileRepository;
-import com.hderma.clinic.domain.common.FileStorageService;
+import com.hderma.clinic.domain.common.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ public class EvalHealthFoodService {
 
     private final EvalHealthFoodRepository repository;
     private final FileRepository fileRepository;
-    private final FileStorageService fileStorageService;
+    private final S3Service s3Service;
     private final FileQueryService fileQueryService;
 
     public List<EvalHealthFoodDto.Response> findAll() {
@@ -72,6 +72,7 @@ public class EvalHealthFoodService {
     }
 
     private String createPendingFile(Long entityId, EvalHealthFoodDto.Request req) {
+        String s3Key = s3Service.generateKey(ENTITY_TYPE, req.getOriginalFilename());
         FileEntity fe = FileEntity.builder()
             .entityType(ENTITY_TYPE)
             .entityId(entityId)
@@ -79,9 +80,10 @@ public class EvalHealthFoodService {
             .originalFilename(req.getOriginalFilename())
             .fileSize(req.getFileSize())
             .mimeType(req.getMimeType())
+            .s3Key(s3Key)
             .build();
         fileRepository.save(fe);
-        return "/api/files/local/" + fe.getId();
+        return s3Service.getPresignedUploadUrl(s3Key, req.getMimeType());
     }
 
     private EvalHealthFoodDto.Response toResponse(EvalHealthFood e) {

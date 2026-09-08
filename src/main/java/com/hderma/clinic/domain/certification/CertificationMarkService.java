@@ -3,6 +3,7 @@ package com.hderma.clinic.domain.certification;
 import com.hderma.clinic.domain.common.FileEntity;
 import com.hderma.clinic.domain.common.FileQueryService;
 import com.hderma.clinic.domain.common.FileRepository;
+import com.hderma.clinic.domain.common.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ public class CertificationMarkService {
     private final CertificationMarkRepository markRepository;
     private final CertificationMarkCategoryRepository categoryRepository;
     private final FileRepository fileRepository;
+    private final S3Service s3Service;
     private final FileQueryService fileQueryService;
 
     // ===== 대분류 =====
@@ -87,13 +89,15 @@ public class CertificationMarkService {
     }
 
     private String createPendingFile(Long categoryId, CertificationMarkDto.CategoryRequest req) {
+        String s3Key = s3Service.generateKey(CATEGORY_ENTITY_TYPE, req.getOriginalFilename());
         FileEntity fe = FileEntity.builder()
             .entityType(CATEGORY_ENTITY_TYPE).entityId(categoryId).fileCategory("MARK_IMAGE")
             .originalFilename(req.getOriginalFilename())
             .fileSize(req.getFileSize()).mimeType(req.getMimeType())
+            .s3Key(s3Key)
             .build();
         fileRepository.save(fe);
-        return "/api/files/local/" + fe.getId();
+        return s3Service.getPresignedUploadUrl(s3Key, req.getMimeType());
     }
 
     private CertificationMarkDto.CategoryResponse toCategoryResponse(CertificationMarkCategory c) {

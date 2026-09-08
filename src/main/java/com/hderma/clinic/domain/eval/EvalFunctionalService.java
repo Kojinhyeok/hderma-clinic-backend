@@ -3,7 +3,7 @@ package com.hderma.clinic.domain.eval;
 import com.hderma.clinic.domain.common.FileEntity;
 import com.hderma.clinic.domain.common.FileQueryService;
 import com.hderma.clinic.domain.common.FileRepository;
-import com.hderma.clinic.domain.common.FileStorageService;
+import com.hderma.clinic.domain.common.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ public class EvalFunctionalService {
 
     private final EvalFunctionalRepository repository;
     private final FileRepository fileRepository;
-    private final FileStorageService fileStorageService;
+    private final S3Service s3Service;
     private final FileQueryService fileQueryService;
 
     public List<EvalFunctionalDto.Response> findAll() {
@@ -71,8 +71,9 @@ public class EvalFunctionalService {
         repository.deleteById(id);
     }
 
-    /** 파일 레코드를 미리 만들어두고, 실제 파일이 도착할 "업로드 주소"를 돌려줌 (presigned URL 흉내) */
+    /** 파일 레코드를 미리 만들어두고, S3에 직접 PUT할 presigned 업로드 URL을 돌려줌 */
     private String createPendingFile(Long entityId, EvalFunctionalDto.Request req) {
+        String s3Key = s3Service.generateKey(ENTITY_TYPE, req.getOriginalFilename());
         FileEntity fe = FileEntity.builder()
             .entityType(ENTITY_TYPE)
             .entityId(entityId)
@@ -80,9 +81,10 @@ public class EvalFunctionalService {
             .originalFilename(req.getOriginalFilename())
             .fileSize(req.getFileSize())
             .mimeType(req.getMimeType())
+            .s3Key(s3Key)
             .build();
         fileRepository.save(fe);
-        return "/api/files/local/" + fe.getId();
+        return s3Service.getPresignedUploadUrl(s3Key, req.getMimeType());
     }
 
     private EvalFunctionalDto.Response toResponse(EvalFunctional e) {

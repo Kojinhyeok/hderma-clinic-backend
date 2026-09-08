@@ -3,6 +3,7 @@ package com.hderma.clinic.domain.popup;
 import com.hderma.clinic.domain.common.FileEntity;
 import com.hderma.clinic.domain.common.FileQueryService;
 import com.hderma.clinic.domain.common.FileRepository;
+import com.hderma.clinic.domain.common.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class PopupService {
 
     private static final String ENTITY_TYPE = "popup";
+    private final S3Service s3Service;
 
     private final PopupRepository repository;
     private final FileRepository fileRepository;
@@ -85,13 +87,15 @@ public class PopupService {
     }
 
     private String createPendingFile(Long entityId, PopupDto.Request req) {
+        String s3Key = s3Service.generateKey(ENTITY_TYPE, req.getOriginalFilename());
         FileEntity fe = FileEntity.builder()
             .entityType(ENTITY_TYPE).entityId(entityId).fileCategory("THUMBNAIL")
             .originalFilename(req.getOriginalFilename())
             .fileSize(req.getFileSize()).mimeType(req.getMimeType())
+            .s3Key(s3Key)
             .build();
         fileRepository.save(fe);
-        return "/api/files/local/" + fe.getId();
+        return s3Service.getPresignedUploadUrl(s3Key, req.getMimeType());
     }
 
     private PopupDto.Response toResponse(Popup e) {
