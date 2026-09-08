@@ -326,11 +326,12 @@
 .structured-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:24px; max-width:1300px; margin:0 auto;}
 .structured-card{
   padding:30px 26px; background:#fff; border:1px solid var(--line); border-radius:0 24px 0 24px;
-  display:flex; gap:18px; transition:.3s; align-items: center;
+  display:flex; gap:20px; transition:.3s; align-items: center;
 }
 .structured-card:hover{border-color:transparent; box-shadow:0 18px 36px rgba(20,50,90,.1); transform:translateY(-4px);}
 .structured-card .ic{
-  flex-shrink:0; width:56px; height:56px; border-radius:50%; background:var(--grad-soft);
+  flex-shrink:0; width:56px; height:56px; border-radius:50%; 
+  /* background:var(--grad-soft); */
   display:flex; align-items:center; justify-content:center; color:var(--main); font-weight:800; font-size:14px;
 }
 .structured-card h4{font-size:16.5px; font-weight:700; color:var(--navy); margin-bottom:10px; line-height:1.4;}

@@ -297,4 +297,43 @@ document.addEventListener('DOMContentLoaded', function () {
       box.remove();
     });
   }
+
+  // ================= 언어 선택 드롭다운 + 구글 번역 전환 =================
+  document.addEventListener("DOMContentLoaded", function () {
+    var trigger = document.getElementById("langTrigger");
+    var list = document.getElementById("langList");
+
+    if (trigger && list) {
+      trigger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        list.classList.toggle("show");
+      });
+      document.addEventListener("click", function (e) {
+        if (!list.contains(e.target) && e.target !== trigger) {
+          list.classList.remove("show");
+        }
+      });
+    }
+
+    document.querySelectorAll("#langList li, #langListMobile li").forEach(function (item) {
+      item.addEventListener("click", function () {
+        changeLanguage(item.dataset.lang);
+      });
+    });
+
+    // 현재 언어에 맞춰 active 표시
+    var match = document.cookie.match(/googtrans=\/ko\/([a-zA-Z\-]+)/);
+    var currentLang = match ? match[1] : "ko";
+    document.querySelectorAll("#langList li, #langListMobile li").forEach(function (item) {
+      item.classList.toggle("active", item.dataset.lang === currentLang);
+    });
+  });
+
+  function changeLanguage(lang) {
+    document.cookie = "googtrans=/ko/" + lang + "; path=/";
+    setTimeout(function () {
+      location.reload();
+    }, 100);
+  }
 });
+

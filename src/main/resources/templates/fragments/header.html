@@ -4,6 +4,19 @@
 
 <th:block th:fragment="header">
   <!-- ================= HEADER ================= -->
+     <!-- ================= 구글 번역 (숨김 위젯) ================= -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'ko',
+        includedLanguages: 'ko,en,zh-CN,ja',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <div id="google_translate_element"></div>
   <header id="header">
     <div class="nav-wr">
       <a th:href="@{/}" class="nav-logo">
@@ -56,8 +69,17 @@
           <a th:href="@{/auth/login}">로그인</a>
           <a th:href="@{/auth/register}">회원가입</a>
         </div>
-        <div class="lang-box">
-          <a href="#" class="active">KO</a><span>/</span><a href="#">EN</a>
+        <div class="lang-box" id="langBox">
+          <button type="button" class="lang-trigger" id="langTrigger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/></svg>
+            <span>Language</span>
+          </button>
+          <ul class="lang-list" id="langList">
+            <li data-lang="ko" class="active">한국어</li>
+            <li data-lang="en">English</li>
+            <li data-lang="zh-CN">中文</li>
+            <li data-lang="ja">日本語</li>
+          </ul>
         </div>
         <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기"><span></span></button>
       </div>
@@ -118,6 +140,12 @@
     <div class="mUtil">
       <a th:href="@{/auth/login}">로그인</a>
       <a th:href="@{/auth/register}">회원가입</a>
+      <ul class="lang-list-m" id="langListMobile">
+        <li data-lang="ko" class="active">한국어</li>
+        <li data-lang="en">English</li>
+        <li data-lang="zh-CN">中文</li>
+        <li data-lang="ja">日本語</li>
+      </ul>
     </div>
   </nav>
 </th:block>
