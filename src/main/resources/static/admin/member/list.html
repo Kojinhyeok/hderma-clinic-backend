@@ -20,11 +20,15 @@
 			<div class="container-fluid p-0">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<h1 class="h3 mb-0"><strong>회원 관리</strong></h1>
+					<button class="btn btn-primary" onclick="openInviteModal()">
+						<i class="align-middle" data-feather="user-plus"></i> 교수님 초대
+					</button>
 				</div>
 
 				<p class="text-muted small">
 					권한란에서 <b>교수</b> 또는 <b>관리자</b>로 지정하면 E-IRB 등 제한된 메뉴에 접근할 수 있게 돼요.
 					가입 화면에서는 이 값을 직접 선택할 수 없고, 여기서만 승격/강등이 가능해요.
+					<b>초대 대기</b> 상태는 관리자가 초대만 하고 아직 본인이 아이디/비밀번호를 설정하지 않은 상태예요.
 				</p>
 
 				<div class="card">
@@ -38,9 +42,9 @@
 								<th>이메일</th>
 								<th>휴대전화</th>
 								<th style="width:130px;">권한</th>
-								<th style="width:100px;">상태</th>
+								<th style="width:110px;">상태</th>
 								<th style="width:130px;">가입일</th>
-								<th style="width:90px;">관리</th>
+								<th style="width:170px;">관리</th>
 							</tr>
 							</thead>
 							<tbody></tbody>
@@ -52,13 +56,52 @@
 	</div>
 </div>
 
+<!-- 교수님 초대 모달 -->
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">교수님 초대</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="inviteForm">
+					<div class="mb-3">
+						<label class="form-label">이름 <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="inviteName" required>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">이메일 <span class="text-danger">*</span></label>
+						<input type="email" class="form-control" id="inviteEmail" required>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">휴대전화</label>
+						<input type="text" class="form-control" id="invitePhone" placeholder="선택 입력">
+					</div>
+					<p class="text-muted small mb-0">
+						저장하면 입력하신 이메일로 가입 완료 링크가 발송되고, 회원은 <b>초대 대기</b> 상태로 등록돼요.
+						교수님이 링크를 눌러 아이디/비밀번호를 설정하면 자동으로 <b>교수</b> 권한 활동중 상태가 됩니다.
+					</p>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" id="btnInviteSave">초대 메일 보내기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script src="../js/app.js"></script>
 <script src="../js/common.js"></script>
 <script>
-	document.addEventListener("DOMContentLoaded", loadItems);
+	document.addEventListener("DOMContentLoaded", function () {
+		loadItems();
+		document.getElementById("btnInviteSave").addEventListener("click", sendInvite);
+	});
 
-	const STATUS_LABEL = { ACTIVE: '활동중', WITHDRAWN: '탈퇴' };
-	const STATUS_BADGE = { ACTIVE: 'success', WITHDRAWN: 'secondary' };
+	const STATUS_LABEL = { ACTIVE: '활동중', WITHDRAWN: '탈퇴', SUSPENDED: '초대 대기' };
+	const STATUS_BADGE = { ACTIVE: 'success', WITHDRAWN: 'secondary', SUSPENDED: 'warning' };
 
 	function loadItems() {
 		fetch("/api/members")
@@ -70,12 +113,12 @@
 					: list.map(m => `
 						<tr>
 							<td class="align-middle">${m.id}</td>
-							<td class="align-middle">${m.username}</td>
+							<td class="align-middle">${m.username || '<span class="text-muted">미설정</span>'}</td>
 							<td class="align-middle">${m.name}</td>
 							<td class="align-middle">${m.email || '-'}</td>
 							<td class="align-middle">${m.phone || '-'}</td>
 							<td class="align-middle">
-								<select class="form-select form-select-sm" onchange="updateRole(${m.id}, this.value)">
+								<select class="form-select form-select-sm" ${m.status === 'SUSPENDED' ? 'disabled' : ''} onchange="updateRole(${m.id}, this.value)">
 									<option value="MEMBER" ${m.role === 'MEMBER' ? 'selected' : ''}>일반회원</option>
 									<option value="PROFESSOR" ${m.role === 'PROFESSOR' ? 'selected' : ''}>교수</option>
 									<option value="ADMIN" ${m.role === 'ADMIN' ? 'selected' : ''}>관리자</option>
@@ -84,9 +127,11 @@
 							<td class="align-middle"><span class="badge bg-${STATUS_BADGE[m.status]}">${STATUS_LABEL[m.status]}</span></td>
 							<td class="align-middle">${(m.createdAt || '').substring(0, 10)}</td>
 							<td class="align-middle">
-								${m.status === 'ACTIVE'
-									? `<button class="btn btn-sm btn-outline-danger" onclick="withdraw(${m.id})">탈퇴처리</button>`
-									: '-'}
+								${m.status === 'SUSPENDED'
+									? `<button class="btn btn-sm btn-outline-primary" onclick="resendInvite(${m.id})">초대 재발송</button>`
+									: m.status === 'ACTIVE'
+										? `<button class="btn btn-sm btn-outline-danger" onclick="withdraw(${m.id})">탈퇴처리</button>`
+										: '-'}
 							</td>
 						</tr>
 					`).join("");
@@ -108,6 +153,45 @@
 		if (confirm("이 회원을 탈퇴 처리하시겠습니까?")) {
 			fetch(`/api/members/${id}`, { method: "DELETE" })
 				.then(res => { if (res.ok) loadItems(); });
+		}
+	}
+
+	function openInviteModal() {
+		document.getElementById("inviteForm").reset();
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('inviteModal')).show();
+	}
+
+	function sendInvite() {
+		const name = document.getElementById("inviteName").value.trim();
+		const email = document.getElementById("inviteEmail").value.trim();
+		const phone = document.getElementById("invitePhone").value.trim();
+		if (!name || !email) { alert("이름과 이메일을 입력해주세요."); return; }
+
+		fetch("/api/members/invite", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name, email, phone })
+		}).then(async res => {
+			if (!res.ok) {
+				const err = await res.json().catch(() => ({}));
+				throw new Error(err.message || "초대 실패");
+			}
+			alert("초대 메일이 발송되었습니다.");
+			bootstrap.Modal.getInstance(document.getElementById('inviteModal')).hide();
+			loadItems();
+		}).catch(err => alert(err.message));
+	}
+
+	function resendInvite(id) {
+		if (confirm("초대 메일을 다시 보내시겠습니까? (기존 링크는 무효화돼요)")) {
+			fetch(`/api/members/${id}/resend-invite`, { method: "POST" })
+				.then(async res => {
+					if (!res.ok) {
+						const err = await res.json().catch(() => ({}));
+						throw new Error(err.message || "재발송 실패");
+					}
+					alert("초대 메일이 재발송되었습니다.");
+				}).catch(err => alert(err.message));
 		}
 	}
 </script>

@@ -30,4 +30,16 @@ public class MemberAdminController {
         memberService.withdraw(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/invite")
+    public ResponseEntity<?> invite(@RequestBody MemberDto.InviteRequest req) {
+        Long id = memberService.inviteProfessor(req);
+        return ResponseEntity.ok(java.util.Map.of("id", id, "message", "초대 이메일이 발송되었습니다."));
+    }
+
+    @PostMapping("/{id}/resend-invite")
+    public ResponseEntity<?> resendInvite(@PathVariable Long id) {
+        memberService.resendInvite(id);
+        return ResponseEntity.ok(java.util.Map.of("message", "초대 이메일이 재발송되었습니다."));
+    }
 }

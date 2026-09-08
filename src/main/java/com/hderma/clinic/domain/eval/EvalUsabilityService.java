@@ -1,9 +1,5 @@
 package com.hderma.clinic.domain.eval;
 
-import com.hderma.clinic.domain.common.FileEntity;
-import com.hderma.clinic.domain.common.FileQueryService;
-import com.hderma.clinic.domain.common.FileRepository;
-import com.hderma.clinic.domain.common.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,84 +11,62 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EvalUsabilityService {
 
-    private static final String ENTITY_TYPE = "eval_usability";
+    private final EvalUsabilityGroupRepository groupRepository;
+    private final EvalUsabilityItemRepository itemRepository;
 
-    private final EvalUsabilityRepository repository;
-    private final FileRepository fileRepository;
-    private final FileStorageService fileStorageService;
-    private final FileQueryService fileQueryService;
-
-    public List<EvalUsabilityDto.Response> findAll() {
-        return repository.findAllByOrderBySortOrderAsc().stream()
-            .map(this::toResponse)
+    public List<EvalUsabilityDto.GroupResponse> findAllGroups() {
+        return groupRepository.findAllByOrderBySortOrderAsc().stream()
+            .map(g -> EvalUsabilityDto.GroupResponse.builder()
+                .id(g.getId()).name(g.getName()).sortOrder(g.getSortOrder())
+                .itemCount(itemRepository.countByGroupId(g.getId()))
+                .build())
             .collect(Collectors.toList());
     }
 
     @Transactional
-    public EvalUsabilityDto.SaveResult create(EvalUsabilityDto.Request req) {
-        EvalUsability entity = EvalUsability.builder()
-            .title(req.getTitle())
-            .testPeriod(req.getTestPeriod())
-            .evalItems(req.getEvalItems())
-            .subjectCount(req.getSubjectCount())
+    public Long createGroup(EvalUsabilityDto.GroupRequest req) {
+        EvalUsabilityGroup group = EvalUsabilityGroup.builder()
+            .name(req.getName())
             .sortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0)
             .build();
-        repository.save(entity);
-
-        String uploadUrl = null;
-        if (req.getOriginalFilename() != null && !req.getOriginalFilename().isBlank()) {
-            uploadUrl = createPendingFile(entity.getId(), req);
-        }
-        return EvalUsabilityDto.SaveResult.builder().id(entity.getId()).uploadUrl(uploadUrl).build();
+        groupRepository.save(group);
+        return group.getId();
     }
 
     @Transactional
-    public EvalUsabilityDto.SaveResult update(Long id, EvalUsabilityDto.Request req) {
-        EvalUsability entity = repository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("항목을 찾을 수 없습니다: " + id));
-
-        entity.setTitle(req.getTitle());
-        entity.setTestPeriod(req.getTestPeriod());
-        entity.setEvalItems(req.getEvalItems());
-        entity.setSubjectCount(req.getSubjectCount());
-        if (req.getSortOrder() != null) entity.setSortOrder(req.getSortOrder());
-
-        String uploadUrl = null;
-        if (req.getOriginalFilename() != null && !req.getOriginalFilename().isBlank()) {
-            fileRepository.deleteByEntityTypeAndEntityId(ENTITY_TYPE, id);
-            uploadUrl = createPendingFile(id, req);
-        }
-        return EvalUsabilityDto.SaveResult.builder().id(id).uploadUrl(uploadUrl).build();
+    public void updateGroup(Long id, EvalUsabilityDto.GroupRequest req) {
+        EvalUsabilityGroup group = groupRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다: " + id));
+        group.setName(req.getName());
+        if (req.getSortOrder() != null) group.setSortOrder(req.getSortOrder());
     }
 
     @Transactional
-    public void delete(Long id) {
-        fileRepository.deleteByEntityTypeAndEntityId(ENTITY_TYPE, id);
-        repository.deleteById(id);
+    public void deleteGroup(Long id) {
+        itemRepository.deleteAllByGroupId(id);
+        groupRepository.deleteById(id);
     }
 
-    private String createPendingFile(Long entityId, EvalUsabilityDto.Request req) {
-        FileEntity fe = FileEntity.builder()
-            .entityType(ENTITY_TYPE)
-            .entityId(entityId)
-            .fileCategory("THUMBNAIL")
-            .originalFilename(req.getOriginalFilename())
-            .fileSize(req.getFileSize())
-            .mimeType(req.getMimeType())
-            .build();
-        fileRepository.save(fe);
-        return "/api/files/local/" + fe.getId();
+    public List<EvalUsabilityDto.ItemResponse> findItemsByGroup(Long groupId) {
+        return itemRepository.findAllByGroupIdOrderBySortOrderAsc(groupId).stream()
+            .map(i -> EvalUsabilityDto.ItemResponse.builder()
+                .id(i.getId()).groupId(i.getGroupId()).name(i.getName()).sortOrder(i.getSortOrder())
+                .build())
+            .collect(Collectors.toList());
     }
 
-    private EvalUsabilityDto.Response toResponse(EvalUsability e) {
-        return EvalUsabilityDto.Response.builder()
-            .id(e.getId())
-            .title(e.getTitle())
-            .testPeriod(e.getTestPeriod())
-            .evalItems(e.getEvalItems())
-            .subjectCount(e.getSubjectCount())
-            .sortOrder(e.getSortOrder())
-            .thumbnailUrl(fileQueryService.getThumbnailUrl(ENTITY_TYPE, e.getId()))
+    @Transactional
+    public Long createItem(Long groupId, EvalUsabilityDto.ItemRequest req) {
+        EvalUsabilityItem item = EvalUsabilityItem.builder()
+            .groupId(groupId).name(req.getName())
+            .sortOrder(req.getSortOrder() != null ? req.getSortOrder() : 0)
             .build();
+        itemRepository.save(item);
+        return item.getId();
+    }
+
+    @Transactional
+    public void deleteItem(Long itemId) {
+        itemRepository.deleteById(itemId);
     }
 }

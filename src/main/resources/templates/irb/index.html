@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-IRB | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>E-IRB</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<section class="sub-content">
+  <div class="auth-wrap">
+    <div class="auth-card reveal-up">
+      <h2>E-IRB 심사 안내</h2>
+      <p class="sub-desc">
+        E-IRB 심사는 담당자가 이메일로 발송해 드린 전용 링크를 통해서만 참여하실 수 있습니다.<br><br>
+        받으신 메일의 <b>[심사참여하러 가기]</b> 링크를 클릭해 주세요. 로그인이 필요한 경우 로그인 후 자동으로 해당 심사 화면으로 이동합니다.
+      </p>
+      <div class="auth-links">
+        <a th:href="@{/auth/login}">로그인</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+</body>
+</html>

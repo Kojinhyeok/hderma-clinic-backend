@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>IRB 상세 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="irb-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>IRB 상세</strong></h1>
+					<div>
+						<a href="#" class="btn btn-outline-primary me-2" id="btnTemplateLink">
+							<i class="align-middle" data-feather="clipboard"></i> 심사 템플릿 구성
+						</a>
+						<a href="list.html" class="btn btn-outline-secondary">
+							<i class="align-middle" data-feather="arrow-left"></i> 목록으로
+						</a>
+					</div>
+				</div>
+
+				<div class="card mb-3">
+					<div class="card-body" id="testInfoBox">불러오는 중...</div>
+				</div>
+
+				<div class="card mb-3">
+					<div class="card-header"><strong>심사위원별 답변 / 결과</strong></div>
+					<div class="table-responsive">
+						<table class="table table-hover my-0">
+							<thead>
+							<tr>
+								<th>회원ID</th>
+								<th>제출일</th>
+								<th style="width:120px;">심사결과</th>
+								<th>의견</th>
+							</tr>
+							</thead>
+							<tbody id="surveyTbody"></tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-header"><strong>이메일 발송 이력</strong></div>
+					<div class="table-responsive">
+						<table class="table table-hover my-0">
+							<thead>
+							<tr>
+								<th style="width:150px;">유형</th>
+								<th>수신자</th>
+								<th style="width:170px;">발송일시</th>
+							</tr>
+							</thead>
+							<tbody id="emailLogTbody"></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	const params = new URLSearchParams(window.location.search);
+	const testId = Number(params.get("id"));
+	document.getElementById("btnTemplateLink").href = `template.html?id=${testId}`;
+
+	const STATUS_LABEL = { IN_REVIEW: "심사중", COMPLETED: "완료" };
+	const RESULT_LABEL = { APPROVED: "승인", REJECTED: "반려" };
+	const RESULT_BADGE = { APPROVED: "success", REJECTED: "danger" };
+	const EMAIL_TYPE_LABEL = { NEW_POST: "신규등록 알림", NEW_ANSWER: "재심사 요청", ANSWER_COMPLETE: "답변완료 알림" };
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadTestInfo();
+		loadSurveys();
+		loadEmailLogs();
+	});
+
+	function loadTestInfo() {
+		fetch(`/api/irbs/${testId}`)
+			.then(res => res.json())
+			.then(item => {
+				document.getElementById("testInfoBox").innerHTML = `
+					<div class="row">
+						<div class="col-md-6">
+							<p class="mb-1"><strong>제목</strong> ${item.title}</p>
+							<p class="mb-1"><strong>IRB 코드</strong> ${item.irbCode || '-'}</p>
+							<p class="mb-1"><strong>기간</strong> ${item.startDate || '-'} ~ ${item.endDate || '-'}</p>
+						</div>
+						<div class="col-md-6">
+							<p class="mb-1"><strong>상태</strong> ${STATUS_LABEL[item.status] || item.status}</p>
+							<p class="mb-1"><strong>임시저장</strong> ${item.isTemp ? 'Y' : 'N'}</p>
+							<p class="mb-1"><strong>첨부파일</strong> ${
+								(item.attachedFileUrls && item.attachedFileUrls.length)
+									? item.attachedFileUrls.map(u => `<a href="${u}" target="_blank">${u.split('/').pop()}</a>`).join(', ')
+									: '없음'
+							}</p>
+						</div>
+					</div>
+				`;
+			})
+			.catch(() => {
+				document.getElementById("testInfoBox").innerHTML = '<span class="text-danger">조회 실패 (권한 또는 존재하지 않는 글)</span>';
+			});
+	}
+
+	// 전체 서베이 조회 후 이 testId에 해당하는 것만 필터 (개별 조회 API가 없어 이 방식으로 처리)
+	function loadSurveys() {
+		fetch("/api/irb-surveys")
+			.then(res => res.json())
+			.then(list => {
+				const mine = list.filter(s => s.test && s.test.id === testId);
+				const tbody = document.getElementById("surveyTbody");
+				tbody.innerHTML = mine.length === 0
+					? '<tr><td colspan="4" class="text-center py-4 text-muted">아직 제출된 답변이 없습니다.</td></tr>'
+					: mine.map(s => `
+						<tr>
+							<td class="align-middle">${s.answer ? s.answer.memberId : '-'}</td>
+							<td class="align-middle">${s.answer && s.answer.createdAt ? s.answer.createdAt.substring(0, 16).replace('T', ' ') : '-'}</td>
+							<td class="align-middle">
+								${s.result && s.result.reviewResult
+									? `<span class="badge bg-${RESULT_BADGE[s.result.reviewResult] || 'secondary'}">${RESULT_LABEL[s.result.reviewResult] || s.result.reviewResult}</span>`
+									: '<span class="text-muted">미제출</span>'}
+							</td>
+							<td class="align-middle">${(s.result && s.result.reviewText) || '-'}</td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	function loadEmailLogs() {
+		fetch(`/api/irb-emails/logs/${testId}`)
+			.then(res => res.json())
+			.then(logs => {
+				const tbody = document.getElementById("emailLogTbody");
+				tbody.innerHTML = logs.length === 0
+					? '<tr><td colspan="3" class="text-center py-4 text-muted">발송 이력이 없습니다.</td></tr>'
+					: logs.map(log => `
+						<tr>
+							<td class="align-middle">${EMAIL_TYPE_LABEL[log.emailType] || log.emailType}</td>
+							<td class="align-middle">${(log.userList || []).map(u => `${u.name} &lt;${u.email}&gt;`).join(', ')}</td>
+							<td class="align-middle">${(log.createdAt || '').substring(0, 16).replace('T', ' ')}</td>
+						</tr>
+					`).join("");
+			});
+	}
+</script>
+</body>
+</html>

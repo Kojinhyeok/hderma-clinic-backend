@@ -41,4 +41,9 @@ public class PageController {
     public String auth(@PathVariable String page) {
         return "auth/" + page;
     }
+
+    @GetMapping("/irb/detail")
+    public String irbDetail() {
+        return "irb/detail";
+    }
 }

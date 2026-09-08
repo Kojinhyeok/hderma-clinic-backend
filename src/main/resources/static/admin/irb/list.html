@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>E-IRB 관리 - H-Derma</title>
+	<link href="../css/app.css" rel="stylesheet">
+	<link href="../css/custom.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body data-page="irb-list" data-base="../">
+<div class="wrapper">
+	<div id="sidebar-container"></div>
+	<div class="main">
+		<div id="header-container"></div>
+
+		<main class="content">
+			<div class="container-fluid p-0">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h1 class="h3 mb-0"><strong>E-IRB 심사 관리</strong></h1>
+					<div>
+						<a class="btn btn-outline-secondary me-2" href="questions.html">
+							<i class="align-middle" data-feather="list"></i> 심사 문항 관리
+						</a>
+						<button class="btn btn-outline-secondary me-2" onclick="openCategoryModal()">
+							<i class="align-middle" data-feather="tag"></i> 카테고리 관리
+						</button>
+						<button class="btn btn-primary" onclick="openWriteModal(null)">
+							<i class="align-middle" data-feather="plus"></i> IRB 등록
+						</button>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="table-responsive">
+						<table class="table table-hover my-0" id="irbTable">
+							<thead>
+							<tr>
+								<th style="width:70px;">ID</th>
+								<th style="width:120px;">카테고리</th>
+								<th>제목</th>
+								<th style="width:170px;">기간</th>
+								<th style="width:100px;">상태</th>
+								<th style="width:120px;">심사현황</th>
+								<th style="width:90px;">임시저장</th>
+								<th style="width:230px;">관리</th>
+							</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</main>
+	</div>
+</div>
+
+<!-- 등록/수정/답글 모달 -->
+<div class="modal fade" id="irbModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="irbModalTitle">IRB 등록</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="irbForm">
+					<input type="hidden" id="itemId">
+					<input type="hidden" id="parentId">
+
+					<div class="row">
+						<div class="col-md-8 mb-3">
+							<label class="form-label">제목 <span class="text-danger">*</span></label>
+							<input type="text" class="form-control" id="title" required>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">카테고리</label>
+							<select class="form-select" id="categoryId"></select>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-3 mb-3">
+							<label class="form-label">IRB 코드</label>
+							<input type="text" class="form-control" id="irbCode" placeholder="예: HD-2026-001">
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">시작일</label>
+							<input type="date" class="form-control" id="startDate">
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">종료일</label>
+							<input type="date" class="form-control" id="endDate">
+						</div>
+						<div class="col-md-1 mb-3 d-flex align-items-end">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="isTemp">
+								<label class="form-check-label" for="isTemp">임시</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="mb-2">
+						<label class="form-label">심사 참여 교수님</label>
+						<div class="border rounded p-2" id="professorCheckList" style="max-height:160px; overflow-y:auto;"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label small text-muted">직접 추가 (교수 목록에 없는 경우)</label>
+						<div class="d-flex gap-2 mb-2">
+							<input type="text" class="form-control" id="manualName" placeholder="이름">
+							<input type="email" class="form-control" id="manualEmail" placeholder="이메일">
+							<button type="button" class="btn btn-outline-secondary" onclick="addManualRecipient()">추가</button>
+						</div>
+						<div id="manualRecipientList"></div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+				<button type="button" class="btn btn-primary" id="btnSave">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 카테고리 관리 모달 -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">카테고리 관리</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="d-flex gap-2 mb-3">
+					<input type="text" class="form-control" id="newCategoryCode" placeholder="코드 (예: DOC)">
+					<input type="text" class="form-control" id="newCategoryName" placeholder="이름 (예: 서류심사)">
+					<button type="button" class="btn btn-primary" onclick="addCategory()">추가</button>
+				</div>
+				<ul class="list-group" id="categoryListUl"></ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/common.js"></script>
+<script>
+	let irbList = [];
+	let categoryList = [];
+	let professorList = [];
+	let manualRecipients = [];
+
+	document.addEventListener("DOMContentLoaded", function () {
+		loadCategories();
+		loadProfessors();
+		loadItems();
+		document.getElementById("btnSave").addEventListener("click", saveItem);
+	});
+
+	function loadItems() {
+		fetch("/api/irbs")
+			.then(res => res.json())
+			.then(list => {
+				irbList = list;
+				renderTable();
+			});
+	}
+
+	function loadCategories() {
+		fetch("/api/irb-categories")
+			.then(res => res.json())
+			.then(list => { categoryList = list; renderCategorySelect(); renderCategoryModalList(); });
+	}
+
+	function loadProfessors() {
+		fetch("/api/members")
+			.then(res => res.json())
+			.then(list => {
+				professorList = list.filter(m => m.role === "PROFESSOR" && m.status === "ACTIVE");
+				renderProfessorCheckList();
+			});
+	}
+
+	function categoryName(id) {
+		const c = categoryList.find(c => c.id === id);
+		return c ? c.category : "-";
+	}
+
+	const STATUS_LABEL = { IN_REVIEW: "심사중", COMPLETED: "완료" };
+	const REVIEW_LABEL = { ALL_APPROVED: "전원승인", REVIEW_NEEDED: "심사필요" };
+	const REVIEW_BADGE = { ALL_APPROVED: "success", REVIEW_NEEDED: "warning" };
+
+	function renderTable() {
+		const tbody = document.querySelector("#irbTable tbody");
+		tbody.innerHTML = irbList.length === 0
+			? '<tr><td colspan="8" class="text-center py-4">등록된 IRB가 없습니다.</td></tr>'
+			: irbList.map(item => `
+				<tr>
+					<td class="align-middle">${item.id}</td>
+					<td class="align-middle">${categoryName(item.categoryId)}</td>
+					<td class="align-middle">
+						<span style="padding-left:${(item.depth || 0) * 20}px;">
+							${item.depth > 0 ? '↳ ' : ''}${item.title}
+						</span>
+						${item.isTemp ? '<span class="badge bg-secondary ms-1">임시</span>' : ''}
+					</td>
+					<td class="align-middle">${(item.startDate || '-')} ~ ${(item.endDate || '-')}</td>
+					<td class="align-middle">${STATUS_LABEL[item.status] || item.status}</td>
+					<td class="align-middle">
+						${item.reviewStatus ? `<span class="badge bg-${REVIEW_BADGE[item.reviewStatus]}">${REVIEW_LABEL[item.reviewStatus]}</span>` : '-'}
+					</td>
+					<td class="align-middle">${item.isTemp ? 'Y' : 'N'}</td>
+					<td class="align-middle">
+						<a class="btn btn-sm btn-outline-secondary" href="detail.html?id=${item.id}">상세</a>
+						<button class="btn btn-sm btn-outline-primary" onclick="openWriteModal(${item.id})">수정</button>
+						<button class="btn btn-sm btn-outline-success" onclick="openReplyModal(${item.id})">답글</button>
+						<button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.id})">삭제</button>
+					</td>
+				</tr>
+			`).join("");
+	}
+
+	function renderCategorySelect() {
+		const sel = document.getElementById("categoryId");
+		sel.innerHTML = categoryList.map(c => `<option value="${c.id}">${c.category}</option>`).join("");
+	}
+
+	function renderCategoryModalList() {
+		const ul = document.getElementById("categoryListUl");
+		ul.innerHTML = categoryList.map(c => `
+			<li class="list-group-item d-flex justify-content-between align-items-center">
+				<span>${c.category} <span class="text-muted small">(${c.categoryCode || '-'})</span></span>
+				<button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.id})">삭제</button>
+			</li>
+		`).join("");
+	}
+
+	function renderProfessorCheckList() {
+		const box = document.getElementById("professorCheckList");
+		box.innerHTML = professorList.length === 0
+			? '<span class="text-muted small">등록된 교수 회원이 없습니다.</span>'
+			: professorList.map(p => `
+				<div class="form-check">
+					<input class="form-check-input professor-check" type="checkbox" value="${p.id}" data-name="${p.name}" data-email="${p.email}" id="prof_${p.id}">
+					<label class="form-check-label" for="prof_${p.id}">${p.name} (${p.email})</label>
+				</div>
+			`).join("");
+	}
+
+	function addManualRecipient() {
+		const name = document.getElementById("manualName").value.trim();
+		const email = document.getElementById("manualEmail").value.trim();
+		if (!email) { alert("이메일을 입력해주세요."); return; }
+		manualRecipients.push({ name: name || email, email });
+		document.getElementById("manualName").value = "";
+		document.getElementById("manualEmail").value = "";
+		renderManualRecipientList();
+	}
+
+	function removeManualRecipient(email) {
+		manualRecipients = manualRecipients.filter(r => r.email !== email);
+		renderManualRecipientList();
+	}
+
+	function renderManualRecipientList() {
+		const box = document.getElementById("manualRecipientList");
+		box.innerHTML = manualRecipients.map(r => `
+			<span class="badge bg-light text-dark border me-1 mb-1">
+				${r.name} &lt;${r.email}&gt;
+				<a href="#" onclick="removeManualRecipient('${r.email}'); return false;" class="text-danger ms-1">×</a>
+			</span>
+		`).join("");
+	}
+
+	function collectEmails() {
+		const checked = Array.from(document.querySelectorAll(".professor-check:checked"))
+			.map(el => ({ name: el.dataset.name, email: el.dataset.email }));
+		return [...checked, ...manualRecipients];
+	}
+
+	function saveItem() {
+		const id = document.getElementById("itemId").value;
+		const parentId = document.getElementById("parentId").value;
+		const data = {
+			title: document.getElementById("title").value,
+			categoryId: Number(document.getElementById("categoryId").value) || null,
+			irbCode: document.getElementById("irbCode").value,
+			startDate: document.getElementById("startDate").value || null,
+			endDate: document.getElementById("endDate").value || null,
+			isTemp: document.getElementById("isTemp").checked ? 1 : 0,
+			emails: collectEmails()
+		};
+		if (!data.title) { alert("제목을 입력해주세요."); return; }
+
+		let url, method;
+		if (id) { url = `/api/irbs/${id}`; method = "PUT"; }
+		else if (parentId) { url = `/api/irbs/${parentId}/reply`; method = "POST"; }
+		else { url = "/api/irbs"; method = "POST"; }
+
+		fetch(url, {
+			method: method,
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(data)
+		}).then(res => {
+			if (!res.ok) throw new Error("저장 실패");
+			alert("처리되었습니다.");
+			bootstrap.Modal.getInstance(document.getElementById('irbModal')).hide();
+			loadItems();
+		}).catch(err => alert(err.message));
+	}
+
+	function openWriteModal(id) {
+		document.getElementById("irbForm").reset();
+		document.getElementById("itemId").value = "";
+		document.getElementById("parentId").value = "";
+		manualRecipients = [];
+		renderManualRecipientList();
+		document.querySelectorAll(".professor-check").forEach(el => el.checked = false);
+
+		if (id) {
+			const item = irbList.find(i => i.id === id);
+			document.getElementById("itemId").value = item.id;
+			document.getElementById("title").value = item.title;
+			document.getElementById("categoryId").value = item.categoryId || "";
+			document.getElementById("irbCode").value = item.irbCode || "";
+			document.getElementById("startDate").value = item.startDate || "";
+			document.getElementById("endDate").value = item.endDate || "";
+			document.getElementById("isTemp").checked = !!item.isTemp;
+			document.getElementById("irbModalTitle").innerText = "IRB 수정";
+
+			// 기존 심사위원 이메일 불러와서 미리 체크/표시 (안 하면 저장 시 수신자가 사라짐)
+			fetch(`/api/irb-emails/logs/${item.irbTestId}`)
+				.then(res => res.json())
+				.then(logs => {
+					if (!logs.length) return;
+					const existing = logs[0].userList || [];
+					existing.forEach(u => {
+						const matchCheckbox = document.querySelector(`.professor-check[data-email="${u.email}"]`);
+						if (matchCheckbox) {
+							matchCheckbox.checked = true;
+						} else {
+							manualRecipients.push({ name: u.name, email: u.email });
+						}
+					});
+					renderManualRecipientList();
+				});
+		} else {
+			document.getElementById("irbModalTitle").innerText = "IRB 등록";
+		}
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('irbModal')).show();
+	}
+
+	function openReplyModal(parentId) {
+		document.getElementById("irbForm").reset();
+		document.getElementById("itemId").value = "";
+		document.getElementById("parentId").value = parentId;
+		manualRecipients = [];
+		renderManualRecipientList();
+		document.querySelectorAll(".professor-check").forEach(el => el.checked = false);
+		document.getElementById("irbModalTitle").innerText = "IRB 답글(재심사) 작성";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('irbModal')).show();
+	}
+
+	function deleteItem(id) {
+		if (confirm("이 IRB 글을 삭제하시겠습니까? (첨부파일/이메일 이력도 함께 삭제됩니다)")) {
+			fetch(`/api/irbs/${id}`, { method: "DELETE" })
+				.then(res => { if (res.ok) { alert("삭제되었습니다."); loadItems(); } });
+		}
+	}
+
+	function openCategoryModal() {
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('categoryModal')).show();
+	}
+
+	function addCategory() {
+		const categoryCode = document.getElementById("newCategoryCode").value.trim();
+		const category = document.getElementById("newCategoryName").value.trim();
+		if (!category) { alert("카테고리 이름을 입력해주세요."); return; }
+		fetch("/api/irb-categories", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ categoryCode, category })
+		}).then(res => {
+			if (res.ok) {
+				document.getElementById("newCategoryCode").value = "";
+				document.getElementById("newCategoryName").value = "";
+				loadCategories();
+			}
+		});
+	}
+
+	function deleteCategory(id) {
+		if (confirm("이 카테고리를 삭제하시겠습니까?")) {
+			fetch(`/api/irb-categories/${id}`, { method: "DELETE" })
+				.then(res => { if (res.ok) loadCategories(); });
+		}
+	}
+</script>
+</body>
+</html>

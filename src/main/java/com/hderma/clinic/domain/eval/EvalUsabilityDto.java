@@ -3,33 +3,31 @@ package com.hderma.clinic.domain.eval;
 import lombok.*;
 
 public class EvalUsabilityDto {
+    @Getter @Setter
+    public static class GroupRequest {
+        private String name;
+        private Integer sortOrder;
+    }
+
+    @Getter @Builder
+    public static class GroupResponse {
+        private Long id;
+        private String name;
+        private Integer sortOrder;
+        private Long itemCount;
+    }
 
     @Getter @Setter
-    public static class Request {
-        private String title;
-        private String testPeriod;
-        private String evalItems;
-        private String subjectCount;
+    public static class ItemRequest {
+        private String name;
         private Integer sortOrder;
-        private String originalFilename;
-        private String mimeType;
-        private Long fileSize;
     }
 
     @Getter @Builder
-    public static class Response {
+    public static class ItemResponse {
         private Long id;
-        private String title;
-        private String testPeriod;
-        private String evalItems;
-        private String subjectCount;
+        private Long groupId;
+        private String name;
         private Integer sortOrder;
-        private String thumbnailUrl;
-    }
-
-    @Getter @Builder
-    public static class SaveResult {
-        private Long id;
-        private String uploadUrl;
     }
 }

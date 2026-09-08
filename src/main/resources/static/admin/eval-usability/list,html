@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title>사용성 평가 관리 - H-Derma</title>
+	<title>미용기기(공산품) 평가 관리 - H-Derma</title>
 	<link href="../css/app.css" rel="stylesheet">
 	<link href="../css/custom.css" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -19,23 +19,22 @@
 		<main class="content">
 			<div class="container-fluid p-0">
 				<div class="d-flex justify-content-between align-items-center mb-3">
-					<h1 class="h3 mb-0"><strong>사용성 평가 관리</strong></h1>
-					<button class="btn btn-primary" onclick="openAddModal()">
-						<i class="align-middle" data-feather="plus"></i> 항목 추가
+					<h1 class="h3 mb-0"><strong>미용기기(공산품) 평가 관리</strong></h1>
+					<button class="btn btn-primary" onclick="openAddGroupModal()">
+						<i class="align-middle" data-feather="plus"></i> 그룹 추가
 					</button>
 				</div>
 
+				<p class="text-muted small">그룹(예: 스킨케어/바디케어, 헤어케어-두피)을 먼저 등록한 뒤, "세부항목 관리"에서 그 안의 측정 항목을 추가하세요.</p>
+
 				<div class="card">
 					<div class="table-responsive">
-						<table class="table table-hover my-0" id="usabilityTable">
+						<table class="table table-hover my-0" id="groupTable">
 							<thead>
 							<tr>
-								<th style="width: 100px;">썸네일</th>
-								<th>항목명</th>
-								<th>시험기간</th>
-								<th>평가항목</th>
-								<th>대상자 수</th>
-								<th style="width:130px;">관리</th>
+								<th>그룹명</th>
+								<th style="width:120px;">세부항목 수</th>
+								<th style="width:220px;">관리</th>
 							</tr>
 							</thead>
 							<tbody></tbody>
@@ -47,49 +46,48 @@
 	</div>
 </div>
 
-<div class="modal fade" id="usabilityModal" tabindex="-1" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-lg">
+<!-- 그룹 등록/수정 모달 -->
+<div class="modal fade" id="groupModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="modalTitle">항목 등록</h5>
+				<h5 class="modal-title" id="groupModalTitle">그룹 등록</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<form id="usabilityForm">
-					<input type="hidden" id="itemId" name="id">
-
+				<form id="groupForm">
+					<input type="hidden" id="groupId" name="id">
 					<div class="mb-3">
-						<label class="form-label">썸네일 이미지</label>
-						<input type="file" class="form-control" id="usabilityFile" accept="image/*" onchange="previewImage(this)">
-						<div id="thumbnailPreview" class="mt-2 d-none">
-							<p class="text-muted small mb-1">이미지 미리보기:</p>
-							<img id="previewImg" src="" style="max-width: 150px; height: auto;" class="img-thumbnail border">
-						</div>
-					</div>
-
-					<div class="mb-3">
-						<label class="form-label">항목명 <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" id="title" name="title" required placeholder="항목명을 입력해 주세요">
-					</div>
-					<div class="row">
-						<div class="col-md-6 mb-3">
-							<label class="form-label">시험기간</label>
-							<input type="text" class="form-control" id="testPeriod" name="testPeriod" placeholder="예: 4주 이상">
-						</div>
-						<div class="col-md-6 mb-3">
-							<label class="form-label">대상자 수</label>
-							<input type="text" class="form-control" id="subjectCount" name="subjectCount" placeholder="예: 20명 이상">
-						</div>
-					</div>
-					<div class="mb-3">
-						<label class="form-label">평가항목</label>
-						<input type="text" class="form-control" id="evalItems" name="evalItems" placeholder="예: 사용감 설문 등">
+						<label class="form-label">그룹명 <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="groupName" name="name" required placeholder="예: 스킨케어/바디케어">
 					</div>
 				</form>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-				<button type="button" class="btn btn-primary" id="btnSave">저장하기</button>
+				<button type="button" class="btn btn-primary" id="btnSaveGroup">저장하기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 세부항목 관리 모달 -->
+<div class="modal fade" id="itemsModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">세부항목 관리 — <span id="itemsModalGroupName"></span></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" id="newItemName" placeholder="예: 겉탄력">
+					<button class="btn btn-primary" id="btnAddItem">추가</button>
+				</div>
+				<ul class="list-group" id="itemsList"></ul>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
 			</div>
 		</div>
 	</div>
@@ -98,133 +96,124 @@
 <script src="../js/app.js"></script>
 <script src="../js/common.js"></script>
 <script>
-	let usabilityList = [];
-	const CURRENT_USER_ID = 1;
+	let groupList = [];
+	let currentGroupId = null;
+	let currentGroupItems = [];
 
 	document.addEventListener("DOMContentLoaded", function () {
-		loadItems();
-		document.getElementById("btnSave").addEventListener("click", function () {
-			saveItem();
-		});
+		loadGroups();
+		document.getElementById("btnSaveGroup").addEventListener("click", saveGroup);
+		document.getElementById("btnAddItem").addEventListener("click", addItem);
 	});
 
-	function loadItems() {
-		fetch("/api/eval-usability")
+	function loadGroups() {
+		fetch("/api/eval-usability-groups")
 			.then(res => res.json())
 			.then(list => {
-				usabilityList = list;
-				const tbody = document.querySelector("#usabilityTable tbody");
+				groupList = list;
+				const tbody = document.querySelector("#groupTable tbody");
 				tbody.innerHTML = list.length === 0
-					? '<tr><td colspan="6" class="text-center py-4">데이터가 없습니다.</td></tr>'
-					: list.map((item, index) => `
+					? '<tr><td colspan="3" class="text-center py-4">데이터가 없습니다.</td></tr>'
+					: list.map((g, index) => `
 						<tr>
-							<td>
-								${item.thumbnailUrl
-									? `<img src="${item.thumbnailUrl}" style="width:50px; height:50px; object-fit:cover;" class="rounded border">`
-									: `<div class="bg-light text-center rounded border" style="width:50px; height:50px; line-height:50px; font-size:10px;">No Image</div>`}
-							</td>
-							<td class="align-middle">${item.title}</td>
-							<td class="align-middle">${item.testPeriod || '-'}</td>
-							<td class="align-middle">${item.evalItems || '-'}</td>
-							<td class="align-middle">${item.subjectCount || '-'}</td>
+							<td class="align-middle">${g.name}</td>
+							<td class="align-middle">${g.itemCount ?? 0}개</td>
 							<td class="align-middle">
-								<button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${index})">수정</button>
-								<button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.id})">삭제</button>
+								<button class="btn btn-sm btn-outline-secondary" onclick="openItemsModal(${index})">세부항목 관리</button>
+								<button class="btn btn-sm btn-outline-primary" onclick="openEditGroupModal(${index})">수정</button>
+								<button class="btn btn-sm btn-outline-danger" onclick="deleteGroup(${g.id})">삭제</button>
 							</td>
 						</tr>
 					`).join("");
 			});
 	}
 
-	async function saveItem() {
-		const btn = document.getElementById("btnSave");
-		const form = document.getElementById("usabilityForm");
-		const fileInput = document.getElementById("usabilityFile");
-		const file = fileInput.files[0];
-		const formData = new FormData(form);
-		const data = Object.fromEntries(formData.entries());
+	function openAddGroupModal() {
+		document.getElementById("groupForm").reset();
+		document.getElementById("groupId").value = "";
+		document.getElementById("groupModalTitle").innerText = "그룹 등록";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('groupModal')).show();
+	}
 
-		if (!data.title) { alert("항목명을 입력해주세요."); return; }
-		if (file) {
-			data.originalFilename = file.name;
-			data.mimeType = file.type;
-			data.fileSize = file.size;
-		}
+	function openEditGroupModal(index) {
+		const g = groupList[index];
+		document.getElementById("groupId").value = g.id;
+		document.getElementById("groupName").value = g.name;
+		document.getElementById("groupModalTitle").innerText = "그룹 수정";
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('groupModal')).show();
+	}
 
-		const id = data.id;
-		const url = id ? `/api/eval-usability/${id}?userId=${CURRENT_USER_ID}` : `/api/eval-usability?userId=${CURRENT_USER_ID}`;
+	function saveGroup() {
+		const id = document.getElementById("groupId").value;
+		const name = document.getElementById("groupName").value.trim();
+		if (!name) { alert("그룹명을 입력해주세요."); return; }
+
+		const url = id ? `/api/eval-usability-groups/${id}` : "/api/eval-usability-groups";
 		const method = id ? "PUT" : "POST";
 
-		try {
-			btn.disabled = true;
-			btn.innerText = "처리 중...";
-			const response = await fetch(url, {
-				method: method,
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(data)
+		fetch(url, {
+			method: method,
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name: name })
+		}).then(res => {
+			if (!res.ok) throw new Error("저장 실패");
+			bootstrap.Modal.getInstance(document.getElementById('groupModal')).hide();
+			loadGroups();
+		}).catch(err => alert(err.message));
+	}
+
+	function deleteGroup(id) {
+		if (confirm("이 그룹을 삭제하시겠습니까? 안의 세부항목도 모두 삭제돼요.")) {
+			fetch(`/api/eval-usability-groups/${id}`, { method: "DELETE" })
+				.then(res => { if (res.ok) loadGroups(); });
+		}
+	}
+
+	function openItemsModal(index) {
+		const g = groupList[index];
+		currentGroupId = g.id;
+		document.getElementById("itemsModalGroupName").innerText = g.name;
+		loadItems();
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('itemsModal')).show();
+	}
+
+	function loadItems() {
+		fetch(`/api/eval-usability-groups/${currentGroupId}/items`)
+			.then(res => res.json())
+			.then(items => {
+				currentGroupItems = items;
+				const ul = document.getElementById("itemsList");
+				ul.innerHTML = items.length === 0
+					? '<li class="list-group-item text-muted">등록된 항목이 없습니다.</li>'
+					: items.map(item => `
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							${item.name}
+							<button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.id})">삭제</button>
+						</li>
+					`).join("");
 			});
-			if (!response.ok) throw new Error("데이터 저장 실패");
-			const result = await response.json();
+	}
 
-			if (result.uploadUrl && file) {
-				await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+	function addItem() {
+		const name = document.getElementById("newItemName").value.trim();
+		if (!name) { alert("항목명을 입력해주세요."); return; }
+
+		fetch(`/api/eval-usability-groups/${currentGroupId}/items`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name: name })
+		}).then(res => {
+			if (res.ok) {
+				document.getElementById("newItemName").value = "";
+				loadItems();
+				loadGroups();
 			}
-			alert("처리되었습니다.");
-			bootstrap.Modal.getInstance(document.getElementById('usabilityModal')).hide();
-			loadItems();
-		} catch (err) {
-			alert(err.message);
-		} finally {
-			btn.disabled = false;
-			btn.innerText = "저장하기";
-		}
+		});
 	}
 
-	function previewImage(input) {
-		const previewImg = document.getElementById("previewImg");
-		if (input.files && input.files[0]) {
-			const reader = new FileReader();
-			reader.onload = e => {
-				previewImg.src = e.target.result;
-				document.getElementById("thumbnailPreview").classList.remove("d-none");
-			}
-			reader.readAsDataURL(input.files[0]);
-		}
-	}
-
-	function openAddModal() {
-		document.getElementById("usabilityForm").reset();
-		document.getElementById("itemId").value = "";
-		document.getElementById("thumbnailPreview").classList.add("d-none");
-		document.getElementById("modalTitle").innerText = "항목 등록";
-		bootstrap.Modal.getOrCreateInstance(document.getElementById('usabilityModal')).show();
-	}
-
-	function openEditModal(index) {
-		const item = usabilityList[index];
-		document.getElementById("itemId").value = item.id;
-		document.getElementById("title").value = item.title;
-		document.getElementById("testPeriod").value = item.testPeriod || "";
-		document.getElementById("evalItems").value = item.evalItems || "";
-		document.getElementById("subjectCount").value = item.subjectCount || "";
-
-		const previewImg = document.getElementById("previewImg");
-		if (item.thumbnailUrl) {
-			previewImg.src = item.thumbnailUrl;
-			document.getElementById("thumbnailPreview").classList.remove("d-none");
-		} else {
-			document.getElementById("thumbnailPreview").classList.add("d-none");
-		}
-
-		document.getElementById("modalTitle").innerText = "항목 수정";
-		bootstrap.Modal.getOrCreateInstance(document.getElementById('usabilityModal')).show();
-	}
-
-	function deleteItem(id) {
-		if (confirm("정말 삭제하시겠습니까?")) {
-			fetch(`/api/eval-usability/${id}`, { method: "DELETE" })
-				.then(res => { if (res.ok) { alert("삭제되었습니다."); loadItems(); } });
-		}
+	function deleteItem(itemId) {
+		fetch(`/api/eval-usability-items/${itemId}`, { method: "DELETE" })
+			.then(res => { if (res.ok) { loadItems(); loadGroups(); } });
 	}
 </script>
 </body>

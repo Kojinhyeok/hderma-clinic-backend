@@ -63,4 +63,14 @@ public class AuthController {
             "name", "관리자"
         ));
     }
+
+    @GetMapping("/signup-by-token")
+    public ResponseEntity<?> getSignupByToken(@RequestParam String token) {
+        return ResponseEntity.ok(memberService.getSignupInfoByToken(token));
+    }
+
+    @PostMapping("/signup-by-token")
+    public ResponseEntity<?> completeSignupByToken(@RequestParam String token, @RequestBody MemberDto.CompleteSignupRequest req) {
+        return ResponseEntity.ok(memberService.completeSignupByToken(token, req));
+    }
 }

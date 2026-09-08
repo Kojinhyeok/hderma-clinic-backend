@@ -28,30 +28,7 @@
 
 <section class="sub-content">
   <div class="nl-wrap">
-    <div class="nl-grid reveal-stagger" id="nlGrid">
-      <!-- TODO: 백엔드 연동 시 /api/newsletters 에서 실시간으로 받아오도록 교체 -->
-      <a href="#" class="nl-card">
-        <div class="thumb"><div class="no-img">이미지 준비중</div></div>
-        <div class="cap">
-          <h4>임상데이터로 보는 국내 소비자 피부 트렌드</h4>
-          <span class="date">2026.03.02</span>
-        </div>
-      </a>
-      <a href="#" class="nl-card">
-        <div class="thumb"><div class="no-img">이미지 준비중</div></div>
-        <div class="cap">
-          <h4>화장품 효능 광고 표현, 어디까지 가능할까</h4>
-          <span class="date">2026.02.18</span>
-        </div>
-      </a>
-      <a href="#" class="nl-card">
-        <div class="thumb"><div class="no-img">이미지 준비중</div></div>
-        <div class="cap">
-          <h4>기능성 화장품 인허가 절차 한눈에 보기</h4>
-          <span class="date">2026.01.27</span>
-        </div>
-      </a>
-    </div>
+    <div class="nl-grid reveal-stagger" id="nlGrid"></div>
 
     <div class="nl-empty" id="nlEmpty" style="display:none;">
       <p>등록된 뉴스레터가 없습니다.</p>
@@ -59,7 +36,66 @@
   </div>
 </section>
 
+<!-- 뉴스레터 상세 모달 -->
+<div id="nlModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center;">
+  <div style="background:#fff; max-width:680px; width:92%; max-height:85vh; overflow-y:auto; border-radius:10px; padding:32px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+      <h3 id="nlModalTitle" style="margin:0;"></h3>
+      <button type="button" id="nlModalClose" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+    </div>
+    <p style="color:#888; font-size:0.85rem; margin-bottom:20px;" id="nlModalDate"></p>
+    <img id="nlModalImage" style="width:100%; border-radius:6px; margin-bottom:20px; display:none;">
+    <div id="nlModalContent" style="white-space:pre-line; line-height:1.7;"></div>
+  </div>
+</div>
+
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/api/newsletters")
+    .then(function (res) { return res.json(); })
+    .then(function (list) {
+      var grid = document.getElementById("nlGrid");
+      if (list.length === 0) {
+        document.getElementById("nlEmpty").style.display = "block";
+        return;
+      }
+      var sorted = list.slice().sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+
+      grid.innerHTML = sorted.map(function (n) {
+        var date = (n.createdAt || "").substring(0, 10).replace(/-/g, ".");
+        var thumb = n.thumbnailUrl
+          ? '<img src="' + n.thumbnailUrl + '" alt="' + n.title + '">'
+          : '<div class="no-img">이미지 준비중</div>';
+        return (
+          '<a href="javascript:" class="nl-card" onclick="openNewsletter(' + n.id + ')">' +
+          '<div class="thumb">' + thumb + '</div>' +
+          '<div class="cap"><h4>' + n.title + '</h4><span class="date">' + date + '</span></div>' +
+          '</a>'
+        );
+      }).join("");
+    });
+
+  document.getElementById("nlModalClose").addEventListener("click", function () {
+    document.getElementById("nlModal").style.display = "none";
+  });
+});
+
+function openNewsletter(id) {
+  fetch("/api/newsletters/" + id)
+    .then(function (res) { return res.json(); })
+    .then(function (n) {
+      document.getElementById("nlModalTitle").innerText = n.title;
+      document.getElementById("nlModalDate").innerText = (n.createdAt || "").substring(0, 10).replace(/-/g, ".");
+      var img = document.getElementById("nlModalImage");
+      if (n.thumbnailUrl) { img.src = n.thumbnailUrl; img.style.display = "block"; }
+      else { img.style.display = "none"; }
+      document.getElementById("nlModalContent").innerText = n.content || "";
+      document.getElementById("nlModal").style.display = "flex";
+    });
+}
+</script>
 
 </body>
 </html>

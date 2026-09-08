@@ -36,67 +36,7 @@
       <button type="button" data-cat="SAFETY">안전성 평가</button>
     </div>
 
-    <div class="ta-list reveal-stagger" id="taList">
-      <!-- TODO: 백엔드 연동 시 /api/recruitments 에서 실시간으로 받아오도록 교체 -->
-      <!-- 지금은 화면 구조 확인용 예시 카드 3개 -->
-
-      <a href="#" class="ta-card">
-        <div class="ta-card-top">
-          <span class="ta-badge open">모집중</span>
-          <span class="cat">유효성 평가 · 피부0001</span>
-        </div>
-        <h4>스킨케어 제품 보습 효능평가 참여자 모집</h4>
-        <dl class="ta-info-grid">
-          <div><dt>시험기간</dt><dd>2026.03.10 ~ 2026.04.07</dd></div>
-          <div><dt>모집대상</dt><dd>만 19~60세 여성</dd></div>
-          <div><dt>선정기준</dt><dd>건성 피부, 알레르기 병력 없는 분</dd></div>
-          <div><dt>모집인원</dt><dd>30명</dd></div>
-          <div><dt>시험참여비</dt><dd>제공</dd></div>
-        </dl>
-        <div class="ta-apply-period">
-          <span class="period">신청기간 <b>2026.02.20 ~ 2026.03.05</b></span>
-          <span class="go">자세히 보기 →</span>
-        </div>
-      </a>
-
-      <a href="#" class="ta-card">
-        <div class="ta-card-top">
-          <span class="ta-badge open">모집중</span>
-          <span class="cat">기능성 평가 · 피부0002</span>
-        </div>
-        <h4>주름개선 기능성 화장품 임상시험 참여자 모집</h4>
-        <dl class="ta-info-grid">
-          <div><dt>시험기간</dt><dd>2026.03.17 ~ 2026.06.09</dd></div>
-          <div><dt>모집대상</dt><dd>만 35~65세 남녀</dd></div>
-          <div><dt>선정기준</dt><dd>눈가 주름이 있는 분</dd></div>
-          <div><dt>모집인원</dt><dd>20명</dd></div>
-          <div><dt>시험참여비</dt><dd>제공</dd></div>
-        </dl>
-        <div class="ta-apply-period">
-          <span class="period">신청기간 <b>2026.02.24 ~ 2026.03.10</b></span>
-          <span class="go">자세히 보기 →</span>
-        </div>
-      </a>
-
-      <a href="#" class="ta-card">
-        <div class="ta-card-top">
-          <span class="ta-badge permanent">상시모집</span>
-          <span class="cat">건강기능식품 평가 · 피부0003</span>
-        </div>
-        <h4>피부 건강기능식품 섭취 효능평가 참여자 모집</h4>
-        <dl class="ta-info-grid">
-          <div><dt>시험기간</dt><dd>선정 후 개별 안내</dd></div>
-          <div><dt>모집대상</dt><dd>만 20~59세 남녀</dd></div>
-          <div><dt>선정기준</dt><dd>건조함을 느끼는 분</dd></div>
-          <div><dt>모집인원</dt><dd>40명</dd></div>
-          <div><dt>시험참여비</dt><dd>제공</dd></div>
-        </dl>
-        <div class="ta-apply-period">
-          <span class="period">신청기간 <b>상시</b></span>
-          <span class="go">자세히 보기 →</span>
-        </div>
-      </a>
-    </div>
+    <div class="ta-list reveal-stagger" id="taList"></div>
 
     <div class="ta-empty" id="taEmpty" style="display:none;">
       <p>해당 분야의 모집 중인 시험이 없습니다.</p>
@@ -104,29 +44,179 @@
   </div>
 </section>
 
+<!-- 상세 + 신청 모달 -->
+<div id="taModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center;">
+  <div style="background:#fff; max-width:640px; width:92%; max-height:85vh; overflow-y:auto; border-radius:10px; padding:32px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+      <h3 id="taModalTitle" style="margin:0;"></h3>
+      <button type="button" id="taModalClose" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
+    </div>
+    <p style="color:#888; font-size:0.85rem; margin-bottom:20px;" id="taModalCode"></p>
+
+    <dl class="ta-info-grid" id="taModalInfo" style="margin-bottom:20px;"></dl>
+
+    <div id="taModalContent" style="white-space:pre-line; line-height:1.7; margin-bottom:24px;"></div>
+
+    <div id="taApplyArea">
+      <button type="button" id="btnOpenApplyForm" class="auth-submit" style="max-width:220px;">참여 신청하기</button>
+    </div>
+
+    <form id="taApplyForm" style="display:none; border-top:1px solid #e5e8ee; padding-top:20px; margin-top:10px;">
+      <div class="auth-field">
+        <label>이름<span class="req-mark">*</span></label>
+        <input type="text" id="applicantName" required>
+      </div>
+      <div class="auth-field">
+        <label>연락처<span class="req-mark">*</span></label>
+        <input type="text" id="applicantContact" required placeholder="010-0000-0000">
+      </div>
+      <div class="auth-field">
+        <label>생년월일<span class="req-mark">*</span></label>
+        <input type="date" id="applicantBirth" required>
+      </div>
+      <button type="button" class="auth-submit" id="btnSubmitApply" style="margin-top:16px;">신청 완료</button>
+    </form>
+  </div>
+</div>
+
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function () {
-  var tabs = document.querySelectorAll("#taTabs button");
-  var cards = document.querySelectorAll("#taList .ta-card");
-  var emptyEl = document.getElementById("taEmpty");
+  var STATUS_LABEL = { OPEN: "모집중", CLOSED: "마감", PERMANENTLY_OPEN: "상시모집" };
+  var STATUS_CLASS = { OPEN: "open", CLOSED: "closed", PERMANENTLY_OPEN: "permanent" };
 
-  tabs.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      tabs.forEach(function (b) { b.classList.remove("active"); });
-      btn.classList.add("active");
+  var recruitments = [];
+  var currentCat = "";
+  var currentRecruitment = null;
 
-      var cat = btn.dataset.cat;
-      var visibleCount = 0;
-      cards.forEach(function (card) {
-        var match = !cat || card.dataset.category === cat;
-        card.style.display = match ? "" : "none";
-        if (match) visibleCount++;
+  function loadList() {
+    var url = "/api/recruitments" + (currentCat ? "?evalCategory=" + currentCat : "");
+    fetch(url)
+      .then(function (res) { return res.json(); })
+      .then(function (list) {
+        recruitments = list;
+        renderList();
       });
-      emptyEl.style.display = visibleCount === 0 ? "block" : "none";
+  }
+
+  function fmtDate(d) { return d ? d.replace(/-/g, ".") : "-"; }
+
+  function renderList() {
+    var listEl = document.getElementById("taList");
+    var emptyEl = document.getElementById("taEmpty");
+
+    if (recruitments.length === 0) {
+      listEl.innerHTML = "";
+      emptyEl.style.display = "block";
+      return;
+    }
+    emptyEl.style.display = "none";
+
+    listEl.innerHTML = recruitments.map(function (r) {
+      var period = (r.status === "PERMANENTLY_OPEN")
+        ? "상시"
+        : fmtDate(r.applicationStartDate) + " ~ " + fmtDate(r.applicationEndDate);
+      return (
+        '<a href="javascript:" class="ta-card" onclick="openDetail(' + r.id + ')">' +
+        '<div class="ta-card-top">' +
+        '<span class="ta-badge ' + (STATUS_CLASS[r.status] || '') + '">' + (STATUS_LABEL[r.status] || r.status) + '</span>' +
+        '<span class="cat">' + (r.evalCategory || '') + ' · ' + (r.trialCode || '') + '</span>' +
+        '</div>' +
+        '<h4>' + r.trialName + '</h4>' +
+        '<dl class="ta-info-grid">' +
+        '<div><dt>시험기간</dt><dd>' + fmtDate(r.startDate) + ' ~ ' + fmtDate(r.endDate) + '</dd></div>' +
+        '<div><dt>모집대상</dt><dd>' + (r.participationGroup || '-') + '</dd></div>' +
+        '<div><dt>선정기준</dt><dd>' + (r.requirements || '-') + '</dd></div>' +
+        '<div><dt>모집인원</dt><dd>' + (r.participationNumber != null ? r.participationNumber + '명' : '-') + '</dd></div>' +
+        '<div><dt>시험참여비</dt><dd>' + (r.participationCost || '-') + '</dd></div>' +
+        '</dl>' +
+        '<div class="ta-apply-period">' +
+        '<span class="period">신청기간 <b>' + period + '</b></span>' +
+        '<span class="go">자세히 보기 →</span>' +
+        '</div>' +
+        '</a>'
+      );
+    }).join("");
+  }
+
+  document.querySelectorAll("#taTabs button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("#taTabs button").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      currentCat = btn.dataset.cat;
+      loadList();
     });
   });
+
+  loadList();
+
+  document.getElementById("taModalClose").addEventListener("click", closeModal);
+
+  document.getElementById("btnOpenApplyForm").addEventListener("click", function () {
+    document.getElementById("taApplyArea").style.display = "none";
+    document.getElementById("taApplyForm").style.display = "block";
+  });
+
+  document.getElementById("btnSubmitApply").addEventListener("click", function () {
+    var name = document.getElementById("applicantName").value.trim();
+    var contact = document.getElementById("applicantContact").value.trim();
+    var birth = document.getElementById("applicantBirth").value;
+
+    if (!name) { alert("이름을 입력해주세요."); return; }
+    if (!contact) { alert("연락처를 입력해주세요."); return; }
+    if (!birth) { alert("생년월일을 입력해주세요."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    btn.innerText = "처리 중...";
+
+    fetch("/api/trial-applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recruitmentId: currentRecruitment.id,
+        applicantName: name,
+        applicantContact: contact,
+        applicantBirth: birth
+      })
+    })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || "신청 처리에 실패했습니다."); });
+        alert("참여 신청이 완료되었습니다.");
+        closeModal();
+      })
+      .catch(function (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerText = "신청 완료";
+      });
+  });
+
+  window.openDetail = function (id) {
+    fetch("/api/recruitments/" + id)
+      .then(function (res) { return res.json(); })
+      .then(function (r) {
+        currentRecruitment = r;
+        document.getElementById("taModalTitle").innerText = r.trialName;
+        document.getElementById("taModalCode").innerText = (r.evalCategory || '') + ' · ' + (r.trialCode || '');
+        document.getElementById("taModalInfo").innerHTML =
+          '<div><dt>시험기간</dt><dd>' + fmtDate(r.startDate) + ' ~ ' + fmtDate(r.endDate) + '</dd></div>' +
+          '<div><dt>모집대상</dt><dd>' + (r.participationGroup || '-') + '</dd></div>' +
+          '<div><dt>선정기준</dt><dd>' + (r.requirements || '-') + '</dd></div>' +
+          '<div><dt>모집인원</dt><dd>' + (r.participationNumber != null ? r.participationNumber + '명' : '-') + '</dd></div>' +
+          '<div><dt>시험참여비</dt><dd>' + (r.participationCost || '-') + '</dd></div>';
+        document.getElementById("taModalContent").innerText = r.detailContent || "";
+        document.getElementById("taApplyArea").style.display = (r.status === "CLOSED") ? "none" : "block";
+        document.getElementById("taApplyForm").style.display = "none";
+        document.getElementById("taApplyForm").reset();
+        document.getElementById("taModal").style.display = "flex";
+      });
+  };
+
+  function closeModal() {
+    document.getElementById("taModal").style.display = "none";
+  }
 });
 </script>
 

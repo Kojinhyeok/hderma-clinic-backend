@@ -85,14 +85,14 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
   display:flex; align-items:center; gap:9px; height:38px; opacity:1; visibility:visible; transition:.3s;
 }
 .nav-logo .logo-white img{height:26px; width:auto;}
-.nav-logo .logo-white em{font-style:normal; font-size:19px; font-weight:800; color:#fff; letter-spacing:-.3px;}
+.nav-logo .logo-white em{font-style:normal; font-size:22px; font-weight:800; color:#fff; letter-spacing:-.3px;}
 
 #header.scrolled .nav-logo .logo-color{opacity:1; visibility:visible;}
 #header.scrolled .nav-logo .logo-white{opacity:0; visibility:hidden;}
 .gnb{display:flex; align-items:center; gap:4px; list-style:none;}
 .gnb > li{position:relative;}
 .gnb > li > a{
-  display:block; padding:0 26px; line-height:96px; font-size:16px; font-weight:600;
+  display:block; padding:0 26px; line-height:96px; font-size:18px; font-weight:600;
   color:#fff; transition:.3s;
 }
 #header.scrolled .gnb > li > a{color:var(--ink); line-height:80px;}

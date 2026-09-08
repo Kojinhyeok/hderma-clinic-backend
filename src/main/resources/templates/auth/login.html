@@ -77,7 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return res.json();
       })
       .then(function () {
-        window.location.href = "/";
+        var redirect = new URLSearchParams(window.location.search).get("redirect");
+        window.location.href = redirect || "/";
       })
       .catch(function (err) {
         alert(err.message);

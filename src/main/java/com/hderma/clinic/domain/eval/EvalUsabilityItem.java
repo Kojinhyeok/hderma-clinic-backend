@@ -5,20 +5,19 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "eval_usability")
+@Table(name = "eval_usability_item")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class EvalUsability {
+public class EvalUsabilityItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100)
-    private String title;
+    @Column(name = "group_id")
+    private Long groupId;
 
-    private String testPeriod;
-    private String evalItems;
-    private String subjectCount;
+    @Column(length = 100)
+    private String name;
 
     @Builder.Default
     private Integer sortOrder = 0;

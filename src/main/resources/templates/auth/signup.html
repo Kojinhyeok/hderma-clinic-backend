@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원가입 완료 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>회원가입 완료</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<section class="sub-content">
+  <div class="auth-wrap">
+    <div class="auth-card reveal-up" id="loadingBox">
+      <p class="sub-desc">초대 정보를 확인하는 중입니다...</p>
+    </div>
+
+    <div class="auth-card reveal-up" id="formBox" style="display:none;">
+      <div class="auth-logo">
+        <img th:src="@{/assets/images/logo-icon.png}" alt="H-Derma">
+      </div>
+      <h2>회원가입 완료</h2>
+      <p class="sub-desc" id="inviteInfo"></p>
+
+      <form id="signupForm">
+        <div class="auth-field">
+          <label>아이디<span class="req-mark">*</span></label>
+          <input type="text" id="username" required placeholder="영문/숫자 조합 4~20자">
+        </div>
+        <div class="auth-row2">
+          <div class="auth-field">
+            <label>비밀번호<span class="req-mark">*</span></label>
+            <input type="password" id="password" required placeholder="8자 이상">
+          </div>
+          <div class="auth-field">
+            <label>비밀번호 확인<span class="req-mark">*</span></label>
+            <input type="password" id="passwordConfirm" required placeholder="다시 입력">
+          </div>
+        </div>
+
+        <button type="button" class="auth-submit" id="btnComplete" style="margin-top:26px;">가입 완료</button>
+      </form>
+    </div>
+
+    <div class="auth-card reveal-up" id="errorBox" style="display:none;">
+      <h2>링크가 유효하지 않습니다</h2>
+      <p class="sub-desc" id="errorMessage"></p>
+      <div class="auth-links">
+        <a th:href="@{/auth/login}">로그인 페이지로</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+  var token = new URLSearchParams(window.location.search).get("token");
+
+  if (!token) {
+    showError("유효하지 않은 접근입니다. 이메일로 받으신 링크를 다시 확인해주세요.");
+    return;
+  }
+
+  fetch("/api/auth/signup-by-token?token=" + encodeURIComponent(token))
+    .then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || "초대 정보를 확인할 수 없습니다."); });
+      return res.json();
+    })
+    .then(function (info) {
+      document.getElementById("inviteInfo").innerText = info.name + "님(" + info.email + "), 사용하실 아이디와 비밀번호를 설정해주세요.";
+      document.getElementById("loadingBox").style.display = "none";
+      document.getElementById("formBox").style.display = "block";
+    })
+    .catch(function (err) { showError(err.message); });
+
+  document.getElementById("btnComplete").addEventListener("click", function () {
+    var username = document.getElementById("username").value.trim();
+    var password = document.getElementById("password").value;
+    var passwordConfirm = document.getElementById("passwordConfirm").value;
+
+    if (!username) { alert("아이디를 입력해주세요."); return; }
+    if (!password) { alert("비밀번호를 입력해주세요."); return; }
+    if (password !== passwordConfirm) { alert("비밀번호가 일치하지 않습니다."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    btn.innerText = "처리 중...";
+
+    fetch("/api/auth/signup-by-token?token=" + encodeURIComponent(token), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: username, password: password })
+    })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || "가입 처리에 실패했습니다."); });
+        return res.json();
+      })
+      .then(function () {
+        alert("가입이 완료되었습니다. 로그인해주세요.");
+        window.location.href = "/auth/login";
+      })
+      .catch(function (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerText = "가입 완료";
+      });
+  });
+
+  function showError(message) {
+    document.getElementById("loadingBox").style.display = "none";
+    document.getElementById("errorMessage").innerText = message;
+    document.getElementById("errorBox").style.display = "block";
+  }
+});
+</script>
+
+</body>
+</html>

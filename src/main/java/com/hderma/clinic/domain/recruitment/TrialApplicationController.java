@@ -1,6 +1,9 @@
 package com.hderma.clinic.domain.recruitment;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +18,13 @@ public class TrialApplicationController {
     private final TrialApplicationService service;
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> apply(@RequestBody TrialApplicationDto.Request req) {
+    public ResponseEntity<?> apply(@RequestBody TrialApplicationDto.Request req, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("memberId") != null) {
+            req.setMemberId((Long) session.getAttribute("memberId"));
+        } else {
+            req.setMemberId(null); // 비로그인 신청은 회원 연결 없이 접수
+        }
         return ResponseEntity.ok(Map.of("id", service.apply(req)));
     }
 

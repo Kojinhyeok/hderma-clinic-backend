@@ -37,4 +37,17 @@ public class MemberDto {
     public static class RoleUpdateRequest {
         private String role; // MEMBER / PROFESSOR / ADMIN — 관리자 화면 전용
     }
+
+    @Getter @Setter
+    public static class InviteRequest {
+        private String name;
+        private String email;
+        private String phone;
+    }
+
+    @Getter @Setter
+    public static class CompleteSignupRequest {
+        private String username;
+        private String password;
+    }
 }

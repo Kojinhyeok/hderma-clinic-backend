@@ -15,12 +15,15 @@ public class TrialApplicationService {
 
     @Transactional
     public Long apply(TrialApplicationDto.Request req) {
-        if (req.getMemberId() == null) {
-            throw new IllegalArgumentException("시험참여신청은 로그인 후 이용 가능합니다.");
+        if (req.getApplicantName() == null || req.getApplicantName().isBlank()) {
+            throw new IllegalArgumentException("이름을 입력해주세요.");
+        }
+        if (req.getApplicantContact() == null || req.getApplicantContact().isBlank()) {
+            throw new IllegalArgumentException("연락처를 입력해주세요.");
         }
         TrialApplication entity = TrialApplication.builder()
             .recruitmentId(req.getRecruitmentId())
-            .memberId(req.getMemberId())
+            .memberId(req.getMemberId()) // 로그인했으면 세션값, 아니면 null (비회원 신청)
             .applicantName(req.getApplicantName())
             .applicantContact(req.getApplicantContact())
             .applicantBirth(req.getApplicantBirth())
