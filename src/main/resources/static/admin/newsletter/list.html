@@ -71,7 +71,8 @@
 
 					<div class="mb-3">
 						<label class="form-label">내용</label>
-						<textarea class="form-control" id="content" rows="8"></textarea>
+						<div id="editor"></div>
+						<div id="editorError" class="text-danger small mt-1" style="display:none;">본문을 입력해주세요.</div>
 					</div>
 				</form>
 			</div>
@@ -85,11 +86,16 @@
 
 <script src="../js/app.js"></script>
 <script src="../js/common.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+<script src="../js/ckeditor-config.js"></script>
+<script src="../js/admin-utils.js"></script>
 <script>
 	let newsletterList = [];
+	let editorMgr = AdminUtils.createEditorManager("editor", "newsletter");
 
 	document.addEventListener("DOMContentLoaded", function () {
 		loadItems();
+		editorMgr.init("");
 		document.getElementById("btnSave").addEventListener("click", saveItem);
 	});
 
@@ -127,7 +133,7 @@
 
 		const data = {
 			title: document.getElementById("title").value,
-			content: document.getElementById("content").value
+			content: editorMgr.getData()
 		};
 		if (!data.title) { alert("제목을 입력해주세요."); return; }
 		if (file) {
@@ -179,6 +185,7 @@
 	function openAddModal() {
 		document.getElementById("newsletterForm").reset();
 		document.getElementById("itemId").value = "";
+		editorMgr.init("");
 		document.getElementById("thumbnailPreview").classList.add("d-none");
 		document.getElementById("modalTitle").innerText = "글 등록";
 		bootstrap.Modal.getOrCreateInstance(document.getElementById('newsletterModal')).show();
@@ -188,7 +195,7 @@
 		const item = newsletterList[index];
 		document.getElementById("itemId").value = item.id;
 		document.getElementById("title").value = item.title;
-		document.getElementById("content").value = item.content || "";
+		editorMgr.init(item.content || "");
 
 		const previewImg = document.getElementById("previewImg");
 		if (item.thumbnailUrl) {
