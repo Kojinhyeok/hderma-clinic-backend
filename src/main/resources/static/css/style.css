@@ -76,8 +76,8 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
   display:flex; align-items:center; justify-content:space-between; height:96px; transition:.4s ease;
 }
 #header.scrolled .nav-wr{height:80px;}
-.nav-logo{position:relative; display:block; height:38px;}
-.nav-logo img{height:38px; transition:.3s;}
+.nav-logo{position:relative; display:block; height:70px;}
+.nav-logo img{height:75px; transition:.3s;}
 
 /* transparent header (over the hero) → white logo; scrolled/white header → color logo */
 .nav-logo .logo-color{opacity:0; visibility:hidden; position:absolute; top:0; left:0;}
