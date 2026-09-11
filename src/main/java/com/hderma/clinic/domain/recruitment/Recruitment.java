@@ -22,7 +22,7 @@ public class Recruitment {
 
     @Builder.Default
     @Column(length = 20)
-    private String status = "OPEN"; // OPEN / CLOSED / PERMANENTLY_OPEN
+    private String status = "OPEN"; // URGENT / OPEN / CLOSED / PERMANENTLY_OPEN
 
     private LocalDate startDate;
     private LocalDate endDate;

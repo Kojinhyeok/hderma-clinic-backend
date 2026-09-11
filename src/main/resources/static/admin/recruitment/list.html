@@ -76,9 +76,10 @@
 						<div class="col-md-4 mb-3">
 							<label class="form-label">상태</label>
 							<select class="form-select" id="status">
+								<option value="URGENT">긴급모집</option>
 								<option value="OPEN">모집중</option>
-								<option value="CLOSED">마감</option>
 								<option value="PERMANENTLY_OPEN">상시모집</option>
+								<option value="CLOSED">마감</option>
 							</select>
 						</div>
 					</div>
@@ -147,8 +148,8 @@
 	let recruitmentList = [];
 
 	const CATEGORY_LABEL = { EFFICACY: '유효성 평가', FUNCTIONAL: '기능성 평가', HEALTH_FOOD: '건강기능식품 평가', SAFETY: '안전성 평가' };
-	const STATUS_LABEL = { OPEN: '모집중', CLOSED: '마감', PERMANENTLY_OPEN: '상시모집' };
-	const STATUS_BADGE = { OPEN: 'success', CLOSED: 'secondary', PERMANENTLY_OPEN: 'info' };
+	const STATUS_LABEL = { URGENT: '긴급모집', OPEN: '모집중', CLOSED: '마감', PERMANENTLY_OPEN: '상시모집' };
+	const STATUS_BADGE = { URGENT: 'danger', OPEN: 'success', CLOSED: 'secondary', PERMANENTLY_OPEN: 'info' };
 
 	document.addEventListener("DOMContentLoaded", function () {
 		loadList();

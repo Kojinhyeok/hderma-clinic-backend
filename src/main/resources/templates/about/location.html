@@ -41,7 +41,7 @@
   <div class="location-wrap reveal-up">
     <div class="location-map">
       <iframe
-        th:src="@{https://www.google.com/maps?q=서울 강서구 마곡동로 166&output=embed}"
+        th:src="@{https://www.google.com/maps?q=서울 강서구 마곡동로 166 보타닉게이트&output=embed}"
         loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
     <div class="location-info">
@@ -51,15 +51,20 @@
       <ul>
         <li>
           <span class="label">Address</span>
-          서울 강서구 마곡동로 166<br>마곡 보타닉게이트 지식산업센터
-          <!-- TODO: 동/층/호 상세주소 확정 시 교체 -->
+          서울 강서구 마곡동로 166<br>보타닉게이트 809·810·811호
           <button type="button" class="copy-btn" onclick="copyAddress()">주소복사</button>
-          <span class="note">※ 상세 주소(동·층·호) 추후 업데이트 예정</span>
         </li>
         <li>
           <span class="label">Tel</span>
-          <!-- TODO: 실제 대표번호로 교체 -->
-          추후 입력
+          02-3662-0810
+        </li>
+        <li>
+          <span class="label">Fax</span>
+          02-3662-0811
+        </li>
+        <li>
+          <span class="label">E-mail</span>
+          hderma@hderma.co.kr
         </li>
         <li>
           <span class="label">Subway</span>
@@ -76,7 +81,7 @@
 
 <script th:inline="javascript">
   function copyAddress() {
-    var address = "서울 강서구 마곡동로 166 마곡 보타닉게이트 지식산업센터";
+    var address = "서울 강서구 마곡동로 166 보타닉게이트 809·810·811호";
     navigator.clipboard.writeText(address).then(function () {
       var toast = document.getElementById("toast");
       toast.classList.add("show");

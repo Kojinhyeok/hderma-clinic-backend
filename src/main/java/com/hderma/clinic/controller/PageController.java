@@ -12,6 +12,11 @@ public class PageController {
         return "index";
     }
 
+    @GetMapping("/admin")
+    public String admin() {
+        return "redirect:/admin/index.html";
+    }
+
     @GetMapping("/about/{page}")
     public String about(@PathVariable String page) {
         return "about/" + page;

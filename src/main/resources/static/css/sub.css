@@ -295,7 +295,7 @@
 /* ==================== EVAL TABS (임상평가) ==================== */
 .eval-tabs-wrap{padding:70px 40px 0; max-width:1400px; margin:0 auto;}
 .eval-tabs{
-  display:flex; gap:6px; max-width:900px; margin:0 auto 60px; padding:6px;
+  display:flex; gap:6px; margin:0 auto 60px; padding:6px;
   background:var(--bg-soft); border-radius:50px; flex-wrap:wrap; justify-content:center;
 }
 .eval-tabs button{
@@ -502,9 +502,10 @@
 
 .ta-card-top{display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;}
 .ta-badge{padding:5px 14px; border-radius:14px; font-size:12px; font-weight:700;}
-.ta-badge.open{background:var(--grad-soft); color:var(--main);}
-.ta-badge.closed{background:#F1F2F4; color:var(--gray-soft);}
-.ta-badge.permanent{background:rgba(63,174,147,.12); color:var(--teal);}
+.ta-badge.urgent{background:#E5484D; color:#fff;}
+.ta-badge.open{background:var(--grad-soft); color:var(--main);}  /* 파랑 계열, 기존 */
+.ta-badge.permanent{background:rgba(63,174,147,.12); color:var(--teal);}  /* 청록, 기존 */
+.ta-badge.closed{background:#F1F2F4; color:var(--gray-soft);}  /* 회색, 기존 */
 .ta-card-top .cat{font-size:12.5px; color:var(--gray-soft); font-weight:600;}
 .ta-card h4{font-size:19px; font-weight:800; color:var(--navy); margin-bottom:18px;}
 

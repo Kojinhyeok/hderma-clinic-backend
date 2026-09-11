@@ -83,8 +83,9 @@
 
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function () {
-  var STATUS_LABEL = { OPEN: "모집중", CLOSED: "마감", PERMANENTLY_OPEN: "상시모집" };
-  var STATUS_CLASS = { OPEN: "open", CLOSED: "closed", PERMANENTLY_OPEN: "permanent" };
+  var STATUS_LABEL = { URGENT: "긴급모집", OPEN: "모집중", CLOSED: "마감", PERMANENTLY_OPEN: "상시모집" };
+  var STATUS_CLASS = { URGENT: "urgent", OPEN: "open", CLOSED: "closed", PERMANENTLY_OPEN: "permanent" };
+  var STATUS_ORDER = { URGENT: 0, OPEN: 1, PERMANENTLY_OPEN: 2, CLOSED: 3 };
 
   var recruitments = [];
   var currentCat = "";
@@ -95,7 +96,11 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(url)
       .then(function (res) { return res.json(); })
       .then(function (list) {
-        recruitments = list;
+        recruitments = list.slice().sort(function (a, b) {
+          var oa = STATUS_ORDER[a.status] !== undefined ? STATUS_ORDER[a.status] : 99;
+          var ob = STATUS_ORDER[b.status] !== undefined ? STATUS_ORDER[b.status] : 99;
+          return oa - ob;
+        });
         renderList();
       });
   }
