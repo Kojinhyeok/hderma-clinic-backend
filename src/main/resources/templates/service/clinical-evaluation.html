@@ -88,7 +88,7 @@
       <div class="eval-empty" id="safetyEmpty" style="display:none;"><p>세부 평가 항목은 준비 중입니다.</p></div>
     </div>
 
-    <!-- 6. In-vitro 평가 (대상자수 없음) -->
+    <!-- 6. In-vitro 평가 (평가항목만 표시, 시험기간/대상자수 없음) -->
     <div class="eval-panel" data-panel="invitro">
       <div class="eval-intro">
         <h2>In-vitro 평가</h2>
@@ -174,7 +174,9 @@ document.addEventListener("DOMContentLoaded", function () {
         ? '<img src="' + item.thumbnailUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">'
         : (item.title || "").substring(0, 2);
       var lines = "";
-      lines += "<li>" + (opts.periodLabel || "시험기간") + ": " + (item.testPeriod || "-") + "</li>";
+      if (opts.showPeriod !== false) {
+        lines += "<li>" + (opts.periodLabel || "시험기간") + ": " + (item.testPeriod || "-") + "</li>";
+      }
       if (opts.showEvalItems !== false && item.evalItems) {
         lines += "<li>평가항목: " + item.evalItems + "</li>";
       }
@@ -228,9 +230,9 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("/api/eval-safety").then(function (res) { return res.json(); })
     .then(function (list) { renderStructuredCards(list, "safetyGrid", "safetyEmpty", { showEvalItems: false }); });
 
-  // ===== 6. In-vitro 평가 (대상자수 없음, 라벨은 "평가기간") =====
+  // ===== 6. In-vitro 평가 (평가항목만 표시: 시험기간/대상자수 숨김) =====
   fetch("/api/eval-invitro").then(function (res) { return res.json(); })
-    .then(function (list) { renderStructuredCards(list, "invitroGrid", "invitroEmpty", { showSubjectCount: false, periodLabel: "평가기간" }); });
+    .then(function (list) { renderStructuredCards(list, "invitroGrid", "invitroEmpty", { showSubjectCount: false, showPeriod: false }); });
 
 });
 </script>

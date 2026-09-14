@@ -229,7 +229,7 @@
 .org-dept-lead{
   display:block; background:#fff; border:1px solid var(--line); text-align:center;
   padding:11px 8px; border-radius:8px; font-size:13px; color:var(--main); font-weight:800;
-  margin-bottom:8px; transition:.25s;
+  margin-bottom:8px; transition:.25s; position:relative;
 }
 .org-dept-lead:hover{border-color:var(--teal);}
 .org-team-list{display:flex; flex-direction:column; gap:8px;}
@@ -239,6 +239,33 @@
 }
 .org-team-list span:hover{border-color:var(--teal); color:var(--main);}
 
+/* 본부장이 있는 본부(임상연구본부)만: 본부장 아래로 팀들이 가지 치는 트리 구조 */
+.org-dept-lead::after{
+  content:''; position:absolute; bottom:-14px; left:50%; width:1px; height:14px;
+  background:var(--line); transform:translateX(-50%); z-index:0;
+}
+.org-dept-lead + .org-team-list{
+  display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; gap:0;
+  margin-top:22px; position:relative;
+}
+.org-dept-lead + .org-team-list::before{
+  content:''; position:absolute; top:-22px; left:50%; width:1px; height:22px;
+  background:var(--line); transform:translateX(-50%);
+}
+.org-dept-lead + .org-team-list span{
+  position:relative; margin:0 10px;
+}
+.org-dept-lead + .org-team-list span::before{
+  content:''; position:absolute; top:-12px; left:50%; width:1px; height:12px;
+  background:var(--line); transform:translateX(-50%);
+}
+.org-dept-lead + .org-team-list span::after{
+  content:''; position:absolute; top:-12px; left:0; width:100%; height:1px; background:var(--line);
+}
+.org-dept-lead + .org-team-list span:first-child::after{left:50%; width:50%;}
+.org-dept-lead + .org-team-list span:last-child::after{left:0; width:50%;}
+.org-dept-lead + .org-team-list span:only-child::after{display:none;}
+
 @media (max-width:900px){
   .org-dept-row{grid-template-columns:1fr 1fr; row-gap:56px;}
   .org-dept-row::before{display:none;}
@@ -247,6 +274,16 @@
 @media (max-width:560px){
   .org-dept-row{grid-template-columns:1fr;}
   .org-ceo{padding:16px 40px; font-size:18px;}
+
+  /* 임상연구본부 트리도 좁은 화면에서는 세로 스택으로 되돌림 */
+  .org-dept-lead::after{display:none;}
+  .org-dept-lead + .org-team-list{
+    display:flex; flex-direction:column; gap:8px; margin-top:8px;
+  }
+  .org-dept-lead + .org-team-list::before{display:none;}
+  .org-dept-lead + .org-team-list span{margin:0;}
+  .org-dept-lead + .org-team-list span::before,
+  .org-dept-lead + .org-team-list span::after{display:none;}
 }
 
 /* ==================== LOCATION PAGE ==================== */
