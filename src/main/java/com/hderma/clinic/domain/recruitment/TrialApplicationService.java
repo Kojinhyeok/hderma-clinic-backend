@@ -16,17 +16,26 @@ public class TrialApplicationService {
     @Transactional
     public Long apply(TrialApplicationDto.Request req) {
         if (req.getApplicantName() == null || req.getApplicantName().isBlank()) {
-            throw new IllegalArgumentException("이름을 입력해주세요.");
+            throw new IllegalArgumentException("회원 정보에 이름이 없습니다. 마이페이지에서 정보를 먼저 등록해주세요.");
         }
         if (req.getApplicantContact() == null || req.getApplicantContact().isBlank()) {
-            throw new IllegalArgumentException("연락처를 입력해주세요.");
+            throw new IllegalArgumentException("회원 정보에 연락처가 없습니다. 마이페이지에서 정보를 먼저 등록해주세요.");
+        }
+        if (req.getPreferredDate() == null) {
+            throw new IllegalArgumentException("방문 희망 날짜를 선택해주세요.");
+        }
+        if (req.getPreferredTimeSlot() == null || req.getPreferredTimeSlot().isBlank()) {
+            throw new IllegalArgumentException("방문 희망 시간대를 선택해주세요.");
         }
         TrialApplication entity = TrialApplication.builder()
             .recruitmentId(req.getRecruitmentId())
-            .memberId(req.getMemberId()) // 로그인했으면 세션값, 아니면 null (비회원 신청)
+            .memberId(req.getMemberId()) // 컨트롤러에서 로그인 세션값으로 주입됨 (비로그인 신청은 컨트롤러 단계에서 이미 차단)
             .applicantName(req.getApplicantName())
             .applicantContact(req.getApplicantContact())
             .applicantBirth(req.getApplicantBirth())
+            .preferredDate(req.getPreferredDate())
+            .preferredTimeSlot(req.getPreferredTimeSlot())
+            .inquiry(req.getInquiry())
             .build();
         repository.save(entity);
         return entity.getId();
@@ -53,7 +62,10 @@ public class TrialApplicationService {
         return TrialApplicationDto.Response.builder()
             .id(e.getId()).recruitmentId(e.getRecruitmentId()).memberId(e.getMemberId())
             .applicantName(e.getApplicantName()).applicantContact(e.getApplicantContact())
-            .applicantBirth(e.getApplicantBirth()).status(e.getStatus()).createdAt(e.getCreatedAt())
+            .applicantBirth(e.getApplicantBirth())
+            .preferredDate(e.getPreferredDate()).preferredTimeSlot(e.getPreferredTimeSlot())
+            .inquiry(e.getInquiry())
+            .status(e.getStatus()).createdAt(e.getCreatedAt())
             .build();
     }
 }

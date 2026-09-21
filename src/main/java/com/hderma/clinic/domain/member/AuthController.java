@@ -44,9 +44,12 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
         Long memberId = (Long) session.getAttribute("memberId");
+        MemberDto.Response member = memberService.findById(memberId);
         return ResponseEntity.ok(java.util.Map.of(
             "memberId", memberId,
-            "role", session.getAttribute("role")
+            "role", session.getAttribute("role"),
+            "name", member.getName() != null ? member.getName() : "",
+            "phone", member.getPhone() != null ? member.getPhone() : ""
         ));
     }
 

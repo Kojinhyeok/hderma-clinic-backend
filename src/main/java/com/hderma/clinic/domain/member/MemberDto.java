@@ -12,6 +12,7 @@ public class MemberDto {
         private String name;
         private String email;
         private String phone;
+        private java.time.LocalDate birthDate;
         private Boolean privacyAgreed;
     }
 
@@ -28,6 +29,7 @@ public class MemberDto {
         private String name;
         private String email;
         private String phone;
+        private java.time.LocalDate birthDate;
         private String role;
         private String status;
         private LocalDateTime createdAt;

@@ -38,6 +38,9 @@
 								<th>신청자명</th>
 								<th>연락처</th>
 								<th>생년월일</th>
+								<th style="width:110px;">방문희망일</th>
+								<th style="width:100px;">희망시간대</th>
+								<th>문의사항</th>
 								<th style="width:120px;">상태</th>
 								<th style="width:120px;">신청일</th>
 								<th style="width:220px;">관리</th>
@@ -81,7 +84,7 @@
 
 	function loadApplications(recruitmentId) {
 		if (!recruitmentId) {
-			document.querySelector("#applicationTable tbody").innerHTML = '<tr><td colspan="7" class="text-center py-4">모집공고를 선택해주세요.</td></tr>';
+			document.querySelector("#applicationTable tbody").innerHTML = '<tr><td colspan="10" class="text-center py-4">모집공고를 선택해주세요.</td></tr>';
 			return;
 		}
 		fetch(`/api/trial-applications/by-recruitment/${recruitmentId}`)
@@ -90,13 +93,16 @@
 				applicationList = list;
 				const tbody = document.querySelector("#applicationTable tbody");
 				tbody.innerHTML = list.length === 0
-					? '<tr><td colspan="7" class="text-center py-4">신청자가 없습니다.</td></tr>'
+					? '<tr><td colspan="10" class="text-center py-4">신청자가 없습니다.</td></tr>'
 					: list.map(a => `
 						<tr>
 							<td class="align-middle">${a.id}</td>
 							<td class="align-middle">${a.applicantName}</td>
 							<td class="align-middle">${a.applicantContact}</td>
 							<td class="align-middle">${a.applicantBirth || '-'}</td>
+							<td class="align-middle">${a.preferredDate || '-'}</td>
+							<td class="align-middle">${a.preferredTimeSlot || '-'}</td>
+							<td class="align-middle small" style="max-width:220px; white-space:pre-line;">${a.inquiry || '-'}</td>
 							<td class="align-middle"><span class="badge bg-${STATUS_BADGE[a.status]}">${STATUS_LABEL[a.status]}</span></td>
 							<td class="align-middle">${(a.createdAt || '').substring(0, 10)}</td>
 							<td class="align-middle">

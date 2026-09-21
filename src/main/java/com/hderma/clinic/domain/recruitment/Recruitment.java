@@ -26,15 +26,15 @@ public class Recruitment {
 
     private LocalDate startDate;
     private LocalDate endDate;
-    private LocalDate applicationStartDate;
-    private LocalDate applicationEndDate;
+    private Integer visitCount;
+    private String testSite;
 
     private String participationGroup;
 
     @Column(columnDefinition = "TEXT")
     private String requirements;
 
-    private Integer participationNumber;
+    private String productType;
     private String participationCost;
     private String recruitmentFieldIds; // 쉼표 구분
 

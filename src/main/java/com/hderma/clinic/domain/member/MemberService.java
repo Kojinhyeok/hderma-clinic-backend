@@ -46,6 +46,7 @@ public class MemberService {
             .name(req.getName())
             .email(req.getEmail())
             .phone(req.getPhone())
+            .birthDate(req.getBirthDate())
             .privacyAgreedAt(LocalDateTime.now())
             .build();
         repository.save(entity);
@@ -69,6 +70,12 @@ public class MemberService {
         return repository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    public MemberDto.Response findById(Long id) {
+        Member member = repository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다: " + id));
+        return toResponse(member);
+    }
+
     @Transactional
     public void updateRole(Long id, String role) {
         Member member = repository.findById(id)
@@ -89,7 +96,7 @@ public class MemberService {
     public MemberDto.Response toResponse(Member e) {
         return MemberDto.Response.builder()
             .id(e.getId()).username(e.getUsername()).name(e.getName())
-            .email(e.getEmail()).phone(e.getPhone()).role(e.getRole())
+            .email(e.getEmail()).phone(e.getPhone()).birthDate(e.getBirthDate()).role(e.getRole())
             .status(e.getStatus()).createdAt(e.getCreatedAt())
             .build();
     }

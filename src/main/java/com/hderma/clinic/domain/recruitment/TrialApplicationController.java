@@ -1,5 +1,7 @@
 package com.hderma.clinic.domain.recruitment;
 
+import com.hderma.clinic.domain.member.MemberDto;
+import com.hderma.clinic.domain.member.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +18,24 @@ import java.util.Map;
 public class TrialApplicationController {
 
     private final TrialApplicationService service;
+    private final MemberService memberService;
 
     @PostMapping
     public ResponseEntity<?> apply(@RequestBody TrialApplicationDto.Request req, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("memberId") != null) {
-            req.setMemberId((Long) session.getAttribute("memberId"));
-        } else {
-            req.setMemberId(null); // 비로그인 신청은 회원 연결 없이 접수
+        if (session == null || session.getAttribute("memberId") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", "로그인 후 신청할 수 있습니다."));
         }
+        Long memberId = (Long) session.getAttribute("memberId");
+
+        // 신청자 인적사항은 클라이언트 입력을 신뢰하지 않고, 로그인된 회원 정보로 서버에서 직접 채움
+        MemberDto.Response member = memberService.findById(memberId);
+        req.setMemberId(memberId);
+        req.setApplicantName(member.getName());
+        req.setApplicantContact(member.getPhone());
+        req.setApplicantBirth(member.getBirthDate());
+
         return ResponseEntity.ok(Map.of("id", service.apply(req)));
     }
 

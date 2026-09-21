@@ -34,11 +34,11 @@ public class RecruitmentService {
             .status(req.getStatus() != null ? req.getStatus() : "OPEN")
             .startDate(req.getStartDate())
             .endDate(req.getEndDate())
-            .applicationStartDate(req.getApplicationStartDate())
-            .applicationEndDate(req.getApplicationEndDate())
+            .visitCount(req.getVisitCount())
+            .testSite(req.getTestSite())
             .participationGroup(req.getParticipationGroup())
             .requirements(req.getRequirements())
-            .participationNumber(req.getParticipationNumber())
+            .productType(req.getProductType())
             .participationCost(req.getParticipationCost())
             .recruitmentFieldIds(req.getRecruitmentFieldIds())
             .detailContent(req.getDetailContent())
@@ -57,11 +57,11 @@ public class RecruitmentService {
         if (req.getStatus() != null) entity.setStatus(req.getStatus());
         entity.setStartDate(req.getStartDate());
         entity.setEndDate(req.getEndDate());
-        entity.setApplicationStartDate(req.getApplicationStartDate());
-        entity.setApplicationEndDate(req.getApplicationEndDate());
+        entity.setVisitCount(req.getVisitCount());
+        entity.setTestSite(req.getTestSite());
         entity.setParticipationGroup(req.getParticipationGroup());
         entity.setRequirements(req.getRequirements());
-        entity.setParticipationNumber(req.getParticipationNumber());
+        entity.setProductType(req.getProductType());
         entity.setParticipationCost(req.getParticipationCost());
         entity.setRecruitmentFieldIds(req.getRecruitmentFieldIds());
         entity.setDetailContent(req.getDetailContent());
@@ -77,9 +77,9 @@ public class RecruitmentService {
             .id(e.getId()).trialCode(e.getTrialCode()).trialName(e.getTrialName())
             .evalCategory(e.getEvalCategory()).status(e.getStatus())
             .startDate(e.getStartDate()).endDate(e.getEndDate())
-            .applicationStartDate(e.getApplicationStartDate()).applicationEndDate(e.getApplicationEndDate())
+            .visitCount(e.getVisitCount()).testSite(e.getTestSite())
             .participationGroup(e.getParticipationGroup()).requirements(e.getRequirements())
-            .participationNumber(e.getParticipationNumber()).participationCost(e.getParticipationCost())
+            .productType(e.getProductType()).participationCost(e.getParticipationCost())
             .recruitmentFieldIds(e.getRecruitmentFieldIds()).detailContent(e.getDetailContent())
             .createdAt(e.getCreatedAt())
             .build();

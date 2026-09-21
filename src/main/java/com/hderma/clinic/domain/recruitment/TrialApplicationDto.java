@@ -9,10 +9,13 @@ public class TrialApplicationDto {
     @Getter @Setter
     public static class Request {
         private Long recruitmentId;
-        private Long memberId; // 로그인한 회원 ID — 컨트롤러에서 세션 붙이기 전까지는 프론트에서 임시로 넘김
-        private String applicantName;
-        private String applicantContact;
-        private LocalDate applicantBirth;
+        private Long memberId; // 서버(컨트롤러)에서 로그인 세션값으로 채움 — 클라이언트가 보내도 무시됨
+        private String applicantName;    // 서버에서 회원정보로 채움 — 클라이언트가 보내도 무시됨
+        private String applicantContact; // 서버에서 회원정보로 채움 — 클라이언트가 보내도 무시됨
+        private LocalDate applicantBirth; // 서버에서 회원정보로 채움(없으면 null) — 클라이언트가 보내도 무시됨
+        private LocalDate preferredDate;
+        private String preferredTimeSlot;
+        private String inquiry;
     }
 
     @Getter @Builder
@@ -23,6 +26,9 @@ public class TrialApplicationDto {
         private String applicantName;
         private String applicantContact;
         private LocalDate applicantBirth;
+        private LocalDate preferredDate;
+        private String preferredTimeSlot;
+        private String inquiry;
         private String status;
         private LocalDateTime createdAt;
     }

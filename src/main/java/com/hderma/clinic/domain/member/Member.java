@@ -23,6 +23,7 @@ public class Member {
     private String email;
 
     private String phone;
+    private java.time.LocalDate birthDate;
 
     @Builder.Default
     @Column(length = 20)

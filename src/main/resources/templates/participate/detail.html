@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시험 상세 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>시험참여신청</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<div class="sub-nav-wrap">
+  <nav class="sub-nav">
+    <a th:href="@{/participate/guide}">시험참여안내</a>
+    <a th:href="@{/participate/apply}" class="active">시험참여신청</a>
+  </nav>
+</div>
+
+<section class="sub-content">
+  <div class="ta-detail-wrap" id="taDetailWrap" style="display:none;">
+    <a th:href="@{/participate/apply}" class="ta-detail-back">← 목록으로</a>
+
+    <div class="ta-detail-card">
+      <div class="ta-card-top">
+        <span class="ta-badge" id="dBadge"></span>
+        <span class="cat" id="dCode"></span>
+      </div>
+      <h2 id="dTitle"></h2>
+
+      <dl class="ta-info-list ta-info-list--full" id="dInfo"></dl>
+
+      <div class="ta-detail-content rich-content" id="dContent"></div>
+
+      <div id="dApplyArea">
+        <button type="button" id="btnOpenApplyForm" class="auth-submit" style="max-width:220px;">참여 신청하기</button>
+      </div>
+
+      <form id="taApplyForm" style="display:none; border-top:1px solid var(--line); padding-top:24px; margin-top:20px;">
+        <p class="hint" id="taApplicantInfo" style="margin-bottom:16px;"></p>
+        <div class="auth-field">
+          <label>방문 희망 날짜<span class="req-mark">*</span></label>
+          <input type="date" id="preferredDate" required>
+        </div>
+        <div class="auth-field">
+          <label>방문 희망 시간대<span class="req-mark">*</span></label>
+          <select id="preferredTimeSlot" required>
+            <option value="">선택해주세요</option>
+            <option value="오전">오전</option>
+            <option value="오후">오후</option>
+            <option value="시간 협의">시간 협의</option>
+          </select>
+        </div>
+        <div class="auth-field">
+          <label>문의사항</label>
+          <textarea id="inquiry" rows="3" placeholder="궁금하신 점이나 참고사항을 남겨주세요 (선택)"></textarea>
+        </div>
+        <button type="button" class="auth-submit" id="btnSubmitApply" style="margin-top:16px;">신청 완료</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="ta-empty" id="dNotFound" style="display:none;">
+    <p>해당 시험 공고를 찾을 수 없습니다.</p>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script th:inline="javascript">
+document.addEventListener("DOMContentLoaded", function () {
+  var STATUS_LABEL = { URGENT: "긴급모집", OPEN: "모집중", CLOSED: "마감", PERMANENTLY_OPEN: "상시모집" };
+  var STATUS_CLASS = { URGENT: "urgent", OPEN: "open", CLOSED: "closed", PERMANENTLY_OPEN: "permanent" };
+
+  var params = new URLSearchParams(window.location.search);
+  var id = params.get("id");
+  var currentRecruitment = null;
+
+  function fmtDate(d) { return d ? d.replace(/-/g, ".") : "-"; }
+
+  if (!id) {
+    document.getElementById("dNotFound").style.display = "block";
+    return;
+  }
+
+  fetch("/api/recruitments/" + id)
+    .then(function (res) { if (!res.ok) throw new Error(); return res.json(); })
+    .then(function (r) {
+      currentRecruitment = r;
+      document.title = r.trialName + " | H-Derma Global Clinical Center";
+      document.getElementById("dBadge").className = "ta-badge " + (STATUS_CLASS[r.status] || "");
+      document.getElementById("dBadge").innerText = STATUS_LABEL[r.status] || r.status;
+      document.getElementById("dCode").innerText = (r.evalCategory || '') + ' · ' + (r.trialCode || '');
+      document.getElementById("dTitle").innerText = r.trialName;
+      document.getElementById("dInfo").innerHTML =
+        '<div><dt>시험기간</dt><dd>' + fmtDate(r.startDate) + ' ~ ' + fmtDate(r.endDate) + '</dd></div>' +
+        '<div><dt>방문횟수</dt><dd>' + (r.visitCount != null ? r.visitCount + '회' : '-') + '</dd></div>' +
+        '<div><dt>시험부위</dt><dd>' + (r.testSite || '-') + '</dd></div>' +
+        '<div><dt>모집대상</dt><dd>' + (r.participationGroup || '-') + '</dd></div>' +
+        '<div><dt>선정기준</dt><dd>' + (r.requirements || '-') + '</dd></div>' +
+        '<div><dt>시험제품류</dt><dd>' + (r.productType || '-') + '</dd></div>' +
+        '<div><dt>시험참여비</dt><dd>' + (r.participationCost || '-') + '</dd></div>';
+      document.getElementById("dContent").innerHTML = r.detailContent || "";
+      document.getElementById("dApplyArea").style.display = (r.status === "CLOSED") ? "none" : "block";
+      document.getElementById("taDetailWrap").style.display = "block";
+    })
+    .catch(function () {
+      document.getElementById("dNotFound").style.display = "block";
+    });
+
+  document.getElementById("btnOpenApplyForm").addEventListener("click", function () {
+    fetch("/api/auth/me")
+      .then(function (res) {
+        if (res.status === 401) {
+          if (confirm("로그인 후 신청할 수 있습니다. 로그인 페이지로 이동하시겠습니까?")) {
+            window.location.href = "/auth/login";
+          }
+          throw new Error("not-logged-in");
+        }
+        return res.json();
+      })
+      .then(function (me) {
+        document.getElementById("taApplicantInfo").innerText =
+          "신청자: " + (me.name || "-") + " (" + (me.phone || "연락처 미등록") + ") · 회원 정보로 자동 접수됩니다.";
+        document.getElementById("dApplyArea").style.display = "none";
+        document.getElementById("taApplyForm").style.display = "block";
+      })
+      .catch(function () { /* 401은 위에서 이미 처리됨 */ });
+  });
+
+  document.getElementById("btnSubmitApply").addEventListener("click", function () {
+    var preferredDate = document.getElementById("preferredDate").value;
+    var preferredTimeSlot = document.getElementById("preferredTimeSlot").value;
+    var inquiry = document.getElementById("inquiry").value.trim();
+
+    if (!preferredDate) { alert("방문 희망 날짜를 선택해주세요."); return; }
+    if (!preferredTimeSlot) { alert("방문 희망 시간대를 선택해주세요."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    btn.innerText = "처리 중...";
+
+    fetch("/api/trial-applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recruitmentId: currentRecruitment.id,
+        preferredDate: preferredDate,
+        preferredTimeSlot: preferredTimeSlot,
+        inquiry: inquiry
+      })
+    })
+      .then(function (res) {
+        if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || "신청 처리에 실패했습니다."); });
+        alert("참여 신청이 완료되었습니다.");
+        window.location.href = "/participate/apply";
+      })
+      .catch(function (err) {
+        alert(err.message);
+        btn.disabled = false;
+        btn.innerText = "신청 완료";
+      });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -24,6 +24,14 @@ public class TrialApplication {
     private String applicantContact;
     private LocalDate applicantBirth;
 
+    private LocalDate preferredDate;
+
+    @Column(length = 30)
+    private String preferredTimeSlot; // 오전 / 오후 / 시간 협의
+
+    @Column(columnDefinition = "TEXT")
+    private String inquiry;
+
     @Builder.Default
     @Column(length = 20)
     private String status = "APPLIED"; // APPLIED / SELECTED / REJECTED / CANCELLED
