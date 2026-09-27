@@ -614,18 +614,23 @@
 .ta-detail-card{
   background:#fff; border:1px solid var(--line); border-radius:0 24px 0 24px;
   padding:44px 46px; box-shadow:0 16px 40px rgba(20,50,90,.08);
+  overflow:hidden; /* 본문(CKEditor) 안에서 무슨 내용이 들어와도 카드 밖으로 새지 않게 막는 안전장치 */
 }
-.ta-detail-card h2{font-size:24px; font-weight:800; color:var(--navy); line-height:1.4; margin:14px 0 24px;}
+.ta-detail-card h2{
+  font-size:24px; font-weight:800; color:var(--navy); line-height:1.4; margin:14px 0 24px;
+  overflow-wrap:anywhere;
+}
 .ta-detail-card .ta-info-list{border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:20px 0; margin-bottom:28px;}
-.ta-detail-card .ta-info-list > div{font-size:14px;}
+.ta-detail-card .ta-info-list > div{font-size:14px; min-width:0;}
 .ta-detail-card .ta-info-list dt{width:84px; font-size:13px;}
+.ta-detail-card .ta-info-list dd{overflow-wrap:anywhere;}
 .ta-detail-content{line-height:1.8; color:#444; font-size:15px; margin-bottom:32px;}
 
 /* CKEditor로 작성된 본문(공고 상세안내 등) 렌더링용 공통 스타일 */
-.rich-content{line-height:1.8; color:#444; font-size:15px;}
+.rich-content{line-height:1.8; color:#444; font-size:15px; overflow-wrap:anywhere; word-break:break-word;}
 .rich-content p{margin:0 0 14px;}
 .rich-content img{max-width:100%; height:auto; border-radius:8px; margin:8px 0;}
-.rich-content figure{margin:16px 0;}
+.rich-content figure{max-width:100%; margin:16px 0;}
 .rich-content figure.image-style-align-left{float:left; margin:4px 20px 12px 0;}
 .rich-content figure.image-style-align-right{float:right; margin:4px 0 12px 20px;}
 .rich-content figure.image-style-align-center{margin-left:auto; margin-right:auto; text-align:center;}
@@ -633,9 +638,9 @@
 .rich-content blockquote{
   margin:0 0 14px; padding:10px 18px; border-left:3px solid var(--teal); color:var(--gray); background:var(--bg-soft);
 }
-.rich-content table{border-collapse:collapse; width:100%; margin:0 0 14px;}
+.rich-content table{display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-collapse:collapse; margin:0 0 14px;}
 .rich-content table td, .rich-content table th{border:1px solid var(--line); padding:8px 10px;}
-.rich-content a{color:var(--main); text-decoration:underline;}
+.rich-content a{color:var(--main); text-decoration:underline; overflow-wrap:anywhere;}
 
 @media (max-width:700px){
   .ta-detail-card{padding:30px 24px;}
