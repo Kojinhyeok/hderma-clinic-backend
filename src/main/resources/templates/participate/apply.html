@@ -74,47 +74,6 @@
   </div>
 </section>
 
-<!-- 상세 + 신청 모달 -->
-<div id="taModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; align-items:center; justify-content:center;">
-  <div style="background:#fff; max-width:640px; width:92%; max-height:85vh; overflow-y:auto; border-radius:10px; padding:32px;">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-      <h3 id="taModalTitle" style="margin:0;"></h3>
-      <button type="button" id="taModalClose" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">&times;</button>
-    </div>
-    <p style="color:#888; font-size:0.85rem; margin-bottom:20px;" id="taModalCode"></p>
-
-    <dl class="ta-info-list ta-info-list--full" id="taModalInfo" style="margin-bottom:20px; border-top:none; padding-top:0;"></dl>
-
-    <div id="taModalContent" class="rich-content" style="margin-bottom:24px;"></div>
-
-    <div id="taApplyArea">
-      <button type="button" id="btnOpenApplyForm" class="auth-submit" style="max-width:220px;">참여 신청하기</button>
-    </div>
-
-    <form id="taApplyForm" style="display:none; border-top:1px solid #e5e8ee; padding-top:20px; margin-top:10px;">
-      <p class="hint" id="taApplicantInfo" style="margin-bottom:16px;"></p>
-      <div class="auth-field">
-        <label>방문 희망 날짜<span class="req-mark">*</span></label>
-        <input type="date" id="preferredDate" required>
-      </div>
-      <div class="auth-field">
-        <label>방문 희망 시간대<span class="req-mark">*</span></label>
-        <select id="preferredTimeSlot" required>
-          <option value="">선택해주세요</option>
-          <option value="오전">오전</option>
-          <option value="오후">오후</option>
-          <option value="시간 협의">시간 협의</option>
-        </select>
-      </div>
-      <div class="auth-field">
-        <label>문의사항</label>
-        <textarea id="inquiry" rows="3" placeholder="궁금하신 점이나 참고사항을 남겨주세요 (선택)"></textarea>
-      </div>
-      <button type="button" class="auth-submit" id="btnSubmitApply" style="margin-top:16px;">신청 완료</button>
-    </form>
-  </div>
-</div>
-
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
 <script th:inline="javascript">
@@ -125,7 +84,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var recruitments = [];
   var currentCat = "";
-  var currentRecruitment = null;
 
   function loadList() {
     var url = "/api/recruitments" + (currentCat ? "?evalCategory=" + currentCat : "");
@@ -190,97 +148,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadList();
 
-  document.getElementById("taModalClose").addEventListener("click", closeModal);
-
-  document.getElementById("btnOpenApplyForm").addEventListener("click", function () {
-    fetch("/api/auth/me")
-      .then(function (res) {
-        if (res.status === 401) {
-          if (confirm("로그인 후 신청할 수 있습니다. 로그인 페이지로 이동하시겠습니까?")) {
-            window.location.href = "/auth/login";
-          }
-          throw new Error("not-logged-in");
-        }
-        return res.json();
-      })
-      .then(function (me) {
-        document.getElementById("taApplicantInfo").innerText =
-          "신청자: " + (me.name || "-") + " (" + (me.phone || "연락처 미등록") + ") · 회원 정보로 자동 접수됩니다.";
-        document.getElementById("taApplyArea").style.display = "none";
-        document.getElementById("taApplyForm").style.display = "block";
-      })
-      .catch(function () { /* 401은 위에서 이미 처리됨 */ });
-  });
-
-  document.getElementById("btnSubmitApply").addEventListener("click", function () {
-    var preferredDate = document.getElementById("preferredDate").value;
-    var preferredTimeSlot = document.getElementById("preferredTimeSlot").value;
-    var inquiry = document.getElementById("inquiry").value.trim();
-
-    if (!preferredDate) { alert("방문 희망 날짜를 선택해주세요."); return; }
-    if (!preferredTimeSlot) { alert("방문 희망 시간대를 선택해주세요."); return; }
-
-    var btn = this;
-    btn.disabled = true;
-    btn.innerText = "처리 중...";
-
-    fetch("/api/trial-applications", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recruitmentId: currentRecruitment.id,
-        preferredDate: preferredDate,
-        preferredTimeSlot: preferredTimeSlot,
-        inquiry: inquiry
-      })
-    })
-      .then(function (res) {
-        if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || "신청 처리에 실패했습니다."); });
-        alert("참여 신청이 완료되었습니다.");
-        closeModal();
-      })
-      .catch(function (err) {
-        alert(err.message);
-        btn.disabled = false;
-        btn.innerText = "신청 완료";
-      });
-  });
-
-  // PC에서는 새 페이지로 이동, 모바일은 기존 팝업(모달) 유지
   window.goDetail = function (id) {
-    if (window.matchMedia("(max-width:700px)").matches) {
-      openDetail(id);
-    } else {
-      window.location.href = "/participate/detail?id=" + id;
-    }
+    window.location.href = "/participate/detail?id=" + id;
   };
-
-  window.openDetail = function (id) {
-    fetch("/api/recruitments/" + id)
-      .then(function (res) { return res.json(); })
-      .then(function (r) {
-        currentRecruitment = r;
-        document.getElementById("taModalTitle").innerText = r.trialName;
-        document.getElementById("taModalCode").innerText = (r.evalCategory || '') + ' · ' + (r.trialCode || '');
-        document.getElementById("taModalInfo").innerHTML =
-          '<div><dt>시험기간</dt><dd>' + fmtDate(r.startDate) + ' ~ ' + fmtDate(r.endDate) + '</dd></div>' +
-          '<div><dt>방문횟수</dt><dd>' + (r.visitCount != null ? r.visitCount + '회' : '-') + '</dd></div>' +
-          '<div><dt>시험부위</dt><dd>' + (r.testSite || '-') + '</dd></div>' +
-          '<div><dt>모집대상</dt><dd>' + (r.participationGroup || '-') + '</dd></div>' +
-          '<div><dt>선정기준</dt><dd>' + (r.requirements || '-') + '</dd></div>' +
-          '<div><dt>시험제품류</dt><dd>' + (r.productType || '-') + '</dd></div>' +
-          '<div><dt>시험참여비</dt><dd>' + (r.participationCost || '-') + '</dd></div>';
-        document.getElementById("taModalContent").innerHTML = r.detailContent || "";
-        document.getElementById("taApplyArea").style.display = (r.status === "CLOSED") ? "none" : "block";
-        document.getElementById("taApplyForm").style.display = "none";
-        document.getElementById("taApplyForm").reset();
-        document.getElementById("taModal").style.display = "flex";
-      });
-  };
-
-  function closeModal() {
-    document.getElementById("taModal").style.display = "none";
-  }
 });
 </script>
 

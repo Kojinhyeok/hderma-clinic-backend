@@ -68,7 +68,7 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 /* ==================== HEADER ==================== */
 #header{
   position:fixed; top:0; left:0; width:100%; z-index:200;
-  background:transparent; transition:.4s ease;
+  background:#fff; box-shadow:0 15px 30px rgba(15,35,65,.08); transition:.4s ease;
 }
 #header.scrolled{background:#fff; box-shadow:0 15px 30px rgba(15,35,65,.08);}
 .nav-wr{
@@ -79,10 +79,10 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 .nav-logo{position:relative; display:block; height:70px; width: 140px;}
 .nav-logo img{height:75px; transition:.3s;}
 
-/* transparent header (over the hero) → white logo; scrolled/white header → color logo */
-.nav-logo .logo-color{opacity:0; visibility:hidden; position:absolute; top:0; left:0;}
+/* 헤더 배경을 항상 흰색으로 고정 — 로고/텍스트도 항상 색상(어두운) 버전으로 고정 */
+.nav-logo .logo-color{opacity:1; visibility:visible; position:absolute; top:0; left:0;}
 .nav-logo .logo-white{
-  display:flex; align-items:center; gap:9px; height:75px; opacity:1; visibility:visible; transition:.3s;
+  display:flex; align-items:center; gap:9px; height:75px; opacity:0; visibility:hidden; transition:.3s;
 }
 .nav-logo .logo-white img{height:75px; width:auto;}
 .nav-logo .logo-white em{font-style:normal; font-size:22px; font-weight:800; color:#fff; letter-spacing:-.3px;}
@@ -93,7 +93,7 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 .gnb > li{position:relative;}
 .gnb > li > a{
   display:block; padding:0 26px; line-height:96px; font-size:18px; font-weight:600;
-  color:#fff; transition:.3s;
+  color:var(--ink); transition:.3s;
 }
 #header.scrolled .gnb > li > a{color:var(--ink); line-height:80px;}
 .gnb > li:hover > a{color:var(--teal);}
@@ -112,7 +112,7 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 
 .head-util{display:flex; align-items:center; gap:22px;}
 .lang-box{display:flex; gap:2px; font-size:14px; font-weight:600;}
-.lang-box a{padding:8px; color:#fff; opacity:.6; transition:.3s;}
+.lang-box a{padding:8px; color:var(--ink); opacity:.6; transition:.3s;}
 #header.scrolled .lang-box a{color:var(--ink);}
 .lang-box a.active{opacity:1;}
 .lang-box span{opacity:.4;}
@@ -120,10 +120,10 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 
 .menu-btn{
   display:none; width:46px; height:46px; border-radius:10px;
-  align-items:center; justify-content:center; background:rgba(255,255,255,.14);
+  align-items:center; justify-content:center; background:var(--bg-soft);
 }
 #header.scrolled .menu-btn{background:var(--bg-soft);}
-.menu-btn span{display:block; width:20px; height:2px; background:#fff; position:relative;}
+.menu-btn span{display:block; width:20px; height:2px; background:var(--navy); position:relative;}
 #header.scrolled .menu-btn span{background:var(--navy);}
 .menu-btn span::before,.menu-btn span::after{content:''; position:absolute; left:0; width:20px; height:2px; background:inherit;}
 .menu-btn span::before{top:-6px;} .menu-btn span::after{top:6px;}
@@ -190,8 +190,9 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 
 @media (max-width:900px){
   .hero-slide{height:auto; padding-bottom:260px;}
+  .hero-body{padding-top:130px;}
   .hero-copy h2{font-size:36px;}
-  .hero-cta{grid-template-columns:1fr; margin-top:-40px;}
+  .hero-cta{grid-template-columns:1fr; margin-top:36px;}
 }
 
 /* ==================== VISION STRIP ==================== */
@@ -433,8 +434,8 @@ footer{background:#F6F8FB; padding:70px 0 34px; color:var(--gray);}
 }
 
 .auth-links-top{display:flex; align-items:center; gap:14px; font-size:13.5px; font-weight:600;}
-.auth-links-top a{color:#fff; opacity:.75; transition:.3s;}
-.auth-links-top a:hover{opacity:1;}
+.auth-links-top a{color:var(--ink); opacity:.7; transition:.3s;}
+.auth-links-top a:hover{opacity:1; color:var(--main);}
 #header.scrolled .auth-links-top a{color:var(--ink); opacity:.7;}
 #header.scrolled .auth-links-top a:hover{opacity:1; color:var(--main);}
 
@@ -447,7 +448,7 @@ footer{background:#F6F8FB; padding:70px 0 34px; color:var(--gray);}
 .lang-trigger{
   display:flex; align-items:center; gap:6px;
   background:none; border:none; cursor:pointer;
-  color:#fff; font-size:14px; font-weight:600;
+  color:var(--ink); font-size:14px; font-weight:600;
 }
 #header.scrolled .lang-trigger{ color:var(--ink); }
 .lang-trigger svg{ width:17px; height:17px; }
