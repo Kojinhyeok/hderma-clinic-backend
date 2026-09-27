@@ -7,7 +7,7 @@
 .sub-hero-inner p{margin-top:12px; font-size:15px; color:rgba(255,255,255,.75); font-weight:300;}
 
 @media (max-width:700px){
-  .sub-hero{height:220px;}
+  .sub-hero{height:260px; padding-top:100px;}
   .sub-hero-inner h1{font-size:28px;}
 }
 
