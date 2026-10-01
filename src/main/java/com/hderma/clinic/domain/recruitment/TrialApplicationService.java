@@ -11,7 +11,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TrialApplicationService {
 
+    private static final List<String> OCCUPYING_STATUSES = List.of("APPLIED", "SELECTED");
+
     private final TrialApplicationRepository repository;
+    private final RecruitmentSlotRepository slotRepository;
 
     @Transactional
     public Long apply(TrialApplicationDto.Request req) {
@@ -27,6 +30,21 @@ public class TrialApplicationService {
         if (req.getPreferredTimeSlot() == null || req.getPreferredTimeSlot().isBlank()) {
             throw new IllegalArgumentException("방문 희망 시간대를 선택해주세요.");
         }
+
+        // 선택한 날짜/시간이 실제로 공고에 등록된 슬롯인지, 정원이 남아있는지 서버에서 다시 확인
+        RecruitmentSlot slot = slotRepository.findByRecruitmentIdAndDateOrderByTimeAsc(req.getRecruitmentId(), req.getPreferredDate())
+            .stream()
+            .filter(s -> s.getTime().equals(req.getPreferredTimeSlot()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("선택하신 날짜/시간대는 더 이상 신청할 수 없습니다. 다시 선택해주세요."));
+
+        long booked = repository.countByRecruitmentIdAndPreferredDateAndPreferredTimeSlotAndStatusIn(
+            req.getRecruitmentId(), req.getPreferredDate(), req.getPreferredTimeSlot(), OCCUPYING_STATUSES
+        );
+        if (booked >= slot.getCapacity()) {
+            throw new IllegalArgumentException("선택하신 시간대는 방금 마감되었습니다. 다른 시간대를 선택해주세요.");
+        }
+
         TrialApplication entity = TrialApplication.builder()
             .recruitmentId(req.getRecruitmentId())
             .memberId(req.getMemberId()) // 컨트롤러에서 로그인 세션값으로 주입됨 (비로그인 신청은 컨트롤러 단계에서 이미 차단)

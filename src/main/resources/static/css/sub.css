@@ -6,8 +6,8 @@
 .sub-hero-inner h1{font-size:40px; font-weight:800; letter-spacing:-.5px;}
 .sub-hero-inner p{margin-top:12px; font-size:15px; color:rgba(255,255,255,.75); font-weight:300;}
 
-@media (max-width:700px){
-  .sub-hero{height:260px; padding-top:100px;}
+@media (max-width:900px){
+  .sub-hero{height:280px; padding-top:120px;}
   .sub-hero-inner h1{font-size:28px;}
 }
 
@@ -761,6 +761,18 @@
 .auth-field select:focus,
 .auth-field textarea:focus{border-color:var(--teal); outline:none;}
 .auth-field textarea{resize:vertical; min-height:80px;}
+
+/* 방문 희망 시간대 선택 버튼 그리드 */
+.time-slot-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(78px,1fr)); gap:8px; margin-top:4px;}
+.time-slot-btn{
+  padding:10px 6px; border:1px solid var(--line); border-radius:8px; background:#fff;
+  font-size:13px; font-weight:600; color:var(--ink); transition:.2s; text-align:center;
+}
+.time-slot-btn:hover:not(:disabled){border-color:var(--teal); color:var(--main);}
+.time-slot-btn.selected{background:var(--main); border-color:var(--main); color:#fff;}
+.time-slot-btn.closed, .time-slot-btn:disabled{
+  background:var(--bg-soft); border-color:var(--line); color:var(--gray-soft); cursor:not-allowed; text-decoration:line-through;
+}
 .auth-field .hint{margin-top:6px; font-size:12px; color:var(--gray-soft);}
 
 .auth-row2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}

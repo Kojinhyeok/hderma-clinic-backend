@@ -49,16 +49,15 @@
         <p class="hint" id="taApplicantInfo" style="margin-bottom:16px;"></p>
         <div class="auth-field">
           <label>방문 희망 날짜<span class="req-mark">*</span></label>
-          <input type="date" id="preferredDate" required>
+          <select id="preferredDate" required>
+            <option value="">날짜를 선택해주세요</option>
+          </select>
+          <p class="hint" id="noDateHint" style="display:none;">현재 선택 가능한 날짜가 없습니다. 전화 문의 부탁드립니다.</p>
         </div>
         <div class="auth-field">
           <label>방문 희망 시간대<span class="req-mark">*</span></label>
-          <select id="preferredTimeSlot" required>
-            <option value="">선택해주세요</option>
-            <option value="오전">오전</option>
-            <option value="오후">오후</option>
-            <option value="시간 협의">시간 협의</option>
-          </select>
+          <div id="timeSlotGrid" class="time-slot-grid"></div>
+          <input type="hidden" id="preferredTimeSlot" required>
         </div>
         <div class="auth-field">
           <label>문의사항</label>
@@ -133,9 +132,56 @@ document.addEventListener("DOMContentLoaded", function () {
           "신청자: " + (me.name || "-") + " (" + (me.phone || "연락처 미등록") + ") · 회원 정보로 자동 접수됩니다.";
         document.getElementById("dApplyArea").style.display = "none";
         document.getElementById("taApplyForm").style.display = "block";
+        loadAvailableDates();
       })
       .catch(function () { /* 401은 위에서 이미 처리됨 */ });
   });
+
+  function loadAvailableDates() {
+    fetch("/api/recruitments/" + id + "/slots/dates")
+      .then(function (res) { return res.json(); })
+      .then(function (dates) {
+        var sel = document.getElementById("preferredDate");
+        sel.innerHTML = '<option value="">날짜를 선택해주세요</option>';
+        dates.forEach(function (d) {
+          var opt = document.createElement("option");
+          opt.value = d;
+          opt.innerText = fmtDate(d);
+          sel.appendChild(opt);
+        });
+        document.getElementById("noDateHint").style.display = dates.length === 0 ? "block" : "none";
+        document.getElementById("timeSlotGrid").innerHTML = "";
+        document.getElementById("preferredTimeSlot").value = "";
+      });
+  }
+
+  document.getElementById("preferredDate").addEventListener("change", function () {
+    var date = this.value;
+    var grid = document.getElementById("timeSlotGrid");
+    document.getElementById("preferredTimeSlot").value = "";
+    if (!date) { grid.innerHTML = ""; return; }
+
+    fetch("/api/recruitments/" + id + "/slots?date=" + date)
+      .then(function (res) { return res.json(); })
+      .then(function (slots) {
+        if (slots.length === 0) {
+          grid.innerHTML = '<p class="hint">해당 날짜에 선택 가능한 시간대가 없습니다.</p>';
+          return;
+        }
+        grid.innerHTML = slots.map(function (s) {
+          return '<button type="button" class="time-slot-btn' + (s.closed ? ' closed' : '') + '" ' +
+            (s.closed ? 'disabled' : 'onclick="selectTimeSlot(this, \'' + s.time + '\')"') + '>' +
+            s.time + (s.closed ? ' 마감' : '') +
+            '</button>';
+        }).join("");
+      });
+  });
+
+  window.selectTimeSlot = function (btn, time) {
+    document.querySelectorAll(".time-slot-btn").forEach(function (b) { b.classList.remove("selected"); });
+    btn.classList.add("selected");
+    document.getElementById("preferredTimeSlot").value = time;
+  };
 
   document.getElementById("btnSubmitApply").addEventListener("click", function () {
     var preferredDate = document.getElementById("preferredDate").value;
@@ -168,6 +214,8 @@ document.addEventListener("DOMContentLoaded", function () {
         alert(err.message);
         btn.disabled = false;
         btn.innerText = "신청 완료";
+        // 마감 등 슬롯 상태가 바뀐 경우를 대비해 최신 상태로 다시 불러옴
+        document.getElementById("preferredDate").dispatchEvent(new Event("change"));
       });
   });
 });

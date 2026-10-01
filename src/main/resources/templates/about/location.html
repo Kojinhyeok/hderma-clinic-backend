@@ -33,7 +33,7 @@
 
   <div class="location-hero-img reveal-scale">
     <div class="frame">
-      <img th:src="@{/assets/images/location-photo.png}" alt="마곡 보타닉게이트 지식산업센터">
+      <img th:src="@{/assets/images/location-photo.jpg}" alt="마곡 보타닉게이트 지식산업센터">
       <div class="caption">마곡 보타닉게이트 지식산업센터</div>
     </div>
   </div>
@@ -41,17 +41,17 @@
   <div class="location-wrap reveal-up">
     <div class="location-map">
       <iframe
-        th:src="@{https://www.google.com/maps?q=서울 강서구 마곡동로 166 보타닉게이트&output=embed}"
+        th:src="@{https://www.google.com/maps?q=서울 강서구 마곡동로 166, 보타닉게이트&output=embed}"
         loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
     <div class="location-info">
       <h3>H-Derma Global Clinical Center</h3>
-      <span class="en">에이치더마 글로벌 임상센터</span>
+      <span class="en">㈜에이치더마글로벌임상센터</span>
 
       <ul>
         <li>
           <span class="label">Address</span>
-          서울 강서구 마곡동로 166<br>보타닉게이트 809·810·811호
+          서울 강서구 마곡동로 166, <br>보타닉게이트 809·810·811·812·813호
           <button type="button" class="copy-btn" onclick="copyAddress()">주소복사</button>
         </li>
         <li>
@@ -81,7 +81,7 @@
 
 <script th:inline="javascript">
   function copyAddress() {
-    var address = "서울 강서구 마곡동로 166 보타닉게이트 809·810·811호";
+    var address = "서울 강서구 마곡동로 166, 보타닉게이트 809·810·811·812·813호";
     navigator.clipboard.writeText(address).then(function () {
       var toast = document.getElementById("toast");
       toast.classList.add("show");

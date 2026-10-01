@@ -143,6 +143,74 @@
 	</div>
 </div>
 
+<!-- 날짜/시간대(슬롯) 관리 모달 -->
+<div class="modal fade" id="slotModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">날짜/시간대 관리 — <span id="slotModalTrialName"></span></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p class="text-muted small mb-3">여기서 등록한 날짜·시간대만 신청자가 홈페이지에서 선택할 수 있습니다. 정원이 다 차면 자동으로 "마감"으로 표시되어 선택이 막힙니다.</p>
+
+				<div class="row g-2 align-items-end mb-4">
+					<div class="col-md-4">
+						<label class="form-label">날짜</label>
+						<input type="date" class="form-control" id="slotDate">
+					</div>
+					<div class="col-md-4">
+						<label class="form-label">시간</label>
+						<select class="form-select" id="slotTime">
+							<option value="09:00">09:00</option>
+							<option value="09:30">09:30</option>
+							<option value="10:00">10:00</option>
+							<option value="10:30">10:30</option>
+							<option value="11:00">11:00</option>
+							<option value="11:30">11:30</option>
+							<option value="13:00">13:00</option>
+							<option value="13:30">13:30</option>
+							<option value="14:00">14:00</option>
+							<option value="14:30">14:30</option>
+							<option value="15:00">15:00</option>
+							<option value="15:30">15:30</option>
+							<option value="16:00">16:00</option>
+							<option value="16:30">16:30</option>
+							<option value="17:00">17:00</option>
+						</select>
+					</div>
+					<div class="col-md-2">
+						<label class="form-label">정원</label>
+						<input type="number" class="form-control" id="slotCapacity" value="1" min="1">
+					</div>
+					<div class="col-md-2">
+						<button type="button" class="btn btn-primary w-100" id="btnAddSlot">추가</button>
+					</div>
+				</div>
+
+				<div class="table-responsive">
+					<table class="table table-sm table-hover" id="slotTable">
+						<thead>
+						<tr>
+							<th>날짜</th>
+							<th>시간</th>
+							<th>정원</th>
+							<th>신청 인원</th>
+							<th>상태</th>
+							<th style="width:80px;"></th>
+						</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script src="../js/app.js"></script>
 <script src="../js/common.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
@@ -180,6 +248,7 @@
 							<td class="align-middle small">${r.visitCount != null ? r.visitCount + '회' : '-'} / ${r.testSite || '-'}</td>
 							<td class="align-middle">
 								<button class="btn btn-sm btn-outline-primary" onclick="openEditModal(${index})">수정</button>
+								<button class="btn btn-sm btn-outline-info" onclick="openSlotModal(${index})">날짜/시간대</button>
 								<button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${r.id})">삭제</button>
 							</td>
 						</tr>
@@ -259,6 +328,62 @@
 		if (confirm("이 모집공고를 삭제하시겠습니까?")) {
 			fetch(`/api/recruitments/${id}`, { method: "DELETE" })
 				.then(res => { if (res.ok) { alert("삭제되었습니다."); loadList(); } });
+		}
+	}
+
+	// ===== 날짜/시간대(슬롯) 관리 =====
+	let currentSlotRecruitmentId = null;
+
+	function openSlotModal(index) {
+		const r = recruitmentList[index];
+		currentSlotRecruitmentId = r.id;
+		document.getElementById("slotModalTrialName").innerText = r.trialName;
+		document.getElementById("slotDate").value = "";
+		loadSlots();
+		bootstrap.Modal.getOrCreateInstance(document.getElementById('slotModal')).show();
+	}
+
+	function loadSlots() {
+		fetch(`/api/recruitments/${currentSlotRecruitmentId}/slots/all`)
+			.then(res => res.json())
+			.then(list => {
+				const tbody = document.querySelector("#slotTable tbody");
+				tbody.innerHTML = list.length === 0
+					? '<tr><td colspan="6" class="text-center py-4 text-muted">등록된 날짜/시간대가 없습니다.</td></tr>'
+					: list.map(s => `
+						<tr>
+							<td class="align-middle">${s.date}</td>
+							<td class="align-middle">${s.time}</td>
+							<td class="align-middle">${s.capacity}</td>
+							<td class="align-middle">${s.booked}</td>
+							<td class="align-middle">${s.closed ? '<span class="badge bg-secondary">마감</span>' : '<span class="badge bg-success">신청가능</span>'}</td>
+							<td class="align-middle"><button class="btn btn-sm btn-outline-danger" onclick="deleteSlot(${s.id})">삭제</button></td>
+						</tr>
+					`).join("");
+			});
+	}
+
+	document.getElementById("btnAddSlot").addEventListener("click", function () {
+		const date = document.getElementById("slotDate").value;
+		const time = document.getElementById("slotTime").value;
+		const capacity = document.getElementById("slotCapacity").value || 1;
+
+		if (!date) { alert("날짜를 선택해주세요."); return; }
+
+		fetch(`/api/recruitments/${currentSlotRecruitmentId}/slots`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ date, time, capacity: Number(capacity) })
+		}).then(res => {
+			if (!res.ok) throw new Error("추가 실패");
+			loadSlots();
+		}).catch(err => alert(err.message));
+	});
+
+	function deleteSlot(slotId) {
+		if (confirm("이 날짜/시간대를 삭제하시겠습니까?")) {
+			fetch(`/api/recruitments/${currentSlotRecruitmentId}/slots/${slotId}`, { method: "DELETE" })
+				.then(res => { if (res.ok) loadSlots(); });
 		}
 	}
 </script>
