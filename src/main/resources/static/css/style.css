@@ -165,7 +165,7 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 .hero-facets i:nth-child(2){width:260px; height:820px; right:20%; top:-40px; background:rgba(255,255,255,.05);}
 .hero-facets i:nth-child(3){width:180px; height:820px; right:2%; top:20px; background:rgba(255,255,255,.09);}
 
-.hero-body{position:relative; z-index:2; width:100%; padding-top:120px;}
+.hero-body{position:relative; z-index:2; width:100%; padding-top:250px;}
 .hero-copy h2{font-size:56px; font-weight:800; color:#fff; line-height:1.28; letter-spacing:-1px;}
 .hero-copy h2 .grad-txt{
   display:block; background:linear-gradient(90deg,#8FE3D0,#DFF7EE);
@@ -192,8 +192,8 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 .hero-cta a:hover .arrow{transform:translateX(6px);}
 
 @media (max-width:900px){
-  .hero-slide{height:auto; padding-bottom:260px;}
-  .hero-body{padding-top:130px;}
+  .hero-slide{height:auto; padding-bottom:150px;}
+  .hero-body{padding-top:220px;}
   .hero-copy h2{font-size:36px;}
   .hero-cta{grid-template-columns:1fr; margin-top:36px;}
 }
