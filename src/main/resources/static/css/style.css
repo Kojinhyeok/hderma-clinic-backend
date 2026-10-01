@@ -329,7 +329,13 @@ button{font-family:inherit; border:none; background:none; cursor:pointer;}
 }
 @keyframes dashflow{ to{ stroke-dashoffset:-480; } }
 @media (prefers-reduced-motion:reduce){ .process-connector path{animation:none;} }
-@media (max-width:900px){ .process-connector, .process-node{display:none;} }
+@media (max-width:900px){
+  .process-connector, .process-node{display:none;}
+  .process-track li:nth-child(5){order:8;}
+  .process-track li:nth-child(6){order:7;}
+  .process-track li:nth-child(7){order:6;}
+  .process-track li:nth-child(8){order:5;}
+}
 
 .process-track{display:flex; flex-wrap:wrap; justify-content:center; gap:26px; position:relative; z-index:2;}
 .process-track li{
