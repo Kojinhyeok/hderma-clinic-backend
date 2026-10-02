@@ -41,6 +41,7 @@
   content:''; position:absolute; inset:0; opacity:.5;
 }
 .intro-section .graphic-box img{width:100%; height:100%; object-fit:cover; position:relative; z-index:2;}
+.intro-section .graphic-box.reveal-scale.in-view{transform:none;}
 
 .intro-section .text-box{flex:1; min-width:320px; max-width:620px; color:var(--ink);}
 .intro-section .text-box p{font-size:17px; line-height:1.85; color:#444; margin-bottom:22px; text-align:justify;}
@@ -48,7 +49,7 @@
 
 @media (max-width:900px){
   .intro-section .graphic-box{width:100%; max-width:420px; height:340px;}
-  .intro-section .graphic-box img{object-position:right center;}
+  .intro-section .graphic-box img{object-position:75% 25%;}
   .intro-section .centered-title{font-size:24px;}
 }
 
