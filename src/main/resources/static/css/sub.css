@@ -46,7 +46,7 @@
 
 @media (max-width:900px){
   .intro-section .graphic-box{width:100%; max-width:420px; height:340px;}
-  .intro-section .graphic-box img{object-position:75% 25%;}
+  .intro-section .graphic-box img{object-position:75% 9%;}
   .intro-section .centered-title{font-size:24px;}
 }
 /* ==================== CI PAGE ==================== */
