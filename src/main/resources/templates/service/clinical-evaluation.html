@@ -130,6 +130,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // ===== URL의 ?tab=xxx 로 처음 열릴 탭 지정 =====
+  // 예) /service/clinical-evaluation?tab=functional  → 화장품 기능성평가 탭이 선택된 채로 열림
+  // tab 값: efficacy / functional / healthFood / usability / safety / invitro
+  var initialTab = new URLSearchParams(window.location.search).get("tab");
+  if (initialTab) {
+    var initialBtn = document.querySelector('#evalTabs button[data-tab="' + initialTab + '"]');
+    if (initialBtn) initialBtn.click();
+  }
+
   function bySortOrder(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); }
 
   // ===== 1. 화장품 효능평가 (그룹 + 태그) =====
