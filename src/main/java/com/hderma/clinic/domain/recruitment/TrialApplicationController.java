@@ -36,7 +36,12 @@ public class TrialApplicationController {
         req.setApplicantContact(member.getPhone());
         req.setApplicantBirth(member.getBirthDate());
 
-        return ResponseEntity.ok(Map.of("id", service.apply(req)));
+        try {
+            return ResponseEntity.ok(Map.of("id", service.apply(req)));
+        } catch (IllegalArgumentException e) {
+            // 중복 신청 / 정원 마감 / 필수값 누락 등의 메시지를 화면에 그대로 전달
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/by-recruitment/{recruitmentId}")

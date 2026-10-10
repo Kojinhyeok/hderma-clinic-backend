@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,9 +18,16 @@ public class TrialApplicationService {
 
     private final TrialApplicationRepository repository;
     private final RecruitmentSlotRepository slotRepository;
+    private final RecruitmentRepository recruitmentRepository;
 
     @Transactional
     public Long apply(TrialApplicationDto.Request req) {
+        // 같은 회원이 같은 시험에 이미 신청(접수/선정)한 경우 중복 신청 차단
+        if (req.getMemberId() != null && repository.existsByRecruitmentIdAndMemberIdAndStatusIn(
+                req.getRecruitmentId(), req.getMemberId(), OCCUPYING_STATUSES)) {
+            throw new IllegalArgumentException("이미 신청하신 시험입니다. [내정보 > 신청내역]에서 확인해 주세요.");
+        }
+
         if (req.getApplicantName() == null || req.getApplicantName().isBlank()) {
             throw new IllegalArgumentException("회원 정보에 이름이 없습니다. 마이페이지에서 정보를 먼저 등록해주세요.");
         }
@@ -74,6 +84,55 @@ public class TrialApplicationService {
         TrialApplication entity = repository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다: " + id));
         entity.setStatus(status);
+    }
+
+    // ===== 회원 본인용 (내정보 / 신청내역) =====
+
+    /** 이미 신청(접수/선정)한 시험인지 여부 */
+    public boolean hasActiveApplication(Long recruitmentId, Long memberId) {
+        return repository.existsByRecruitmentIdAndMemberIdAndStatusIn(recruitmentId, memberId, OCCUPYING_STATUSES);
+    }
+
+    /** 내 신청내역 (시험명/코드 포함) */
+    public List<MyApplicationDto> findMine(Long memberId) {
+        List<TrialApplication> apps = repository.findAllByMemberIdOrderByCreatedAtDesc(memberId);
+
+        List<Long> recruitmentIds = apps.stream()
+            .map(TrialApplication::getRecruitmentId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toList());
+        Map<Long, Recruitment> recruitmentMap = new HashMap<>();
+        recruitmentRepository.findAllById(recruitmentIds).forEach(r -> recruitmentMap.put(r.getId(), r));
+
+        return apps.stream().map(a -> {
+            Recruitment r = recruitmentMap.get(a.getRecruitmentId());
+            return MyApplicationDto.builder()
+                .id(a.getId())
+                .recruitmentId(a.getRecruitmentId())
+                .trialName(r != null ? r.getTrialName() : "(삭제된 시험)")
+                .trialCode(r != null ? r.getTrialCode() : null)
+                .preferredDate(a.getPreferredDate())
+                .preferredTimeSlot(a.getPreferredTimeSlot())
+                .inquiry(a.getInquiry())
+                .status(a.getStatus())
+                .createdAt(a.getCreatedAt())
+                .build();
+        }).collect(Collectors.toList());
+    }
+
+    /** 본인 신청 취소 (접수 상태만 가능). 취소하면 슬롯 정원 집계(APPLIED/SELECTED)에서 자동으로 빠짐 */
+    @Transactional
+    public void cancelMine(Long id, Long memberId) {
+        TrialApplication a = repository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("신청 내역을 찾을 수 없습니다."));
+        if (!memberId.equals(a.getMemberId())) {
+            throw new IllegalArgumentException("본인의 신청만 취소할 수 있습니다.");
+        }
+        if (!"APPLIED".equals(a.getStatus())) {
+            throw new IllegalArgumentException("접수 상태의 신청만 취소할 수 있습니다. 변경이 필요하면 센터로 문의해 주세요.");
+        }
+        a.setStatus("CANCELLED");
     }
 
     private TrialApplicationDto.Response toResponse(TrialApplication e) {
