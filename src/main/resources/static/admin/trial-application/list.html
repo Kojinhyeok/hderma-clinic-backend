@@ -84,6 +84,16 @@
 			});
 	}
 
+	// 공고별 신청 순번: 신청 시각이 빠른 순서대로 1, 2, 3 ... (같은 시각이면 DB 번호 순)
+	function assignSequence(list) {
+		const asc = list.slice().sort((x, y) => {
+			const tx = x.createdAt || "", ty = y.createdAt || "";
+			if (tx !== ty) return tx < ty ? -1 : 1;
+			return x.id - y.id;
+		});
+		asc.forEach((a, i) => { a.seq = i + 1; });
+	}
+
 	function loadApplications(recruitmentId) {
 		if (!recruitmentId) {
 			document.querySelector("#applicationTable tbody").innerHTML = '<tr><td colspan="10" class="text-center py-4">모집공고를 선택해주세요.</td></tr>';
@@ -92,13 +102,14 @@
 		fetch(`/api/trial-applications/by-recruitment/${recruitmentId}`)
 			.then(res => res.json())
 			.then(list => {
+				assignSequence(list);
 				applicationList = list;
 				const tbody = document.querySelector("#applicationTable tbody");
 				tbody.innerHTML = list.length === 0
 					? '<tr><td colspan="10" class="text-center py-4">신청자가 없습니다.</td></tr>'
 					: list.map(a => `
 						<tr>
-							<td class="align-middle">${a.id}</td>
+							<td class="align-middle">${a.seq}</td>
 							<td class="align-middle">${a.applicantName}</td>
 							<td class="align-middle">${a.applicantContact}</td>
 							<td class="align-middle">${a.applicantBirth || '-'}</td>
@@ -127,7 +138,7 @@
 		const trialLabel = sel.options[sel.selectedIndex].text;
 
 		const rows = applicationList.map(a => ({
-			"번호": a.id,
+			"번호": a.seq,
 			"신청자명": a.applicantName || "",
 			"연락처": a.applicantContact || "",
 			"생년월일": a.applicantBirth || "",
