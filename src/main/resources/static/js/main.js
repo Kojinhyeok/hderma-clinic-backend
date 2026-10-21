@@ -244,6 +244,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // ================= 사이트 공통 팝업 =================
+// PC(701px 이상): 관리자 페이지에서 입력한 위치(px)/너비(px) 그대로 표시
+// 모바일(700px 이하): 위치/너비 값을 무시하고 화면 가운데에 너비 80%로 세로로 쌓아서 표시
+var POPUP_MOBILE_MAX_WIDTH = 700;
+
 document.addEventListener("DOMContentLoaded", function () {
   fetch("/api/popups/active")
     .then(function (res) { return res.ok ? res.json() : []; })
@@ -262,13 +266,41 @@ function isPopupHiddenToday(id) {
   return new Date(hiddenUntil) > new Date();
 }
 
+function isMobilePopupView() {
+  return window.matchMedia("(max-width:" + POPUP_MOBILE_MAX_WIDTH + "px)").matches;
+}
+
+// 모바일에서 팝업들을 세로로 쌓아 담는 가운데 정렬 컨테이너
+function getPopupStack() {
+  var stack = document.getElementById("sitePopupStack");
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.id = "sitePopupStack";
+    stack.style.cssText =
+      "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); " +
+      "width:80%; max-height:90vh; overflow-y:auto; z-index:2000; " +
+      "display:flex; flex-direction:column; gap:12px; padding:2px;";
+    document.body.appendChild(stack);
+  }
+  return stack;
+}
+
 function renderPopup(popup, index) {
+  var mobile = isMobilePopupView();
+
   var box = document.createElement("div");
   box.className = "site-popup";
-  box.style.cssText =
-    "position:fixed; top:" + popup.posY + "px; left:" + popup.posX + "px; " +
-    "width:" + popup.width + "px; z-index:" + (2000 + index) + "; " +
-    "background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.18); overflow:hidden;";
+
+  if (mobile) {
+    box.style.cssText =
+      "position:relative; width:100%; flex-shrink:0; " +
+      "background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.18); overflow:hidden;";
+  } else {
+    box.style.cssText =
+      "position:fixed; top:" + popup.posY + "px; left:" + popup.posX + "px; " +
+      "width:" + popup.width + "px; z-index:" + (2000 + index) + "; " +
+      "background:#fff; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.18); overflow:hidden;";
+  }
 
   var imageHtml = popup.imageUrl
     ? '<img src="' + popup.imageUrl + '" alt="' + (popup.title || '') + '" style="width:100%; display:block;">'
@@ -286,7 +318,8 @@ function renderPopup(popup, index) {
     '<button type="button" class="popup-close-btn" style="border:none; background:none; font-size:1rem; cursor:pointer;">닫기 ✕</button>' +
     '</div>';
 
-  document.body.appendChild(box);
+  var stack = mobile ? getPopupStack() : null;
+  (stack || document.body).appendChild(box);
 
   box.querySelector(".popup-close-btn").addEventListener("click", function () {
     var hideToday = box.querySelector(".popup-hide-today").checked;
@@ -296,6 +329,8 @@ function renderPopup(popup, index) {
       localStorage.setItem("popup_hide_" + popup.id, tomorrow.toISOString());
     }
     box.remove();
+    // 모바일: 쌓인 팝업을 모두 닫았으면 컨테이너도 제거
+    if (stack && stack.children.length === 0) stack.remove();
   });
 }
 

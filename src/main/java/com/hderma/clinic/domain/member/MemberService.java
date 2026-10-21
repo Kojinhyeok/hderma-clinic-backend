@@ -28,6 +28,12 @@ public class MemberService {
         if (req.getPassword() == null || req.getPassword().isBlank()) {
             throw new IllegalArgumentException("비밀번호를 입력해주세요.");
         }
+        if (req.getBirthDate() == null) {
+            throw new IllegalArgumentException("생년월일을 입력해주세요.");
+        }
+        if (req.getBirthDate().isAfter(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("생년월일이 올바르지 않습니다.");
+        }
         if (repository.existsByUsername(req.getUsername())) {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }

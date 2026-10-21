@@ -56,15 +56,15 @@
           <input type="text" id="phone" required placeholder="010-0000-0000">
         </div>
         <div class="auth-field">
-          <label>생년월일</label>
-          <input type="date" id="birthDate">
-          <p class="hint">입력해두시면 시험 신청 시 별도로 다시 입력하지 않아도 됩니다. (선택)</p>
+          <label>생년월일<span class="req-mark">*</span></label>
+          <input type="date" id="birthDate" required>
+          <p class="hint">시험 참여 대상자 확인을 위해 필요하며, 시험 신청 시 별도로 다시 입력하지 않아도 됩니다.</p>
         </div>
 
         <div class="auth-privacy-box">
           <b>[필수] 개인정보 수집 및 이용 안내</b><br><br>
           - 수집목적: 회원 식별 및 본인여부 확인, 서비스 이용에 관한 통지<br>
-          - 수집항목: 아이디, 비밀번호, 이름, 휴대전화번호 (이메일은 선택 입력)<br>
+          - 수집항목: 아이디, 비밀번호, 이름, 휴대전화번호, 생년월일 (이메일은 선택 입력)<br>
           - 보유기간: 회원 탈퇴 시까지<br><br>
           ※ 귀하는 동의를 거부할 권리가 있으며, 거부 시 회원가입이 제한됩니다.
         </div>
@@ -88,6 +88,13 @@
 
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function () {
+  // 미래 날짜는 선택 불가
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth() + 1).padStart(2, "0");
+  var dd = String(today.getDate()).padStart(2, "0");
+  document.getElementById("birthDate").setAttribute("max", yyyy + "-" + mm + "-" + dd);
+
   document.getElementById("btnRegister").addEventListener("click", function () {
     var username = document.getElementById("username").value.trim();
     var password = document.getElementById("password").value;
@@ -103,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (password !== passwordConfirm) { alert("비밀번호가 일치하지 않습니다."); return; }
     if (!name) { alert("이름을 입력해주세요."); return; }
     if (!phone) { alert("휴대전화번호를 입력해주세요."); return; }
+    if (!birthDate) { alert("생년월일을 입력해주세요."); return; }
     if (!privacyAgree) { alert("개인정보 수집 및 이용에 동의해주세요."); return; }
 
     var btn = this;
@@ -118,12 +126,17 @@ document.addEventListener("DOMContentLoaded", function () {
         name: name,
         email: email || null,
         phone: phone,
-        birthDate: birthDate || null,
+        birthDate: birthDate,
         privacyAgreed: true
       })
     })
       .then(function (res) {
-        if (!res.ok) throw new Error("회원가입 처리 중 오류가 발생했습니다.");
+        if (!res.ok) {
+          // 서버가 보낸 사유(이미 사용 중인 아이디 등)를 그대로 보여줌
+          return res.json().catch(function () { return {}; }).then(function (e) {
+            throw new Error(e.message || "회원가입 처리 중 오류가 발생했습니다.");
+          });
+        }
         alert("회원가입이 완료되었습니다.");
         window.location.href = "/auth/login";
       })
