@@ -35,6 +35,7 @@ public class AdminAuthFilter extends OncePerRequestFilter {
         "/api/eval-functional", "/api/eval-health-food", "/api/eval-usability",
         "/api/eval-safety", "/api/eval-invitro", "/api/eval-efficacy",
         "/api/certification-marks", "/api/certification-mark-categories",
+        "/api/image-services",
         "/api/recruitments", "/api/notices", "/api/newsletters", "/api/popups",
         "/api/members", "/api/files/local"
     );

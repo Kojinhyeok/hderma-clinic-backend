@@ -209,11 +209,15 @@
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(data)
 			});
-			if (!response.ok) throw new Error("추가 실패");
+			if (!response.ok) {
+				const err = await response.json().catch(() => ({}));
+				throw new Error(err.message || "추가 실패");
+			}
 			const result = await response.json();
 
 			if (result.uploadUrl && file) {
-				await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+				const up = await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+				if (!up.ok) throw new Error("마크 이미지 업로드에 실패했습니다. (저장소 응답 " + up.status + ") 잠시 후 다시 시도해주세요.");
 			}
 
 			nameInput.value = "";

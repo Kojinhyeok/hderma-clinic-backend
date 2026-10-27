@@ -28,39 +28,54 @@
 </div>
 
 <section class="sub-content">
-  <div class="cert-wrap">
-    <!-- TODO: 백엔드 연동 시 /api/certification-marks 에서 실시간으로 받아오도록 교체 -->
-
-    <div class="cert-group reveal-up">
-      <h3><span class="dot"></span>기능성화장품 허가</h3>
-      <div class="cert-grid reveal-stagger">
-        <div class="cert-card"><span class="mark">No Image</span><span>미백 기능성</span></div>
-        <div class="cert-card"><span class="mark">No Image</span><span>주름개선 기능성</span></div>
-        <div class="cert-card"><span class="mark">No Image</span><span>자외선차단 기능성</span></div>
-        <div class="cert-card"><span class="mark">No Image</span><span>탈모완화 기능성</span></div>
-      </div>
-    </div>
-
-    <div class="cert-group reveal-up">
-      <h3><span class="dot"></span>개별인정형 건강기능식품 인허가</h3>
-      <div class="cert-grid reveal-stagger">
-        <div class="cert-card"><span class="mark">No Image</span><span>피부 건강</span></div>
-        <div class="cert-card"><span class="mark">No Image</span><span>관절 건강</span></div>
-      </div>
-    </div>
-
-    <div class="cert-group reveal-up">
-      <h3><span class="dot"></span>해외 인증</h3>
-      <div class="cert-grid reveal-stagger">
-        <div class="cert-card"><span class="mark">No Image</span><span>CPNP (EU)</span></div>
-        <div class="cert-card"><span class="mark">No Image</span><span>NMPA (중국)</span></div>
-      </div>
-    </div>
-
-  </div>
+  <div class="cert-wrap" id="certWrap"></div>
+  <div class="cert-empty" id="certEmpty" style="display:none;">등록된 인증마크가 없습니다.</div>
 </section>
 
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function bySort(a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); }
+
+  // 관리자 > 인증마크 관리에서 등록한 대분류 + 세부 마크 이미지를 그대로 표시
+  fetch("/api/certification-marks")
+    .then(function (res) { return res.ok ? res.json() : []; })
+    .then(function (marks) {
+      marks.sort(bySort);
+      if (marks.length === 0) {
+        document.getElementById("certEmpty").style.display = "block";
+        return;
+      }
+      return Promise.all(marks.map(function (m) {
+        return fetch("/api/certification-marks/" + m.id + "/categories")
+          .then(function (res) { return res.ok ? res.json() : []; })
+          .then(function (cats) { return { mark: m, cats: cats.sort(bySort) }; });
+      })).then(function (groups) {
+        document.getElementById("certWrap").innerHTML = groups.map(function (g) {
+          var cards = g.cats.map(function (c) {
+            var mark = c.imageUrl
+              ? '<img src="' + c.imageUrl + '" alt="' + esc(c.title) + '">'
+              : 'No Image';
+            return '<div class="cert-card"><span class="mark">' + mark + '</span><span>' + esc(c.title) + '</span></div>';
+          }).join("");
+          return '<div class="cert-group">' +
+            '<h3><span class="dot"></span>' + esc(g.mark.title) + '</h3>' +
+            '<div class="cert-grid">' + (cards || '<p class="cert-empty" style="grid-column:1/-1;">준비 중입니다.</p>') + '</div>' +
+            '</div>';
+        }).join("");
+      });
+    })
+    .catch(function () {
+      document.getElementById("certEmpty").style.display = "block";
+    });
+});
+</script>
 
 </body>
 </html>
