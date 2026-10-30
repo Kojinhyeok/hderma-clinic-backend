@@ -814,7 +814,7 @@
 
 .cert-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:20px;}
 .cert-card{
-  padding:30px 20px; background:var(--bg-soft); border-radius:0 20px 0 20px;
+  border-radius:0 20px 0 20px;
   display:flex; flex-direction:column; align-items:center; text-align:center; gap:16px; transition:.3s;
 }
 .cert-card:hover{background:var(--grad-soft); transform:translateY(-4px);}
