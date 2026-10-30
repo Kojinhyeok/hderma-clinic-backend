@@ -6,6 +6,26 @@
 <title>인증마크 | H-Derma Global Clinical Center</title>
 <link rel="stylesheet" th:href="@{/css/style.css}">
 <link rel="stylesheet" th:href="@{/css/sub.css}">
+<style>
+/* 인증마크: 한 줄에 3개, 마크 크게 */
+.cert-wrap{max-width:1200px;}
+.cert-grid{grid-template-columns:repeat(3, 1fr); gap:24px;}
+.cert-card{padding:40px 24px 34px; gap:22px;}
+.cert-card .mark{width:190px; height:190px; font-size:15px;}
+.cert-card .mark img{padding:22px;}
+.cert-card span{font-size:16px;}
+.cert-card span.mark{font-size:15px; font-weight:600;}
+@media(max-width:900px){
+  .cert-grid{grid-template-columns:repeat(2, 1fr); gap:18px;}
+}
+@media(max-width:600px){
+  .cert-wrap{padding:0 20px;}
+  .cert-card{padding:28px 14px 24px; gap:16px;}
+  .cert-card .mark{width:130px; height:130px;}
+  .cert-card .mark img{padding:16px;}
+  .cert-card span{font-size:14px;}
+}
+</style>
 </head>
 <body>
 
