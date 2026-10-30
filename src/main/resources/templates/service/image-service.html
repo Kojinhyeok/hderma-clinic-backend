@@ -11,10 +11,12 @@
 .imgsvc-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:28px; align-items:start;}
 .imgsvc-item{margin:0; text-align:center;}
 /* 모든 이미지를 같은 비율(4:3)의 칸에 맞춤 — 잘리면 안 될 때는 object-fit 을 contain 으로 변경 */
-.imgsvc-item .imgsvc-thumb{width:100%; aspect-ratio:4 / 3; border-radius:12px; overflow:hidden; background:#eef1f5;}
-/* 다 받아진 뒤에만 서서히 표시 → 로딩 중 깜빡임/프레임 번쩍임 방지 */
-.imgsvc-item .imgsvc-thumb img{width:100%; height:100%; display:block; object-fit:cover; opacity:0; transition:opacity .4s ease;}
-.imgsvc-item .imgsvc-thumb img.loaded{opacity:1;}
+/* 움직이는 GIF 깜빡임 방지: 칸에서 잘라내기(overflow/clip)를 쓰지 않고, 이미지를 별도 그래픽 레이어로 분리 */
+.imgsvc-item .imgsvc-thumb{width:100%; aspect-ratio:4 / 3; background:#eef1f5; border-radius:12px;}
+.imgsvc-item .imgsvc-thumb img{
+  width:100%; height:100%; display:block; object-fit:cover; border-radius:12px;
+  transform:translateZ(0); will-change:transform; backface-visibility:hidden;
+}
 .imgsvc-item h3{margin:14px 0 6px; font-size:17px; font-weight:800; color:var(--navy);}
 .imgsvc-item p{margin:0; font-size:13.5px; line-height:1.6; color:var(--gray); white-space:pre-line;}
 @media(max-width:900px){ .imgsvc-grid{grid-template-columns:repeat(2, 1fr); gap:20px;} }
@@ -82,22 +84,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       document.getElementById("imgSvcGrid").innerHTML = list.map(function (it) {
         return '<figure class="imgsvc-item">' +
-          '<div class="imgsvc-thumb"><img src="' + it.imageUrl + '" alt="' + esc(it.title) + '" decoding="async"></div>' +
+          '<div class="imgsvc-thumb"><img src="' + it.imageUrl + '" alt="' + esc(it.title) + '"></div>' +
           (it.title ? '<h3>' + esc(it.title) + '</h3>' : '') +
           (it.description ? '<p>' + esc(it.description) + '</p>' : '') +
           '</figure>';
       }).join("");
       document.getElementById("imgSvcList").style.display = "block";
-
-      // 이미지가 완전히 다 받아진 뒤에만 보이게 처리
-      document.querySelectorAll("#imgSvcGrid img").forEach(function (img) {
-        function show() { img.classList.add("loaded"); }
-        if (img.complete && img.naturalWidth > 0) show();
-        else {
-          img.addEventListener("load", show);
-          img.addEventListener("error", show);
-        }
-      });
     })
     .catch(function () {
       document.getElementById("imgSvcEmpty").style.display = "block";
