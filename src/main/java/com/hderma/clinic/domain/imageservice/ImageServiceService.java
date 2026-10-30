@@ -18,6 +18,11 @@ public class ImageServiceService {
     private static final String ENTITY_TYPE = "image_service";
     private static final String FILE_CATEGORY = "IMAGE";
 
+    // 용량 제한: 큰 GIF는 브라우저가 화면을 못 따라가 깜빡임/느려짐이 생기므로 MP4로 올리도록 유도
+    private static final long MAX_GIF_BYTES = 5L * 1024 * 1024;     // GIF 5MB
+    private static final long MAX_IMAGE_BYTES = 10L * 1024 * 1024;  // JPG/PNG 등 10MB
+    private static final long MAX_VIDEO_BYTES = 100L * 1024 * 1024; // MP4 100MB
+
     private final ImageServiceItemRepository repository;
     private final FileRepository fileRepository;
     private final S3Service s3Service;
@@ -70,9 +75,26 @@ public class ImageServiceService {
         return req.getOriginalFilename() != null && !req.getOriginalFilename().isBlank();
     }
 
+    /** 이미지(JPG/PNG/GIF 등) 또는 MP4만 허용 + 종류별 용량 제한 */
     private void validateFile(ImageServiceDto.Request req) {
-        if (hasFile(req) && (req.getMimeType() == null || !req.getMimeType().startsWith("image/"))) {
-            throw new IllegalArgumentException("이미지 또는 GIF 파일만 업로드할 수 있습니다.");
+        if (!hasFile(req)) return;
+
+        String mime = req.getMimeType() == null ? "" : req.getMimeType().toLowerCase();
+        long size = req.getFileSize() == null ? 0L : req.getFileSize();
+
+        boolean isVideo = mime.equals("video/mp4");
+        boolean isImage = mime.startsWith("image/");
+        if (!isVideo && !isImage) {
+            throw new IllegalArgumentException("이미지(JPG, PNG, GIF) 또는 MP4 영상 파일만 업로드할 수 있습니다.");
+        }
+        if (isVideo && size > MAX_VIDEO_BYTES) {
+            throw new IllegalArgumentException("MP4 영상은 100MB 이하만 업로드할 수 있습니다.");
+        }
+        if (mime.equals("image/gif") && size > MAX_GIF_BYTES) {
+            throw new IllegalArgumentException("GIF는 5MB 이하만 올릴 수 있습니다. 용량이 큰 움직이는 이미지는 MP4 영상으로 변환해서 올려주세요.");
+        }
+        if (isImage && !mime.equals("image/gif") && size > MAX_IMAGE_BYTES) {
+            throw new IllegalArgumentException("이미지는 10MB 이하만 업로드할 수 있습니다.");
         }
     }
 

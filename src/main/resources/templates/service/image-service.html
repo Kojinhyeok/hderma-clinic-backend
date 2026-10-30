@@ -7,16 +7,13 @@
 <link rel="stylesheet" th:href="@{/css/style.css}">
 <link rel="stylesheet" th:href="@{/css/sub.css}">
 <style>
-/* GIF 깜빡임 방지: 고정 헤더(큰 그림자)와 상단 메뉴를 별도 레이어로 분리해, 아래 GIF 프레임이 바뀔 때 다시 합성되지 않게 함 */
-#header{transform:translateZ(0); will-change:transform;}
-.sub-nav-wrap{transform:translateZ(0); will-change:transform;}
-
 .imgsvc-wrap{max-width:1200px; margin:0 auto; padding:0 40px;}
 .imgsvc-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:28px; align-items:start;}
 .imgsvc-item{margin:0; text-align:center;}
-/* 모든 이미지를 같은 비율(4:3)의 칸에 맞춤 — 잘리면 안 될 때는 object-fit 을 contain 으로 변경 */
+/* 모든 이미지/영상을 같은 비율(4:3)의 칸에 맞춤 — 잘리면 안 될 때는 object-fit 을 contain 으로 변경 */
 .imgsvc-item .imgsvc-thumb{width:100%; aspect-ratio:4 / 3; border-radius:12px; overflow:hidden; background:#eef1f5;}
-.imgsvc-item .imgsvc-thumb img{width:100%; height:100%; display:block; object-fit:cover;}
+.imgsvc-item .imgsvc-thumb img,
+.imgsvc-item .imgsvc-thumb video{width:100%; height:100%; display:block; object-fit:cover;}
 .imgsvc-item h3{margin:14px 0 6px; font-size:17px; font-weight:800; color:var(--navy);}
 .imgsvc-item p{margin:0; font-size:13.5px; line-height:1.6; color:var(--gray); white-space:pre-line;}
 @media(max-width:900px){ .imgsvc-grid{grid-template-columns:repeat(2, 1fr); gap:20px;} }
@@ -44,12 +41,12 @@
 </div>
 
 <section class="sub-content">
-  <!-- 관리자에서 등록한 이미지/GIF (한 줄에 3개) -->
+  <!-- 관리자에서 등록한 이미지/MP4 영상 (한 줄에 3개) -->
   <div class="imgsvc-wrap" id="imgSvcList" style="display:none;">
     <div class="imgsvc-grid" id="imgSvcGrid"></div>
   </div>
 
-  <!-- 등록된 이미지가 없을 때 -->
+  <!-- 등록된 항목이 없을 때 -->
   <div class="coming-soon reveal-up" id="imgSvcEmpty" style="display:none;">
     <div class="coming-soon-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -73,6 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+  // S3 주소(쿼리 제외)가 .mp4 로 끝나면 영상으로 표시
+  function isVideo(url) { return /\.mp4$/i.test(String(url).split("?")[0]); }
 
   fetch("/api/image-services")
     .then(function (res) { return res.ok ? res.json() : []; })
@@ -83,17 +82,51 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       document.getElementById("imgSvcGrid").innerHTML = list.map(function (it) {
+        var media = isVideo(it.imageUrl)
+          // 영상은 처음엔 불러오지 않고(data-src), 화면에 보일 때만 로딩/재생
+          ? '<video data-src="' + it.imageUrl + '" muted loop playsinline preload="none" disablepictureinpicture aria-label="' + esc(it.title) + '"></video>'
+          : '<img src="' + it.imageUrl + '" alt="' + esc(it.title) + '">';
         return '<figure class="imgsvc-item">' +
-          '<div class="imgsvc-thumb"><img src="' + it.imageUrl + '" alt="' + esc(it.title) + '"></div>' +
+          '<div class="imgsvc-thumb">' + media + '</div>' +
           (it.title ? '<h3>' + esc(it.title) + '</h3>' : '') +
           (it.description ? '<p>' + esc(it.description) + '</p>' : '') +
           '</figure>';
       }).join("");
       document.getElementById("imgSvcList").style.display = "block";
+      initLazyVideos(document.getElementById("imgSvcGrid"));
     })
     .catch(function () {
       document.getElementById("imgSvcEmpty").style.display = "block";
     });
+
+  // 화면에 보이는 영상만 재생, 벗어나면 일시정지 (동시에 여러 개 재생하지 않아 가볍게 유지)
+  function initLazyVideos(root) {
+    var videos = root.querySelectorAll("video[data-src]");
+    if (!videos.length) return;
+
+    function play(v) {
+      if (!v.getAttribute("src")) {
+        v.src = v.getAttribute("data-src");
+        v.load();
+      }
+      v.muted = true;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      videos.forEach(play);
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var v = entry.target;
+        if (entry.isIntersecting) play(v);
+        else v.pause();
+      });
+    }, { rootMargin: "120px 0px", threshold: 0.1 });
+    videos.forEach(function (v) { io.observe(v); });
+  }
 });
 </script>
 

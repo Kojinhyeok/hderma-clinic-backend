@@ -26,8 +26,9 @@
 				</div>
 
 				<p class="text-muted small">
-					사이트의 <b>이미지 서비스</b> 페이지에 노출되는 이미지/GIF를 등록합니다. 표시 순서가 작은 숫자부터 위에서 아래로 나열돼요.
-					이미지 파일(JPG, PNG, GIF 등)을 올릴 수 있고, 제목과 설명은 선택 입력이에요.
+					사이트의 <b>이미지 서비스</b> 페이지에 노출되는 이미지/영상을 등록합니다. 표시 순서가 작은 숫자부터 나열돼요.<br>
+					움직이는 이미지는 <b>GIF 대신 MP4 영상</b>으로 올려주세요. (GIF는 5MB 이하, MP4는 100MB 이하 / 이미지는 10MB 이하)
+					MP4는 소리 없이 자동으로 반복 재생돼요.
 				</p>
 
 				<div class="card">
@@ -35,7 +36,7 @@
 						<table class="table table-hover my-0" id="itemTable">
 							<thead>
 							<tr>
-								<th style="width:140px;">이미지</th>
+								<th style="width:140px;">미리보기</th>
 								<th>제목</th>
 								<th>설명</th>
 								<th style="width:90px;">표시 순서</th>
@@ -62,10 +63,10 @@
 				<form id="itemForm">
 					<input type="hidden" id="itemId">
 					<div class="mb-3">
-						<label class="form-label">이미지 / GIF <span class="text-danger" id="fileReq">*</span></label>
-						<input type="file" class="form-control" id="itemFile" accept="image/*" onchange="previewImage(this)">
-						<div class="form-text" id="fileHint">수정 시 새 파일을 선택하면 기존 이미지가 교체돼요.</div>
-						<img id="itemPreview" style="display:none; max-width:100%; max-height:220px; margin-top:10px; border-radius:6px;">
+						<label class="form-label">이미지 / MP4 영상 <span class="text-danger" id="fileReq">*</span></label>
+						<input type="file" class="form-control" id="itemFile" accept="image/*,video/mp4" onchange="previewMedia(this)">
+						<div class="form-text">JPG, PNG, GIF(5MB 이하) 또는 MP4(100MB 이하). 수정 시 새 파일을 선택하면 기존 파일이 교체돼요.</div>
+						<div id="itemPreviewBox" style="display:none; margin-top:10px;"></div>
 					</div>
 					<div class="mb-3">
 						<label class="form-label">제목 (선택)</label>
@@ -78,7 +79,7 @@
 					<div class="mb-3">
 						<label class="form-label">표시 순서</label>
 						<input type="number" class="form-control" id="itemSortOrder" value="0">
-						<div class="form-text">숫자가 작을수록 위에 나와요.</div>
+						<div class="form-text">숫자가 작을수록 앞에 나와요.</div>
 					</div>
 				</form>
 			</div>
@@ -94,6 +95,11 @@
 <script src="../js/common.js"></script>
 <script>
 	let itemList = [];
+	let previewObjectUrl = null;
+
+	const MAX_GIF = 5 * 1024 * 1024;
+	const MAX_IMAGE = 10 * 1024 * 1024;
+	const MAX_VIDEO = 100 * 1024 * 1024;
 
 	document.addEventListener("DOMContentLoaded", function () {
 		loadList();
@@ -102,6 +108,17 @@
 
 	function esc(s) {
 		return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+	}
+
+	// S3 주소에서 확장자로 영상 여부 판단
+	function isVideoUrl(url) {
+		return !!url && /\.mp4$/i.test(url.split("?")[0]);
+	}
+
+	function mediaTag(url, style) {
+		return isVideoUrl(url)
+			? `<video src="${url}" style="${style}" muted playsinline preload="metadata"></video>`
+			: `<img src="${url}" style="${style}">`;
 	}
 
 	function loadList() {
@@ -114,7 +131,9 @@
 					? '<tr><td colspan="5" class="text-center py-4">등록된 이미지가 없습니다.</td></tr>'
 					: list.map((it, index) => `
 						<tr>
-							<td class="align-middle">${it.imageUrl ? `<img src="${it.imageUrl}" style="width:110px;height:70px;object-fit:cover;border-radius:6px;">` : '<span class="text-muted small">이미지 없음</span>'}</td>
+							<td class="align-middle">${it.imageUrl
+								? mediaTag(it.imageUrl, "width:110px;height:70px;object-fit:cover;border-radius:6px;") + (isVideoUrl(it.imageUrl) ? '<div class="small text-muted">MP4 영상</div>' : '')
+								: '<span class="text-muted small">파일 없음</span>'}</td>
 							<td class="align-middle">${esc(it.title) || '-'}</td>
 							<td class="align-middle small" style="white-space:pre-line;">${esc(it.description) || '-'}</td>
 							<td class="align-middle">${it.sortOrder ?? 0}</td>
@@ -127,22 +146,45 @@
 			});
 	}
 
-	function resetPreview() {
-		const img = document.getElementById("itemPreview");
-		img.style.display = "none";
-		img.removeAttribute("src");
+	function clearPreview() {
+		if (previewObjectUrl) { URL.revokeObjectURL(previewObjectUrl); previewObjectUrl = null; }
+		const box = document.getElementById("itemPreviewBox");
+		box.style.display = "none";
+		box.innerHTML = "";
 	}
 
-	function previewImage(input) {
-		if (input.files && input.files[0]) {
-			const reader = new FileReader();
-			reader.onload = e => {
-				const img = document.getElementById("itemPreview");
-				img.src = e.target.result;
-				img.style.display = "block";
-			};
-			reader.readAsDataURL(input.files[0]);
+	function showPreview(url, isVideo) {
+		const box = document.getElementById("itemPreviewBox");
+		const style = "max-width:100%; max-height:220px; border-radius:6px;";
+		box.innerHTML = isVideo
+			? `<video src="${url}" style="${style}" muted loop autoplay playsinline></video>`
+			: `<img src="${url}" style="${style}">`;
+		box.style.display = "block";
+	}
+
+	// 파일 종류/용량 검사 (서버에서도 한 번 더 검사함)
+	function validateFileClient(file) {
+		const t = (file.type || "").toLowerCase();
+		if (t === "video/mp4") {
+			if (file.size > MAX_VIDEO) return "MP4 영상은 100MB 이하만 올릴 수 있습니다.";
+		} else if (t === "image/gif") {
+			if (file.size > MAX_GIF) return "GIF는 5MB 이하만 올릴 수 있습니다.\n용량이 큰 움직이는 이미지는 MP4 영상으로 변환해서 올려주세요.";
+		} else if (t.startsWith("image/")) {
+			if (file.size > MAX_IMAGE) return "이미지는 10MB 이하만 올릴 수 있습니다.";
+		} else {
+			return "이미지(JPG, PNG, GIF) 또는 MP4 영상만 올릴 수 있습니다.";
 		}
+		return null;
+	}
+
+	function previewMedia(input) {
+		clearPreview();
+		const file = input.files && input.files[0];
+		if (!file) return;
+		const err = validateFileClient(file);
+		if (err) { alert(err); input.value = ""; return; }
+		previewObjectUrl = URL.createObjectURL(file);
+		showPreview(previewObjectUrl, file.type === "video/mp4");
 	}
 
 	function openAddModal() {
@@ -151,7 +193,7 @@
 		document.getElementById("itemSortOrder").value = itemList.length;
 		document.getElementById("itemModalTitle").innerText = "이미지 등록";
 		document.getElementById("fileReq").style.display = "inline";
-		resetPreview();
+		clearPreview();
 		bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
 	}
 
@@ -164,12 +206,8 @@
 		document.getElementById("itemSortOrder").value = it.sortOrder ?? 0;
 		document.getElementById("itemModalTitle").innerText = "이미지 수정";
 		document.getElementById("fileReq").style.display = "none";
-		resetPreview();
-		if (it.imageUrl) {
-			const img = document.getElementById("itemPreview");
-			img.src = it.imageUrl;
-			img.style.display = "block";
-		}
+		clearPreview();
+		if (it.imageUrl) showPreview(it.imageUrl, isVideoUrl(it.imageUrl));
 		bootstrap.Modal.getOrCreateInstance(document.getElementById('itemModal')).show();
 	}
 
@@ -177,8 +215,11 @@
 		const id = document.getElementById("itemId").value;
 		const file = document.getElementById("itemFile").files[0];
 
-		if (!id && !file) { alert("이미지 또는 GIF 파일을 선택해주세요."); return; }
-		if (file && !file.type.startsWith("image/")) { alert("이미지 또는 GIF 파일만 업로드할 수 있습니다."); return; }
+		if (!id && !file) { alert("이미지 또는 MP4 파일을 선택해주세요."); return; }
+		if (file) {
+			const err = validateFileClient(file);
+			if (err) { alert(err); return; }
+		}
 
 		const data = {
 			title: document.getElementById("itemTitle").value.trim(),
@@ -193,7 +234,7 @@
 
 		const btn = document.getElementById("btnSave");
 		btn.disabled = true;
-		btn.innerText = "저장 중...";
+		btn.innerText = file && file.size > 5 * 1024 * 1024 ? "업로드 중... (잠시 기다려주세요)" : "저장 중...";
 
 		try {
 			const response = await fetch(id ? `/api/image-services/${id}` : "/api/image-services", {
@@ -209,7 +250,7 @@
 
 			if (result.uploadUrl && file) {
 				const up = await fetch(result.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-				if (!up.ok) throw new Error("이미지 파일 업로드에 실패했습니다. (저장소 응답 " + up.status + ") 잠시 후 다시 시도해주세요.");
+				if (!up.ok) throw new Error("파일 업로드에 실패했습니다. (저장소 응답 " + up.status + ") 잠시 후 다시 시도해주세요.");
 			}
 
 			bootstrap.Modal.getInstance(document.getElementById('itemModal')).hide();
@@ -223,7 +264,7 @@
 	}
 
 	function deleteItem(id) {
-		if (confirm("이 이미지를 삭제하시겠습니까?")) {
+		if (confirm("이 항목을 삭제하시겠습니까?")) {
 			fetch(`/api/image-services/${id}`, { method: "DELETE" })
 				.then(res => { if (res.ok) loadList(); else alert("삭제 실패"); });
 		}
