@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아이디 찾기 | H-Derma Global Clinical Center</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/sub.css}">
+<style>
+.find-result{display:none; text-align:center;}
+.find-result .find-result-msg{font-size:14px; color:var(--gray); margin-bottom:18px;}
+.find-result ul{list-style:none; margin:0 0 6px; padding:0;}
+.find-result li{padding:16px 18px; margin-bottom:10px; border:1px solid var(--line); border-radius:12px; background:var(--bg-soft); font-size:18px; font-weight:800; color:var(--navy); word-break:break-all;}
+.find-actions{display:flex; gap:10px; margin-top:20px;}
+.find-actions a{flex:1; display:flex; align-items:center; justify-content:center; height:50px; border-radius:12px; font-size:14.5px; font-weight:700;}
+.find-actions .btn-main{background:var(--grad); color:#fff;}
+.find-actions .btn-sub{border:1px solid var(--line); color:var(--main); background:#fff;}
+</style>
+</head>
+<body>
+
+<th:block th:replace="~{fragments/header :: header}"></th:block>
+
+<section class="sub-hero">
+  <img class="sub-hero-bg" th:src="@{/assets/images/bg-network-white.svg}" alt="" aria-hidden="true">
+  <div class="sub-hero-inner">
+    <h1>아이디 찾기</h1>
+    <p>H-Derma Global Clinical Center</p>
+  </div>
+</section>
+
+<section class="sub-content">
+  <div class="auth-wrap">
+    <div class="auth-card reveal-up">
+      <div class="auth-logo">
+        <img th:src="@{/assets/images/logo-icon.png}" alt="H-Derma">
+      </div>
+      <h2>아이디 찾기</h2>
+      <p class="sub-desc">가입 시 입력하신 이름과 휴대전화번호를 입력해 주세요.</p>
+
+      <form id="findForm" onsubmit="return false;">
+        <div class="auth-field">
+          <label>이름<span class="req-mark">*</span></label>
+          <input type="text" id="name" required placeholder="이름을 입력해 주세요">
+        </div>
+        <div class="auth-field">
+          <label>휴대전화번호<span class="req-mark">*</span></label>
+          <input type="tel" id="phone" required inputmode="numeric" maxlength="13" placeholder="010-0000-0000">
+        </div>
+        <button type="button" class="auth-submit" id="btnFind">아이디 찾기</button>
+      </form>
+
+      <div class="find-result" id="findResult">
+        <p class="find-result-msg">입력하신 정보와 일치하는 아이디입니다.</p>
+        <ul id="idList"></ul>
+        <div class="find-actions">
+          <a th:href="@{/auth/login}" class="btn-main">로그인하기</a>
+          <a th:href="@{/auth/find-password}" class="btn-sub">비밀번호 찾기</a>
+        </div>
+      </div>
+
+      <div class="auth-links">
+        <a th:href="@{/auth/login}">로그인</a>
+        <span>|</span>
+        <a th:href="@{/auth/register}">회원가입</a>
+        <span>|</span>
+        <a th:href="@{/auth/find-password}">비밀번호 찾기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var phoneInput = document.getElementById("phone");
+
+  // 숫자만 입력해도 010-0000-0000 형태로 자동 정리
+  phoneInput.addEventListener("input", function () {
+    var d = this.value.replace(/\D/g, "").slice(0, 11);
+    if (d.length > 7) this.value = d.slice(0, 3) + "-" + d.slice(3, 7) + "-" + d.slice(7);
+    else if (d.length > 3) this.value = d.slice(0, 3) + "-" + d.slice(3);
+    else this.value = d;
+  });
+
+  function submit() {
+    var name = document.getElementById("name").value.trim();
+    var phone = phoneInput.value.trim();
+    if (!name) { alert("이름을 입력해주세요."); return; }
+    if (phone.replace(/\D/g, "").length < 10) { alert("휴대전화번호를 정확히 입력해주세요."); return; }
+
+    var btn = document.getElementById("btnFind");
+    btn.disabled = true;
+    btn.innerText = "확인 중...";
+
+    fetch("/api/auth/find-id", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name, phone: phone })
+    })
+      .then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          if (!res.ok) throw new Error(data.message || "아이디를 찾지 못했습니다. 잠시 후 다시 시도해 주세요.");
+          return data;
+        });
+      })
+      .then(function (data) {
+        var list = document.getElementById("idList");
+        list.innerHTML = "";
+        (data.usernames || []).forEach(function (u) {
+          var li = document.createElement("li");
+          li.textContent = u;
+          list.appendChild(li);
+        });
+        document.getElementById("findForm").style.display = "none";
+        document.getElementById("findResult").style.display = "block";
+      })
+      .catch(function (err) { alert(err.message); })
+      .finally(function () {
+        btn.disabled = false;
+        btn.innerText = "아이디 찾기";
+      });
+  }
+
+  document.getElementById("btnFind").addEventListener("click", submit);
+  document.getElementById("findForm").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); submit(); }
+  });
+});
+</script>
+
+</body>
+</html>
