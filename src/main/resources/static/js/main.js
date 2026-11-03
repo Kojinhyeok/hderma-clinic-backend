@@ -246,9 +246,17 @@ document.addEventListener('DOMContentLoaded', function () {
 // ================= 사이트 공통 팝업 =================
 // PC(701px 이상): 관리자 페이지에서 입력한 위치(px)/너비(px) 그대로 표시
 // 모바일(700px 이하): 위치/너비 값을 무시하고 화면 가운데에 너비 80%로 세로로 쌓아서 표시
+// 표시 페이지: 메인 페이지("/")에서만
 var POPUP_MOBILE_MAX_WIDTH = 700;
 
+// 팝업은 메인(첫) 페이지에서만 표시 — 다른 페이지로 이동하면 나타나지 않음
+function isMainPage() {
+  var path = location.pathname.replace(/\/+$/, "");
+  return path === "" || path === "/index" || path === "/index.html";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+  if (!isMainPage()) return;
   fetch("/api/popups/active")
     .then(function (res) { return res.ok ? res.json() : []; })
     .then(function (popups) {
