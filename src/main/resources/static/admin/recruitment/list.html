@@ -34,9 +34,10 @@
 								<th>공고명</th>
 								<th style="width:150px;">평가분야</th>
 								<th style="width:100px;">상태</th>
+								<th style="width:90px;">노출</th>
 								<th style="width:150px;">시험기간</th>
 								<th style="width:150px;">방문횟수 / 시험부위</th>
-								<th style="width:110px;">관리</th>
+								<th style="width:220px;">관리</th>
 							</tr>
 							</thead>
 							<tbody></tbody>
@@ -241,19 +242,25 @@
 	});
 
 	function loadList() {
-		fetch("/api/recruitments")
+		fetch("/api/recruitments?includeHidden=true")
 			.then(res => res.json())
 			.then(list => {
 				recruitmentList = list;
 				const tbody = document.querySelector("#recruitmentTable tbody");
 				tbody.innerHTML = list.length === 0
-					? '<tr><td colspan="7" class="text-center py-4">등록된 모집공고가 없습니다.</td></tr>'
+					? '<tr><td colspan="8" class="text-center py-4">등록된 모집공고가 없습니다.</td></tr>'
 					: list.map((r, index) => `
-						<tr>
+						<tr class="${r.visible === false ? 'table-light text-muted' : ''}">
 							<td class="align-middle">${r.trialCode || '-'}</td>
 							<td class="align-middle">${r.trialName}</td>
 							<td class="align-middle">${CATEGORY_LABEL[r.evalCategory] || '-'}</td>
 							<td class="align-middle"><span class="badge bg-${STATUS_BADGE[r.status]}">${STATUS_LABEL[r.status]}</span></td>
+							<td class="align-middle">
+								<div class="form-check form-switch m-0" title="OFF 로 하면 홈페이지 참여신청 목록에서 보이지 않습니다">
+									<input class="form-check-input" type="checkbox" role="switch" id="vis_${r.id}" ${r.visible === false ? '' : 'checked'} onchange="toggleVisible(${r.id}, this)">
+									<label class="form-check-label small" for="vis_${r.id}">${r.visible === false ? 'OFF' : 'ON'}</label>
+								</div>
+							</td>
 							<td class="align-middle small">${r.startDate || '-'} ~ ${r.endDate || '-'}</td>
 							<td class="align-middle small">${r.visitCount != null ? r.visitCount + '회' : '-'} / ${r.testSite || '-'}</td>
 							<td class="align-middle">
@@ -264,6 +271,24 @@
 						</tr>
 					`).join("");
 			});
+	}
+
+	// 홈페이지 노출 ON/OFF 전환
+	function toggleVisible(id, checkbox) {
+		const visible = checkbox.checked;
+		checkbox.disabled = true;
+		fetch(`/api/recruitments/${id}/visible`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ visible: visible })
+		}).then(res => {
+			if (!res.ok) throw new Error("노출 설정 변경에 실패했습니다.");
+			loadList();
+		}).catch(err => {
+			alert(err.message);
+			checkbox.checked = !visible;   // 실패하면 원래 상태로 되돌림
+			checkbox.disabled = false;
+		});
 	}
 
 	function collectFormData() {

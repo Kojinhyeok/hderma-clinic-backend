@@ -13,10 +13,24 @@ public class RecruitmentService {
 
     private final RecruitmentRepository repository;
 
+    /** 홈페이지 방문자용 — 노출 ON 인 공고만 */
     public List<RecruitmentDto.Response> findAll(String evalCategory) {
-        var list = (evalCategory == null || evalCategory.isBlank())
-            ? repository.findAllByOrderByCreatedAtDesc()
-            : repository.findAllByEvalCategoryOrderByCreatedAtDesc(evalCategory);
+        return findAll(evalCategory, false);
+    }
+
+    /** includeHidden=true 면 노출 OFF 공고까지 모두 (관리자 화면용) */
+    public List<RecruitmentDto.Response> findAll(String evalCategory, boolean includeHidden) {
+        boolean noCategory = (evalCategory == null || evalCategory.isBlank());
+        List<Recruitment> list;
+        if (includeHidden) {
+            list = noCategory
+                ? repository.findAllByOrderByCreatedAtDesc()
+                : repository.findAllByEvalCategoryOrderByCreatedAtDesc(evalCategory);
+        } else {
+            list = noCategory
+                ? repository.findAllByVisibleTrueOrderByCreatedAtDesc()
+                : repository.findAllByEvalCategoryAndVisibleTrueOrderByCreatedAtDesc(evalCategory);
+        }
         return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
@@ -42,6 +56,7 @@ public class RecruitmentService {
             .participationCost(req.getParticipationCost())
             .recruitmentFieldIds(req.getRecruitmentFieldIds())
             .detailContent(req.getDetailContent())
+            .visible(req.getVisible() != null ? req.getVisible() : Boolean.TRUE) // 새 공고는 기본 ON
             .build();
         repository.save(entity);
         return entity.getId();
@@ -65,6 +80,15 @@ public class RecruitmentService {
         entity.setParticipationCost(req.getParticipationCost());
         entity.setRecruitmentFieldIds(req.getRecruitmentFieldIds());
         entity.setDetailContent(req.getDetailContent());
+        if (req.getVisible() != null) entity.setVisible(req.getVisible()); // 보내지 않으면 기존 값 유지
+    }
+
+    /** 노출 ON/OFF 만 변경 */
+    @Transactional
+    public void updateVisible(Long id, boolean visible) {
+        Recruitment entity = repository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("모집공고를 찾을 수 없습니다: " + id));
+        entity.setVisible(visible);
     }
 
     @Transactional
@@ -81,6 +105,7 @@ public class RecruitmentService {
             .participationGroup(e.getParticipationGroup()).requirements(e.getRequirements())
             .productType(e.getProductType()).participationCost(e.getParticipationCost())
             .recruitmentFieldIds(e.getRecruitmentFieldIds()).detailContent(e.getDetailContent())
+            .visible(e.getVisible() == null || e.getVisible()) // 값이 없으면 ON 으로 간주
             .createdAt(e.getCreatedAt())
             .build();
     }

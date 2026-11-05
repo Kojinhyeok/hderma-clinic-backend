@@ -17,6 +17,18 @@
 .mp-info dt{width:130px; flex:none; font-weight:700; color:var(--navy);}
 .mp-info dd{margin:0; color:var(--ink); word-break:break-all;}
 .mp-note{margin-top:18px; font-size:12.5px; color:var(--gray);}
+.mp-info dd input{width:100%; max-width:360px; height:42px; padding:0 14px; border:1px solid var(--line); border-radius:8px; font-size:14.5px; font-family:inherit;}
+.mp-info dd input:focus{border-color:var(--teal); outline:none;}
+.mp-info dd .mp-lock{font-size:12px; color:var(--gray-soft); margin-left:8px;}
+.mp-actions{display:flex; gap:10px; margin-top:24px; flex-wrap:wrap;}
+.mp-btn.primary{background:var(--grad); border-color:transparent; color:#fff;}
+.mp-pw{margin-top:40px; padding-top:28px; border-top:1px solid var(--line); display:none;}
+.mp-pw.open{display:block;}
+.mp-pw h3{font-size:16px; font-weight:800; color:var(--navy); margin:0 0 16px;}
+.mp-pw .mp-field{margin-bottom:14px;}
+.mp-pw label{display:block; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:6px;}
+.mp-pw input{width:100%; max-width:360px; height:42px; padding:0 14px; border:1px solid var(--line); border-radius:8px; font-size:14.5px; font-family:inherit;}
+.mp-pw input:focus{border-color:var(--teal); outline:none;}
 .mp-app{border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:14px; background:#fff;}
 .mp-app-top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;}
 .mp-app h4{font-size:16.5px; font-weight:800; color:var(--navy); margin:0 0 4px;}
@@ -34,7 +46,7 @@
 .mp-btn{padding:8px 16px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--line); background:#fff; color:var(--ink);}
 .mp-btn.danger{border-color:#e0455a; color:#e0455a;}
 .mp-empty{text-align:center; padding:60px 0; color:var(--gray); font-size:14.5px;}
-@media(max-width:700px){ .mp-app dl{grid-template-columns:1fr 1fr;} .mp-info dt{width:96px;} .mp-tabs button{flex:1; padding:14px 8px;} }
+@media(max-width:700px){ .mp-app dl{grid-template-columns:1fr 1fr;} .mp-info dt{width:96px;} .mp-info dd input{max-width:100%;} .mp-tabs button{flex:1; padding:14px 8px;} }
 </style>
 </head>
 <body>
@@ -58,7 +70,25 @@
 
     <div class="mp-panel active" data-panel="profile">
       <dl class="mp-info" id="mpProfile"></dl>
-      <p class="mp-note">회원 정보 변경이 필요하시면 센터로 문의해 주세요.</p>
+      <div class="mp-actions" id="mpActions">
+        <button type="button" class="mp-btn primary" id="btnEdit">정보 수정</button>
+        <button type="button" class="mp-btn" id="btnPwToggle">비밀번호 변경</button>
+      </div>
+      <div class="mp-actions" id="mpEditActions" style="display:none;">
+        <button type="button" class="mp-btn primary" id="btnSaveProfile">저장</button>
+        <button type="button" class="mp-btn" id="btnCancelEdit">취소</button>
+      </div>
+      <p class="mp-note">아이디는 변경할 수 없습니다.</p>
+
+      <div class="mp-pw" id="mpPw">
+        <h3>비밀번호 변경</h3>
+        <div class="mp-field"><label>현재 비밀번호</label><input type="password" id="pwCurrent" autocomplete="current-password"></div>
+        <div class="mp-field"><label>새 비밀번호</label><input type="password" id="pwNew" placeholder="8자 이상" autocomplete="new-password"></div>
+        <div class="mp-field"><label>새 비밀번호 확인</label><input type="password" id="pwNew2" autocomplete="new-password"></div>
+        <div class="mp-actions">
+          <button type="button" class="mp-btn primary" id="btnSavePw">비밀번호 변경</button>
+        </div>
+      </div>
     </div>
 
     <div class="mp-panel" data-panel="applications">
@@ -89,20 +119,105 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function goLogin() { location.href = "/auth/login?redirect=" + encodeURIComponent("/auth/mypage"); }
 
-  // 내정보
+  // 내정보 (보기 / 수정)
+  var profile = null;
+
+  function renderView() {
+    var m = profile;
+    document.getElementById("mpProfile").innerHTML =
+      '<div><dt>이름</dt><dd>' + esc(m.name) + '</dd></div>' +
+      '<div><dt>아이디</dt><dd>' + esc(m.username) + '</dd></div>' +
+      '<div><dt>이메일</dt><dd>' + esc(m.email || "-") + '</dd></div>' +
+      '<div><dt>휴대전화</dt><dd>' + esc(m.phone || "-") + '</dd></div>' +
+      '<div><dt>생년월일</dt><dd>' + d10(m.birthDate) + '</dd></div>' +
+      '<div><dt>회원구분</dt><dd>' + esc(ROLE[m.role] || m.role) + '</dd></div>' +
+      '<div><dt>가입일</dt><dd>' + d10(m.createdAt) + '</dd></div>';
+    document.getElementById("mpActions").style.display = "flex";
+    document.getElementById("mpEditActions").style.display = "none";
+  }
+
+  function renderEdit() {
+    var m = profile;
+    document.getElementById("mpProfile").innerHTML =
+      '<div><dt>이름</dt><dd><input type="text" id="edName" value="' + esc(m.name) + '"></dd></div>' +
+      '<div><dt>아이디</dt><dd>' + esc(m.username) + '<span class="mp-lock">변경 불가</span></dd></div>' +
+      '<div><dt>이메일</dt><dd><input type="email" id="edEmail" value="' + esc(m.email || "") + '" placeholder="example@email.com (선택)"></dd></div>' +
+      '<div><dt>휴대전화</dt><dd><input type="tel" id="edPhone" inputmode="numeric" maxlength="13" value="' + esc(m.phone || "") + '" placeholder="010-0000-0000"></dd></div>' +
+      '<div><dt>생년월일</dt><dd><input type="date" id="edBirth" value="' + (m.birthDate ? String(m.birthDate).substring(0, 10) : "") + '"></dd></div>' +
+      '<div><dt>회원구분</dt><dd>' + esc(ROLE[m.role] || m.role) + '</dd></div>' +
+      '<div><dt>가입일</dt><dd>' + d10(m.createdAt) + '</dd></div>';
+    document.getElementById("mpActions").style.display = "none";
+    document.getElementById("mpEditActions").style.display = "flex";
+    document.getElementById("edPhone").addEventListener("input", function () {
+      var d = this.value.replace(/\D/g, "").slice(0, 11);
+      if (d.length > 7) this.value = d.slice(0, 3) + "-" + d.slice(3, 7) + "-" + d.slice(7);
+      else if (d.length > 3) this.value = d.slice(0, 3) + "-" + d.slice(3);
+      else this.value = d;
+    });
+  }
+
+  function jsonFetch(url, method, body) {
+    return fetch(url, {
+      method: method, credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (res.status === 401) { goLogin(); throw new Error("login"); }
+        if (!res.ok) throw new Error(data.message || "처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+        return data;
+      });
+    });
+  }
+
   fetch("/api/my/profile", { credentials: "same-origin" })
     .then(function (res) { if (res.status === 401) { goLogin(); throw new Error("login"); } return res.json(); })
-    .then(function (m) {
-      document.getElementById("mpProfile").innerHTML =
-        '<div><dt>이름</dt><dd>' + esc(m.name) + '</dd></div>' +
-        '<div><dt>아이디</dt><dd>' + esc(m.username) + '</dd></div>' +
-        '<div><dt>이메일</dt><dd>' + esc(m.email || "-") + '</dd></div>' +
-        '<div><dt>휴대전화</dt><dd>' + esc(m.phone || "-") + '</dd></div>' +
-        '<div><dt>생년월일</dt><dd>' + d10(m.birthDate) + '</dd></div>' +
-        '<div><dt>회원구분</dt><dd>' + esc(ROLE[m.role] || m.role) + '</dd></div>' +
-        '<div><dt>가입일</dt><dd>' + d10(m.createdAt) + '</dd></div>';
-    })
+    .then(function (m) { profile = m; renderView(); })
     .catch(function () {});
+
+  document.getElementById("btnEdit").addEventListener("click", function () { if (profile) renderEdit(); });
+  document.getElementById("btnCancelEdit").addEventListener("click", function () { renderView(); });
+
+  document.getElementById("btnSaveProfile").addEventListener("click", function () {
+    var name = document.getElementById("edName").value.trim();
+    var email = document.getElementById("edEmail").value.trim();
+    var phone = document.getElementById("edPhone").value.trim();
+    var birth = document.getElementById("edBirth").value;
+    if (!name) { alert("이름을 입력해주세요."); return; }
+    if (phone.replace(/\D/g, "").length < 10) { alert("휴대전화번호를 정확히 입력해주세요."); return; }
+    if (!birth) { alert("생년월일을 입력해주세요."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    jsonFetch("/api/my/profile", "PATCH", { name: name, email: email, phone: phone, birthDate: birth })
+      .then(function (m) { profile = m; renderView(); alert("회원 정보가 수정되었습니다."); })
+      .catch(function (e) { if (e.message !== "login") alert(e.message); })
+      .finally(function () { btn.disabled = false; });
+  });
+
+  // 비밀번호 변경
+  document.getElementById("btnPwToggle").addEventListener("click", function () {
+    document.getElementById("mpPw").classList.toggle("open");
+  });
+  document.getElementById("btnSavePw").addEventListener("click", function () {
+    var cur = document.getElementById("pwCurrent").value;
+    var n1 = document.getElementById("pwNew").value;
+    var n2 = document.getElementById("pwNew2").value;
+    if (!cur) { alert("현재 비밀번호를 입력해주세요."); return; }
+    if (n1.length < 8) { alert("새 비밀번호는 8자 이상으로 입력해주세요."); return; }
+    if (n1 !== n2) { alert("새 비밀번호가 일치하지 않습니다."); return; }
+
+    var btn = this;
+    btn.disabled = true;
+    jsonFetch("/api/my/password", "PATCH", { currentPassword: cur, newPassword: n1 })
+      .then(function () {
+        alert("비밀번호가 변경되었습니다.");
+        ["pwCurrent", "pwNew", "pwNew2"].forEach(function (id) { document.getElementById(id).value = ""; });
+        document.getElementById("mpPw").classList.remove("open");
+      })
+      .catch(function (e) { if (e.message !== "login") alert(e.message); })
+      .finally(function () { btn.disabled = false; });
+  });
 
   // 신청내역
   function loadApps() {

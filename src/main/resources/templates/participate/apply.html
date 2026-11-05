@@ -112,6 +112,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     emptyEl.style.display = "none";
 
+    // 목록이 길어지면(특히 모바일) 스크롤 감지가 동작하지 않아 카드가 투명하게 남으므로, 그릴 때 바로 표시 상태로 전환
+    listEl.classList.add("in-view");
+
     listEl.innerHTML = recruitments.map(function (r) {
       return (
         '<a href="javascript:" class="ta-card" onclick="goDetail(' + r.id + ')">' +

@@ -22,6 +22,7 @@ public class RecruitmentDto {
         private String participationCost;
         private String recruitmentFieldIds;
         private String detailContent;
+        private Boolean visible; // 홈페이지 노출 ON/OFF (보내지 않으면 기존 값 유지)
     }
 
     @Getter @Builder
@@ -41,6 +42,13 @@ public class RecruitmentDto {
         private String participationCost;
         private String recruitmentFieldIds;
         private String detailContent;
+        private Boolean visible; // 홈페이지 노출 ON/OFF
         private LocalDateTime createdAt;
+    }
+
+    /** 노출 ON/OFF만 바꾸는 요청 */
+    @Getter @Setter
+    public static class VisibleRequest {
+        private Boolean visible;
     }
 }

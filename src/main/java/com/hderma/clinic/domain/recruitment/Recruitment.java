@@ -38,6 +38,12 @@ public class Recruitment {
     private String participationCost;
     private String recruitmentFieldIds; // 쉼표 구분
 
+    // 홈페이지 노출 ON/OFF (OFF면 메인/참여신청 목록에서 숨김, 관리자 화면에는 계속 표시)
+    // 기존 공고는 컬럼이 새로 생길 때 모두 ON(1)으로 시작
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "TINYINT(1) NOT NULL DEFAULT 1")
+    private Boolean visible = true;
+
     @Column(columnDefinition = "LONGTEXT")
     private String detailContent;
 
